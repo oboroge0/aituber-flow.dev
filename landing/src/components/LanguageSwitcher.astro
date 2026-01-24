@@ -1,0 +1,81 @@
+---
+import { languages } from '../i18n/translations'
+
+interface Props {
+  currentLang: 'ja' | 'en'
+}
+
+const { currentLang } = Astro.props
+---
+
+<div class="lang-switcher">
+  <button
+    class:list={['lang-btn', { active: currentLang === 'ja' }]}
+    data-lang="ja"
+    aria-label="日本語に切り替え"
+  >
+    日本語
+  </button>
+  <span class="lang-divider">/</span>
+  <button
+    class:list={['lang-btn', { active: currentLang === 'en' }]}
+    data-lang="en"
+    aria-label="Switch to English"
+  >
+    EN
+  </button>
+</div>
+
+<script>
+  document.querySelectorAll('.lang-btn').forEach(btn => {
+    btn.addEventListener('click', () => {
+      const lang = btn.getAttribute('data-lang')
+      const currentPath = window.location.pathname
+
+      if (lang === 'ja') {
+        // Japanese is default, go to root
+        if (currentPath.startsWith('/en')) {
+          window.location.href = currentPath.replace('/en', '') || '/'
+        }
+      } else if (lang === 'en') {
+        // English version
+        if (!currentPath.startsWith('/en')) {
+          window.location.href = '/en' + (currentPath === '/' ? '' : currentPath)
+        }
+      }
+    })
+  })
+</script>
+
+<style>
+  .lang-switcher {
+    display: flex;
+    align-items: center;
+    gap: 0.5rem;
+  }
+
+  .lang-btn {
+    background: transparent;
+    border: none;
+    color: rgba(0, 0, 0, 0.5);
+    font-size: 0.875rem;
+    cursor: pointer;
+    padding: 0.25rem 0.5rem;
+    border-radius: 0.25rem;
+    transition: all 0.2s ease;
+  }
+
+  .lang-btn:hover {
+    color: rgba(0, 0, 0, 0.9);
+    background: rgba(0, 0, 0, 0.05);
+  }
+
+  .lang-btn.active {
+    color: rgba(0, 0, 0, 0.9);
+    font-weight: 600;
+  }
+
+  .lang-divider {
+    color: rgba(0, 0, 0, 0.2);
+  }
+</style>

@@ -1,0 +1,596 @@
+---
+// Mouse follower with glow effect, draggable nodes, and connecting lines
+---
+
+<div class="mouse-follower-container">
+  <!-- Cursor glow -->
+  <div class="cursor-glow" id="cursorGlow"></div>
+
+  <!-- SVG for connecting lines - fixed position to match getBoundingClientRect -->
+  <svg class="node-connections" id="nodeConnections" preserveAspectRatio="none">
+    <defs>
+      <linearGradient id="lineGradient1" x1="0%" y1="0%" x2="100%" y2="0%">
+        <stop offset="0%" stop-color="#10b981" stop-opacity="0.6"/>
+        <stop offset="100%" stop-color="#8b5cf6" stop-opacity="0.6"/>
+      </linearGradient>
+      <linearGradient id="lineGradient2" x1="0%" y1="0%" x2="100%" y2="0%">
+        <stop offset="0%" stop-color="#8b5cf6" stop-opacity="0.6"/>
+        <stop offset="100%" stop-color="#06b6d4" stop-opacity="0.6"/>
+      </linearGradient>
+      <linearGradient id="lineGradient3" x1="0%" y1="0%" x2="100%" y2="0%">
+        <stop offset="0%" stop-color="#06b6d4" stop-opacity="0.6"/>
+        <stop offset="100%" stop-color="#f59e0b" stop-opacity="0.6"/>
+      </linearGradient>
+      <linearGradient id="lineGradient4" x1="0%" y1="0%" x2="100%" y2="0%">
+        <stop offset="0%" stop-color="#f59e0b" stop-opacity="0.6"/>
+        <stop offset="100%" stop-color="#ec4899" stop-opacity="0.6"/>
+      </linearGradient>
+      <linearGradient id="lineGradient5" x1="0%" y1="0%" x2="100%" y2="0%">
+        <stop offset="0%" stop-color="#ec4899" stop-opacity="0.6"/>
+        <stop offset="100%" stop-color="#ef4444" stop-opacity="0.6"/>
+      </linearGradient>
+      <filter id="glow" x="-50%" y="-50%" width="200%" height="200%">
+        <feGaussianBlur stdDeviation="2" result="coloredBlur"/>
+        <feMerge>
+          <feMergeNode in="coloredBlur"/>
+          <feMergeNode in="SourceGraphic"/>
+        </feMerge>
+      </filter>
+    </defs>
+    <g id="connectionLines" filter="url(#glow)"></g>
+  </svg>
+
+  <!-- Floating nodes that react to mouse -->
+  <div class="floating-nodes" id="floatingNodes">
+    <!-- Input Node -->
+    <div class="float-node node-input" id="nodeInput" data-speed="0.02" data-float-offset="0" draggable="false">
+      <div class="node-header">
+        <div class="node-icon">💬</div>
+        <div class="node-title">Chat Input</div>
+        <div class="node-status active"></div>
+      </div>
+      <div class="node-content">
+        <div class="node-field">
+          <span class="field-label">Source</span>
+          <span class="field-value">YouTube Chat</span>
+        </div>
+      </div>
+      <div class="node-handle node-handle-out"></div>
+    </div>
+
+    <!-- LLM Node -->
+    <div class="float-node node-llm" id="nodeLlm" data-speed="0.03" data-float-offset="1" draggable="false">
+      <div class="node-header">
+        <div class="node-icon">🤖</div>
+        <div class="node-title">LLM</div>
+        <div class="node-status active"></div>
+      </div>
+      <div class="node-content">
+        <div class="node-field">
+          <span class="field-label">Model</span>
+          <span class="field-value">GPT-4o</span>
+        </div>
+      </div>
+      <div class="node-handle node-handle-in"></div>
+      <div class="node-handle node-handle-out"></div>
+    </div>
+
+    <!-- Control Node -->
+    <div class="float-node node-control" id="nodeControl" data-speed="0.035" data-float-offset="2" draggable="false">
+      <div class="node-header">
+        <div class="node-icon">⚡</div>
+        <div class="node-title">Filter</div>
+        <div class="node-status"></div>
+      </div>
+      <div class="node-content">
+        <div class="node-field">
+          <span class="field-label">Rules</span>
+          <span class="field-value">3 active</span>
+        </div>
+      </div>
+      <div class="node-handle node-handle-in"></div>
+      <div class="node-handle node-handle-out"></div>
+    </div>
+
+    <!-- TTS Node -->
+    <div class="float-node node-tts" id="nodeTts" data-speed="0.025" data-float-offset="3" draggable="false">
+      <div class="node-header">
+        <div class="node-icon">🔊</div>
+        <div class="node-title">VOICEVOX</div>
+        <div class="node-status active"></div>
+      </div>
+      <div class="node-content">
+        <div class="node-field">
+          <span class="field-label">Voice</span>
+          <span class="field-value">ずんだもん</span>
+        </div>
+      </div>
+      <div class="node-handle node-handle-in"></div>
+      <div class="node-handle node-handle-out"></div>
+    </div>
+
+    <!-- Avatar Node -->
+    <div class="float-node node-avatar" id="nodeAvatar" data-speed="0.015" data-float-offset="4" draggable="false">
+      <div class="node-header">
+        <div class="node-icon">👤</div>
+        <div class="node-title">Avatar</div>
+        <div class="node-status active"></div>
+      </div>
+      <div class="node-content">
+        <div class="node-field">
+          <span class="field-label">Model</span>
+          <span class="field-value">VRM</span>
+        </div>
+      </div>
+      <div class="node-handle node-handle-in"></div>
+      <div class="node-handle node-handle-out"></div>
+    </div>
+
+    <!-- OBS Node -->
+    <div class="float-node node-obs" id="nodeObs" data-speed="0.02" data-float-offset="5" draggable="false">
+      <div class="node-header">
+        <div class="node-icon">🎬</div>
+        <div class="node-title">OBS</div>
+        <div class="node-status"></div>
+      </div>
+      <div class="node-content">
+        <div class="node-field">
+          <span class="field-label">Scene</span>
+          <span class="field-value">Main</span>
+        </div>
+      </div>
+      <div class="node-handle node-handle-in"></div>
+    </div>
+  </div>
+</div>
+
+<script>
+  const cursorGlow = document.getElementById('cursorGlow');
+  const floatingNodes = document.querySelectorAll('.float-node');
+  const connectionLines = document.getElementById('connectionLines');
+  const svg = document.getElementById('nodeConnections');
+
+  let mouseX = window.innerWidth / 2;
+  let mouseY = window.innerHeight / 2;
+  let currentX = mouseX;
+  let currentY = mouseY;
+  let time = 0;
+
+  // Store path elements for reuse
+  const pathElements: SVGPathElement[] = [];
+
+  // Node drag state
+  interface DragState {
+    isDragging: boolean;
+    node: HTMLElement | null;
+    offsetX: number;
+    offsetY: number;
+    startX: number;
+    startY: number;
+  }
+
+  const dragState: DragState = {
+    isDragging: false,
+    node: null,
+    offsetX: 0,
+    offsetY: 0,
+    startX: 0,
+    startY: 0
+  };
+
+  // Store original positions for snap-back
+  const originalPositions = new Map<HTMLElement, { x: number; y: number }>();
+
+  // Node connections
+  const connections = [
+    ['nodeInput', 'nodeLlm', 'lineGradient1'],
+    ['nodeLlm', 'nodeControl', 'lineGradient2'],
+    ['nodeControl', 'nodeTts', 'lineGradient3'],
+    ['nodeTts', 'nodeAvatar', 'lineGradient4'],
+    ['nodeAvatar', 'nodeObs', 'lineGradient5'],
+  ];
+
+  // Track mouse position
+  document.addEventListener('mousemove', (e) => {
+    mouseX = e.clientX;
+    mouseY = e.clientY;
+
+    if (dragState.isDragging && dragState.node) {
+      const newX = e.clientX - dragState.offsetX;
+      const newY = e.clientY - dragState.offsetY;
+      dragState.node.style.left = newX + 'px';
+      dragState.node.style.top = newY + 'px';
+      dragState.node.style.right = 'auto';
+      dragState.node.style.bottom = 'auto';
+    }
+  });
+
+  // Get node center position (using handle positions for more accurate lines)
+  function getNodeHandlePosition(node: Element, isOutput: boolean) {
+    const rect = node.getBoundingClientRect();
+    const handleOffset = 5; // handle is 5px outside
+    return {
+      x: isOutput ? rect.right + handleOffset : rect.left - handleOffset,
+      y: rect.top + rect.height / 2
+    };
+  }
+
+  // Create bezier curve path
+  function createCurvePath(x1: number, y1: number, x2: number, y2: number) {
+    const dx = x2 - x1;
+    const cx1 = x1 + dx * 0.5;
+    const cy1 = y1;
+    const cx2 = x2 - dx * 0.5;
+    const cy2 = y2;
+    return `M ${x1} ${y1} C ${cx1} ${cy1}, ${cx2} ${cy2}, ${x2} ${y2}`;
+  }
+
+  // Initialize path elements
+  function initConnections() {
+    if (!connectionLines) return;
+
+    connections.forEach(([fromId, toId, gradientId], index) => {
+      const path = document.createElementNS('http://www.w3.org/2000/svg', 'path');
+      path.setAttribute('stroke', `url(#${gradientId})`);
+      path.setAttribute('stroke-width', '2.5');
+      path.setAttribute('fill', 'none');
+      path.setAttribute('stroke-dasharray', '8 4');
+      path.setAttribute('class', 'connection-line');
+      path.style.animationDelay = `${index * 0.1}s`;
+      connectionLines.appendChild(path);
+      pathElements.push(path);
+    });
+  }
+
+  // Update connection lines
+  function updateConnections() {
+    if (!svg) return;
+
+    svg.setAttribute('viewBox', `0 0 ${window.innerWidth} ${window.innerHeight}`);
+
+    connections.forEach(([fromId, toId], index) => {
+      const fromNode = document.getElementById(fromId);
+      const toNode = document.getElementById(toId);
+      const path = pathElements[index];
+
+      if (!fromNode || !toNode || !path) return;
+
+      // Get handle positions instead of node centers
+      const from = getNodeHandlePosition(fromNode, true);
+      const to = getNodeHandlePosition(toNode, false);
+
+      path.setAttribute('d', createCurvePath(from.x, from.y, to.x, to.y));
+    });
+  }
+
+  // Animate node back to original position
+  function snapBackNode(node: HTMLElement) {
+    const original = originalPositions.get(node);
+    if (!original) return;
+
+    node.style.transition = 'left 0.5s cubic-bezier(0.34, 1.56, 0.64, 1), top 0.5s cubic-bezier(0.34, 1.56, 0.64, 1), right 0.5s cubic-bezier(0.34, 1.56, 0.64, 1), bottom 0.5s cubic-bezier(0.34, 1.56, 0.64, 1)';
+
+    // Reset to original CSS positioning
+    node.style.left = '';
+    node.style.top = '';
+    node.style.right = '';
+    node.style.bottom = '';
+
+    setTimeout(() => {
+      node.style.transition = '';
+    }, 500);
+  }
+
+  // Setup drag handlers
+  floatingNodes.forEach((node) => {
+    const el = node as HTMLElement;
+
+    // Store original position
+    const rect = el.getBoundingClientRect();
+    originalPositions.set(el, { x: rect.left, y: rect.top });
+
+    el.addEventListener('mousedown', (e) => {
+      e.preventDefault();
+      const rect = el.getBoundingClientRect();
+
+      dragState.isDragging = true;
+      dragState.node = el;
+      dragState.offsetX = e.clientX - rect.left;
+      dragState.offsetY = e.clientY - rect.top;
+      dragState.startX = rect.left;
+      dragState.startY = rect.top;
+
+      el.classList.add('dragging');
+      el.style.zIndex = '100';
+    });
+  });
+
+  document.addEventListener('mouseup', () => {
+    if (dragState.isDragging && dragState.node) {
+      dragState.node.classList.remove('dragging');
+      dragState.node.style.zIndex = '';
+
+      // Snap back to original position
+      snapBackNode(dragState.node);
+    }
+
+    dragState.isDragging = false;
+    dragState.node = null;
+  });
+
+  // Animation loop
+  function animate() {
+    time += 0.02;
+
+    currentX += (mouseX - currentX) * 0.1;
+    currentY += (mouseY - currentY) * 0.1;
+
+    if (cursorGlow) {
+      cursorGlow.style.left = currentX + 'px';
+      cursorGlow.style.top = currentY + 'px';
+    }
+
+    // Only apply parallax and floating to nodes that aren't being dragged
+    floatingNodes.forEach((node) => {
+      const el = node as HTMLElement;
+      if (el === dragState.node) return;
+
+      const speed = parseFloat(el.dataset.speed || '0.02');
+      const floatOffset = parseFloat(el.dataset.floatOffset || '0');
+      const centerX = window.innerWidth / 2;
+      const centerY = window.innerHeight / 2;
+
+      // Mouse parallax
+      const moveX = (mouseX - centerX) * speed;
+      const moveY = (mouseY - centerY) * speed;
+
+      // Gentle floating animation with offset for each node
+      const floatY = Math.sin(time + floatOffset * 1.2) * 6;
+      const floatX = Math.cos(time * 0.7 + floatOffset) * 3;
+
+      el.style.transform = `translate(${moveX + floatX}px, ${moveY + floatY}px)`;
+    });
+
+    updateConnections();
+    requestAnimationFrame(animate);
+  }
+
+  // Initialize
+  initConnections();
+  setTimeout(() => {
+    animate();
+  }, 100);
+
+  window.addEventListener('resize', updateConnections);
+</script>
+
+<style>
+  .mouse-follower-container {
+    position: absolute;
+    inset: 0;
+    overflow: hidden;
+    pointer-events: none;
+  }
+
+  /* Fixed position so it matches getBoundingClientRect viewport coordinates */
+  .node-connections {
+    position: fixed;
+    top: 0;
+    left: 0;
+    width: 100vw;
+    height: 100vh;
+    z-index: 1;
+    pointer-events: none;
+  }
+
+  .connection-line {
+    opacity: 0;
+    animation: lineAppear 0.8s ease-out forwards, lineDash 15s linear infinite;
+  }
+
+  @keyframes lineAppear {
+    from { opacity: 0; stroke-dashoffset: 100; }
+    to { opacity: 1; stroke-dashoffset: 0; }
+  }
+
+  @keyframes lineDash {
+    from { stroke-dashoffset: 0; }
+    to { stroke-dashoffset: -48; }
+  }
+
+  .cursor-glow {
+    position: fixed;
+    width: 400px;
+    height: 400px;
+    border-radius: 50%;
+    background: radial-gradient(
+      circle,
+      rgba(139, 92, 246, 0.08) 0%,
+      rgba(139, 92, 246, 0.02) 40%,
+      transparent 70%
+    );
+    transform: translate(-50%, -50%);
+    pointer-events: none;
+    z-index: 0;
+  }
+
+  .floating-nodes {
+    position: absolute;
+    inset: 0;
+    z-index: 2;
+  }
+
+  /* Node styles - light theme */
+  .float-node {
+    position: absolute;
+    width: 160px;
+    background: rgba(255, 255, 255, 0.95);
+    backdrop-filter: blur(12px);
+    border: 1px solid rgba(0, 0, 0, 0.08);
+    border-radius: 12px;
+    transition: box-shadow 0.2s ease, border-color 0.2s ease;
+    pointer-events: auto;
+    cursor: grab;
+    opacity: 0;
+    animation: nodeAppear 0.6s ease-out forwards;
+    overflow: hidden;
+    box-shadow: 0 4px 20px rgba(0, 0, 0, 0.08);
+  }
+
+  .float-node:hover {
+    border-color: rgba(0, 0, 0, 0.15);
+    box-shadow: 0 12px 40px rgba(0, 0, 0, 0.12);
+  }
+
+  .float-node.dragging {
+    cursor: grabbing;
+    transform: scale(1.05) !important;
+    box-shadow: 0 20px 60px rgba(0, 0, 0, 0.15);
+    z-index: 100;
+  }
+
+  .node-header {
+    display: flex;
+    align-items: center;
+    gap: 8px;
+    padding: 10px 12px;
+    border-bottom: 1px solid rgba(0, 0, 0, 0.05);
+  }
+
+  .node-icon {
+    font-size: 1.1rem;
+  }
+
+  .node-title {
+    flex: 1;
+    font-size: 0.8rem;
+    font-weight: 600;
+    color: rgba(0, 0, 0, 0.85);
+    white-space: nowrap;
+  }
+
+  .node-status {
+    width: 8px;
+    height: 8px;
+    border-radius: 50%;
+    background: rgba(0, 0, 0, 0.1);
+  }
+
+  .node-status.active {
+    background: #10b981;
+    box-shadow: 0 0 8px rgba(16, 185, 129, 0.6);
+  }
+
+  .node-content {
+    padding: 10px 12px;
+  }
+
+  .node-field {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+  }
+
+  .field-label {
+    font-size: 0.65rem;
+    color: rgba(0, 0, 0, 0.4);
+    text-transform: uppercase;
+    letter-spacing: 0.5px;
+  }
+
+  .field-value {
+    font-size: 0.7rem;
+    color: rgba(0, 0, 0, 0.7);
+    font-weight: 500;
+  }
+
+  /* Connection handles */
+  .node-handle {
+    position: absolute;
+    width: 10px;
+    height: 10px;
+    border-radius: 50%;
+    background: rgba(255, 255, 255, 0.9);
+    border: 2px solid rgba(0, 0, 0, 0.3);
+  }
+
+  .node-handle-in {
+    left: -5px;
+    top: 50%;
+    transform: translateY(-50%);
+  }
+
+  .node-handle-out {
+    right: -5px;
+    top: 50%;
+    transform: translateY(-50%);
+  }
+
+  /* Node accent colors */
+  .node-input {
+    top: 10%;
+    left: 5%;
+    border-top: 3px solid #10b981;
+    animation-delay: 0.1s;
+  }
+  .node-input .node-handle { background: #10b981; border-color: #10b981; }
+
+  .node-llm {
+    top: 15%;
+    right: 8%;
+    border-top: 3px solid #8b5cf6;
+    animation-delay: 0.2s;
+  }
+  .node-llm .node-handle { background: #8b5cf6; border-color: #8b5cf6; }
+
+  .node-control {
+    top: 40%;
+    left: 3%;
+    border-top: 3px solid #06b6d4;
+    animation-delay: 0.3s;
+  }
+  .node-control .node-handle { background: #06b6d4; border-color: #06b6d4; }
+
+  .node-tts {
+    bottom: 28%;
+    left: 5%;
+    border-top: 3px solid #f59e0b;
+    animation-delay: 0.4s;
+  }
+  .node-tts .node-handle { background: #f59e0b; border-color: #f59e0b; }
+
+  .node-avatar {
+    bottom: 18%;
+    right: 8%;
+    border-top: 3px solid #ec4899;
+    animation-delay: 0.5s;
+  }
+  .node-avatar .node-handle { background: #ec4899; border-color: #ec4899; }
+
+  .node-obs {
+    top: 38%;
+    right: 5%;
+    border-top: 3px solid #ef4444;
+    animation-delay: 0.6s;
+  }
+  .node-obs .node-handle { background: #ef4444; border-color: #ef4444; }
+
+  @keyframes nodeAppear {
+    from {
+      opacity: 0;
+      transform: translateY(30px) scale(0.9);
+    }
+    to {
+      opacity: 1;
+      transform: translateY(0) scale(1);
+    }
+  }
+
+  @media (max-width: 768px) {
+    .float-node,
+    .cursor-glow,
+    .node-connections {
+      display: none;
+    }
+  }
+</style>
