@@ -1,14 +1,6 @@
 # Cloudflare Pages routing for AITuberFlow Demo
+# Serve demo page for all workflow IDs (no redirects, direct serve)
 
-# Exact demo routes - serve static HTML (must come before wildcards)
-/editor/demo/*  /editor/demo/index.html  200
-/editor/demo    /editor/demo/index.html  200
-/preview/demo/* /preview/demo/index.html  200
-/preview/demo   /preview/demo/index.html  200
-/overlay/demo/* /overlay/demo/index.html  200
-/overlay/demo   /overlay/demo/index.html  200
-
-# Redirect any other workflow ID to demo
-/editor/:id     /editor/demo/  302
-/preview/:id    /preview/demo/  302
-/overlay/:id    /overlay/demo/  302
+/editor/*   /editor/demo/index.html   200
+/preview/*  /preview/demo/index.html  200
+/overlay/*  /overlay/demo/index.html  200
