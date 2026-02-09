@@ -1,6 +1,7 @@
-# Cloudflare Pages routing for AITuberFlow Demo
-# Serve demo page for all workflow IDs (no redirects, direct serve)
+# Cloudflare Pages SPA routing for AITuberFlow Demo
+# Rewrite dynamic IDs to the SPA shell pages (copied by post-build script)
+# Target paths are outside /editor/* to avoid infinite loop detection
 
-/editor/*   /editor/demo/index.html   200
-/preview/*  /preview/demo/index.html  200
-/overlay/*  /overlay/demo/index.html  200
+/editor/*    /_spa/editor.html   200
+/preview/*   /_spa/preview.html  200
+/overlay/*   /_spa/overlay.html  200
