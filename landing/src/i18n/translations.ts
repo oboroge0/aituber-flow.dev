@@ -73,7 +73,7 @@ export const translations = {
     'community.contribute.description': '新機能の提案やバグ修正を歓迎します',
 
     // Footer
-    'footer.copyright': '© 2025 AITuberFlow. MITライセンス',
+    'footer.copyright': '© 2026 AITuberFlow. MITライセンス',
   },
   en: {
     // Navigation
@@ -142,7 +142,7 @@ export const translations = {
     'community.contribute.description': 'Feature proposals and bug fixes welcome',
 
     // Footer
-    'footer.copyright': '© 2025 AITuberFlow. MIT License',
+    'footer.copyright': '© 2026 AITuberFlow. MIT License',
   },
 } as const
 

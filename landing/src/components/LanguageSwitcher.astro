@@ -33,12 +33,10 @@ const { currentLang } = Astro.props
       const currentPath = window.location.pathname
 
       if (lang === 'ja') {
-        // Japanese is default, go to root
         if (currentPath.startsWith('/en')) {
           window.location.href = currentPath.replace('/en', '') || '/'
         }
       } else if (lang === 'en') {
-        // English version
         if (!currentPath.startsWith('/en')) {
           window.location.href = '/en' + (currentPath === '/' ? '' : currentPath)
         }
@@ -57,7 +55,7 @@ const { currentLang } = Astro.props
   .lang-btn {
     background: transparent;
     border: none;
-    color: rgba(0, 0, 0, 0.5);
+    color: rgba(255, 255, 255, 0.4);
     font-size: 0.875rem;
     cursor: pointer;
     padding: 0.25rem 0.5rem;
@@ -66,16 +64,16 @@ const { currentLang } = Astro.props
   }
 
   .lang-btn:hover {
-    color: rgba(0, 0, 0, 0.9);
-    background: rgba(0, 0, 0, 0.05);
+    color: rgba(255, 255, 255, 0.9);
+    background: rgba(255, 255, 255, 0.05);
   }
 
   .lang-btn.active {
-    color: rgba(0, 0, 0, 0.9);
+    color: rgba(255, 255, 255, 0.9);
     font-weight: 600;
   }
 
   .lang-divider {
-    color: rgba(0, 0, 0, 0.2);
+    color: rgba(255, 255, 255, 0.15);
   }
 </style>

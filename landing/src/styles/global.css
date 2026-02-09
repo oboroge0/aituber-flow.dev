@@ -11,31 +11,26 @@ html {
 
 /* Selection */
 ::selection {
-  background-color: rgb(139 92 246 / 0.2);
+  background-color: rgb(139 92 246 / 0.3);
+  color: white;
 }
 
-/* Card hover effect */
-.card-hover {
-  transition: transform 0.2s ease, box-shadow 0.2s ease;
-}
-
-.card-hover:hover {
-  transform: translateY(-2px);
-  box-shadow: 0 8px 30px rgb(0 0 0 / 0.08);
-}
-
-/* Hero gradient background - light theme */
+/* Hero gradient background - dark theme with neon hints */
 .hero-gradient {
-  background: linear-gradient(
-    135deg,
-    #f8fafc 0%,
-    #f1f5f9 25%,
-    #e2e8f0 50%,
-    #f5f3ff 75%,
-    #fdf4ff 100%
+  background: radial-gradient(
+    ellipse 80% 60% at 50% 40%,
+    rgba(139, 92, 246, 0.12) 0%,
+    rgba(6, 182, 212, 0.06) 30%,
+    rgba(7, 7, 14, 0) 70%
   );
-  background-size: 400% 400%;
-  animation: gradient-shift 20s ease infinite;
+}
+
+/* Grid pattern overlay */
+.hero-grid {
+  background-image:
+    linear-gradient(rgba(255, 255, 255, 0.02) 1px, transparent 1px),
+    linear-gradient(90deg, rgba(255, 255, 255, 0.02) 1px, transparent 1px);
+  background-size: 60px 60px;
 }
 
 /* Noise texture overlay */
@@ -95,7 +90,7 @@ html {
     transform: scale(1);
   }
   50% {
-    opacity: 0.6;
+    opacity: 0.5;
     transform: scale(1.05);
   }
 }
@@ -132,6 +127,37 @@ html {
   animation: spin-slow 3s linear infinite;
 }
 
+/* Glow text effect */
+.glow-text {
+  text-shadow: 0 0 40px rgba(139, 92, 246, 0.3), 0 0 80px rgba(139, 92, 246, 0.1);
+}
+
+/* Neon border card */
+.neon-card {
+  position: relative;
+  background: rgba(255, 255, 255, 0.03);
+  border: 1px solid rgba(255, 255, 255, 0.06);
+}
+
+.neon-card::before {
+  content: '';
+  position: absolute;
+  inset: -1px;
+  border-radius: inherit;
+  padding: 1px;
+  background: linear-gradient(135deg, rgba(139, 92, 246, 0), rgba(139, 92, 246, 0.1), rgba(6, 182, 212, 0));
+  -webkit-mask: linear-gradient(#fff 0 0) content-box, linear-gradient(#fff 0 0);
+  -webkit-mask-composite: xor;
+  mask-composite: exclude;
+  opacity: 0;
+  transition: opacity 0.3s ease;
+  pointer-events: none;
+}
+
+.neon-card:hover::before {
+  opacity: 1;
+}
+
 /* FAQ accordion */
 details summary::-webkit-details-marker {
   display: none;
@@ -146,6 +172,12 @@ details summary {
 }
 
 .faq-item[open] > div {
-  background: rgb(250 250 250);
+  background: rgba(255, 255, 255, 0.02);
   border-radius: 0 0 1rem 1rem;
+}
+
+/* Section divider gradient line */
+.section-divider {
+  height: 1px;
+  background: linear-gradient(90deg, transparent, rgba(139, 92, 246, 0.3), rgba(6, 182, 212, 0.3), transparent);
 }

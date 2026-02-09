@@ -6,28 +6,28 @@
   <!-- Cursor glow -->
   <div class="cursor-glow" id="cursorGlow"></div>
 
-  <!-- SVG for connecting lines - fixed position to match getBoundingClientRect -->
+  <!-- SVG for connecting lines -->
   <svg class="node-connections" id="nodeConnections" preserveAspectRatio="none">
     <defs>
       <linearGradient id="lineGradient1" x1="0%" y1="0%" x2="100%" y2="0%">
-        <stop offset="0%" stop-color="#10b981" stop-opacity="0.6"/>
-        <stop offset="100%" stop-color="#8b5cf6" stop-opacity="0.6"/>
+        <stop offset="0%" stop-color="#10b981" stop-opacity="0.5"/>
+        <stop offset="100%" stop-color="#8b5cf6" stop-opacity="0.5"/>
       </linearGradient>
       <linearGradient id="lineGradient2" x1="0%" y1="0%" x2="100%" y2="0%">
-        <stop offset="0%" stop-color="#8b5cf6" stop-opacity="0.6"/>
-        <stop offset="100%" stop-color="#06b6d4" stop-opacity="0.6"/>
+        <stop offset="0%" stop-color="#8b5cf6" stop-opacity="0.5"/>
+        <stop offset="100%" stop-color="#06b6d4" stop-opacity="0.5"/>
       </linearGradient>
       <linearGradient id="lineGradient3" x1="0%" y1="0%" x2="100%" y2="0%">
-        <stop offset="0%" stop-color="#06b6d4" stop-opacity="0.6"/>
-        <stop offset="100%" stop-color="#f59e0b" stop-opacity="0.6"/>
+        <stop offset="0%" stop-color="#06b6d4" stop-opacity="0.5"/>
+        <stop offset="100%" stop-color="#f59e0b" stop-opacity="0.5"/>
       </linearGradient>
       <linearGradient id="lineGradient4" x1="0%" y1="0%" x2="100%" y2="0%">
-        <stop offset="0%" stop-color="#f59e0b" stop-opacity="0.6"/>
-        <stop offset="100%" stop-color="#ec4899" stop-opacity="0.6"/>
+        <stop offset="0%" stop-color="#f59e0b" stop-opacity="0.5"/>
+        <stop offset="100%" stop-color="#ec4899" stop-opacity="0.5"/>
       </linearGradient>
       <linearGradient id="lineGradient5" x1="0%" y1="0%" x2="100%" y2="0%">
-        <stop offset="0%" stop-color="#ec4899" stop-opacity="0.6"/>
-        <stop offset="100%" stop-color="#ef4444" stop-opacity="0.6"/>
+        <stop offset="0%" stop-color="#ec4899" stop-opacity="0.5"/>
+        <stop offset="100%" stop-color="#ef4444" stop-opacity="0.5"/>
       </linearGradient>
       <filter id="glow" x="-50%" y="-50%" width="200%" height="200%">
         <feGaussianBlur stdDeviation="2" result="coloredBlur"/>
@@ -40,105 +40,41 @@
     <g id="connectionLines" filter="url(#glow)"></g>
   </svg>
 
-  <!-- Floating nodes that react to mouse -->
+  <!-- Floating nodes -->
   <div class="floating-nodes" id="floatingNodes">
-    <!-- Input Node -->
     <div class="float-node node-input" id="nodeInput" data-speed="0.02" data-float-offset="0" draggable="false">
-      <div class="node-header">
-        <div class="node-icon">💬</div>
-        <div class="node-title">Chat Input</div>
-        <div class="node-status active"></div>
-      </div>
-      <div class="node-content">
-        <div class="node-field">
-          <span class="field-label">Source</span>
-          <span class="field-value">YouTube Chat</span>
-        </div>
-      </div>
+      <div class="node-header"><div class="node-icon">💬</div><div class="node-title">Chat Input</div><div class="node-status active"></div></div>
+      <div class="node-content"><div class="node-field"><span class="field-label">Source</span><span class="field-value">YouTube Chat</span></div></div>
       <div class="node-handle node-handle-out"></div>
     </div>
 
-    <!-- LLM Node -->
     <div class="float-node node-llm" id="nodeLlm" data-speed="0.03" data-float-offset="1" draggable="false">
-      <div class="node-header">
-        <div class="node-icon">🤖</div>
-        <div class="node-title">LLM</div>
-        <div class="node-status active"></div>
-      </div>
-      <div class="node-content">
-        <div class="node-field">
-          <span class="field-label">Model</span>
-          <span class="field-value">GPT-4o</span>
-        </div>
-      </div>
-      <div class="node-handle node-handle-in"></div>
-      <div class="node-handle node-handle-out"></div>
+      <div class="node-header"><div class="node-icon">🤖</div><div class="node-title">LLM</div><div class="node-status active"></div></div>
+      <div class="node-content"><div class="node-field"><span class="field-label">Model</span><span class="field-value">GPT-4o</span></div></div>
+      <div class="node-handle node-handle-in"></div><div class="node-handle node-handle-out"></div>
     </div>
 
-    <!-- Control Node -->
     <div class="float-node node-control" id="nodeControl" data-speed="0.035" data-float-offset="2" draggable="false">
-      <div class="node-header">
-        <div class="node-icon">⚡</div>
-        <div class="node-title">Filter</div>
-        <div class="node-status"></div>
-      </div>
-      <div class="node-content">
-        <div class="node-field">
-          <span class="field-label">Rules</span>
-          <span class="field-value">3 active</span>
-        </div>
-      </div>
-      <div class="node-handle node-handle-in"></div>
-      <div class="node-handle node-handle-out"></div>
+      <div class="node-header"><div class="node-icon">⚡</div><div class="node-title">Filter</div><div class="node-status"></div></div>
+      <div class="node-content"><div class="node-field"><span class="field-label">Rules</span><span class="field-value">3 active</span></div></div>
+      <div class="node-handle node-handle-in"></div><div class="node-handle node-handle-out"></div>
     </div>
 
-    <!-- TTS Node -->
     <div class="float-node node-tts" id="nodeTts" data-speed="0.025" data-float-offset="3" draggable="false">
-      <div class="node-header">
-        <div class="node-icon">🔊</div>
-        <div class="node-title">VOICEVOX</div>
-        <div class="node-status active"></div>
-      </div>
-      <div class="node-content">
-        <div class="node-field">
-          <span class="field-label">Voice</span>
-          <span class="field-value">ずんだもん</span>
-        </div>
-      </div>
-      <div class="node-handle node-handle-in"></div>
-      <div class="node-handle node-handle-out"></div>
+      <div class="node-header"><div class="node-icon">🔊</div><div class="node-title">VOICEVOX</div><div class="node-status active"></div></div>
+      <div class="node-content"><div class="node-field"><span class="field-label">Voice</span><span class="field-value">ずんだもん</span></div></div>
+      <div class="node-handle node-handle-in"></div><div class="node-handle node-handle-out"></div>
     </div>
 
-    <!-- Avatar Node -->
     <div class="float-node node-avatar" id="nodeAvatar" data-speed="0.015" data-float-offset="4" draggable="false">
-      <div class="node-header">
-        <div class="node-icon">👤</div>
-        <div class="node-title">Avatar</div>
-        <div class="node-status active"></div>
-      </div>
-      <div class="node-content">
-        <div class="node-field">
-          <span class="field-label">Model</span>
-          <span class="field-value">VRM</span>
-        </div>
-      </div>
-      <div class="node-handle node-handle-in"></div>
-      <div class="node-handle node-handle-out"></div>
+      <div class="node-header"><div class="node-icon">👤</div><div class="node-title">Avatar</div><div class="node-status active"></div></div>
+      <div class="node-content"><div class="node-field"><span class="field-label">Model</span><span class="field-value">VRM</span></div></div>
+      <div class="node-handle node-handle-in"></div><div class="node-handle node-handle-out"></div>
     </div>
 
-    <!-- OBS Node -->
     <div class="float-node node-obs" id="nodeObs" data-speed="0.02" data-float-offset="5" draggable="false">
-      <div class="node-header">
-        <div class="node-icon">🎬</div>
-        <div class="node-title">OBS</div>
-        <div class="node-status"></div>
-      </div>
-      <div class="node-content">
-        <div class="node-field">
-          <span class="field-label">Scene</span>
-          <span class="field-value">Main</span>
-        </div>
-      </div>
+      <div class="node-header"><div class="node-icon">🎬</div><div class="node-title">OBS</div><div class="node-status"></div></div>
+      <div class="node-content"><div class="node-field"><span class="field-label">Scene</span><span class="field-value">Main</span></div></div>
       <div class="node-handle node-handle-in"></div>
     </div>
   </div>
@@ -156,10 +92,8 @@
   let currentY = mouseY;
   let time = 0;
 
-  // Store path elements for reuse
   const pathElements: SVGPathElement[] = [];
 
-  // Node drag state
   interface DragState {
     isDragging: boolean;
     node: HTMLElement | null;
@@ -178,10 +112,8 @@
     startY: 0
   };
 
-  // Store original positions for snap-back
   const originalPositions = new Map<HTMLElement, { x: number; y: number }>();
 
-  // Node connections
   const connections = [
     ['nodeInput', 'nodeLlm', 'lineGradient1'],
     ['nodeLlm', 'nodeControl', 'lineGradient2'],
@@ -190,7 +122,6 @@
     ['nodeAvatar', 'nodeObs', 'lineGradient5'],
   ];
 
-  // Track mouse position
   document.addEventListener('mousemove', (e) => {
     mouseX = e.clientX;
     mouseY = e.clientY;
@@ -205,17 +136,15 @@
     }
   });
 
-  // Get node center position (using handle positions for more accurate lines)
   function getNodeHandlePosition(node: Element, isOutput: boolean) {
     const rect = node.getBoundingClientRect();
-    const handleOffset = 5; // handle is 5px outside
+    const handleOffset = 5;
     return {
       x: isOutput ? rect.right + handleOffset : rect.left - handleOffset,
       y: rect.top + rect.height / 2
     };
   }
 
-  // Create bezier curve path
   function createCurvePath(x1: number, y1: number, x2: number, y2: number) {
     const dx = x2 - x1;
     const cx1 = x1 + dx * 0.5;
@@ -225,14 +154,12 @@
     return `M ${x1} ${y1} C ${cx1} ${cy1}, ${cx2} ${cy2}, ${x2} ${y2}`;
   }
 
-  // Initialize path elements
   function initConnections() {
     if (!connectionLines) return;
-
     connections.forEach(([fromId, toId, gradientId], index) => {
       const path = document.createElementNS('http://www.w3.org/2000/svg', 'path');
       path.setAttribute('stroke', `url(#${gradientId})`);
-      path.setAttribute('stroke-width', '2.5');
+      path.setAttribute('stroke-width', '2');
       path.setAttribute('fill', 'none');
       path.setAttribute('stroke-dasharray', '8 4');
       path.setAttribute('class', 'connection-line');
@@ -242,64 +169,45 @@
     });
   }
 
-  // Update connection lines
   function updateConnections() {
     if (!svg) return;
-
     svg.setAttribute('viewBox', `0 0 ${window.innerWidth} ${window.innerHeight}`);
-
     connections.forEach(([fromId, toId], index) => {
       const fromNode = document.getElementById(fromId);
       const toNode = document.getElementById(toId);
       const path = pathElements[index];
-
       if (!fromNode || !toNode || !path) return;
-
-      // Get handle positions instead of node centers
       const from = getNodeHandlePosition(fromNode, true);
       const to = getNodeHandlePosition(toNode, false);
-
       path.setAttribute('d', createCurvePath(from.x, from.y, to.x, to.y));
     });
   }
 
-  // Animate node back to original position
   function snapBackNode(node: HTMLElement) {
     const original = originalPositions.get(node);
     if (!original) return;
-
     node.style.transition = 'left 0.5s cubic-bezier(0.34, 1.56, 0.64, 1), top 0.5s cubic-bezier(0.34, 1.56, 0.64, 1), right 0.5s cubic-bezier(0.34, 1.56, 0.64, 1), bottom 0.5s cubic-bezier(0.34, 1.56, 0.64, 1)';
-
-    // Reset to original CSS positioning
     node.style.left = '';
     node.style.top = '';
     node.style.right = '';
     node.style.bottom = '';
-
-    setTimeout(() => {
-      node.style.transition = '';
-    }, 500);
+    setTimeout(() => { node.style.transition = ''; }, 500);
   }
 
-  // Setup drag handlers
   floatingNodes.forEach((node) => {
     const el = node as HTMLElement;
-
-    // Store original position
     const rect = el.getBoundingClientRect();
     originalPositions.set(el, { x: rect.left, y: rect.top });
 
     el.addEventListener('mousedown', (e) => {
       e.preventDefault();
       const rect = el.getBoundingClientRect();
-
       dragState.isDragging = true;
       dragState.node = el;
       dragState.offsetX = e.clientX - rect.left;
       dragState.offsetY = e.clientY - rect.top;
       dragState.startX = rect.left;
       dragState.startY = rect.top;
-
       el.classList.add('dragging');
       el.style.zIndex = '100';
     });
@@ -309,19 +217,14 @@
     if (dragState.isDragging && dragState.node) {
       dragState.node.classList.remove('dragging');
       dragState.node.style.zIndex = '';
-
-      // Snap back to original position
       snapBackNode(dragState.node);
     }
-
     dragState.isDragging = false;
     dragState.node = null;
   });
 
-  // Animation loop
   function animate() {
     time += 0.02;
-
     currentX += (mouseX - currentX) * 0.1;
     currentY += (mouseY - currentY) * 0.1;
 
@@ -330,24 +233,17 @@
       cursorGlow.style.top = currentY + 'px';
     }
 
-    // Only apply parallax and floating to nodes that aren't being dragged
     floatingNodes.forEach((node) => {
       const el = node as HTMLElement;
       if (el === dragState.node) return;
-
       const speed = parseFloat(el.dataset.speed || '0.02');
       const floatOffset = parseFloat(el.dataset.floatOffset || '0');
       const centerX = window.innerWidth / 2;
       const centerY = window.innerHeight / 2;
-
-      // Mouse parallax
       const moveX = (mouseX - centerX) * speed;
       const moveY = (mouseY - centerY) * speed;
-
-      // Gentle floating animation with offset for each node
       const floatY = Math.sin(time + floatOffset * 1.2) * 6;
       const floatX = Math.cos(time * 0.7 + floatOffset) * 3;
-
       el.style.transform = `translate(${moveX + floatX}px, ${moveY + floatY}px)`;
     });
 
@@ -355,12 +251,8 @@
     requestAnimationFrame(animate);
   }
 
-  // Initialize
   initConnections();
-  setTimeout(() => {
-    animate();
-  }, 100);
-
+  setTimeout(() => { animate(); }, 100);
   window.addEventListener('resize', updateConnections);
 </script>
 
@@ -372,7 +264,6 @@
     pointer-events: none;
   }
 
-  /* Fixed position so it matches getBoundingClientRect viewport coordinates */
   .node-connections {
     position: fixed;
     top: 0;
@@ -400,13 +291,13 @@
 
   .cursor-glow {
     position: fixed;
-    width: 400px;
-    height: 400px;
+    width: 500px;
+    height: 500px;
     border-radius: 50%;
     background: radial-gradient(
       circle,
-      rgba(139, 92, 246, 0.08) 0%,
-      rgba(139, 92, 246, 0.02) 40%,
+      rgba(139, 92, 246, 0.06) 0%,
+      rgba(6, 182, 212, 0.02) 40%,
       transparent 70%
     );
     transform: translate(-50%, -50%);
@@ -420,13 +311,13 @@
     z-index: 2;
   }
 
-  /* Node styles - light theme */
+  /* Node styles - dark theme */
   .float-node {
     position: absolute;
     width: 160px;
-    background: rgba(255, 255, 255, 0.95);
-    backdrop-filter: blur(12px);
-    border: 1px solid rgba(0, 0, 0, 0.08);
+    background: rgba(255, 255, 255, 0.03);
+    backdrop-filter: blur(16px);
+    border: 1px solid rgba(255, 255, 255, 0.06);
     border-radius: 12px;
     transition: box-shadow 0.2s ease, border-color 0.2s ease;
     pointer-events: auto;
@@ -434,18 +325,18 @@
     opacity: 0;
     animation: nodeAppear 0.6s ease-out forwards;
     overflow: hidden;
-    box-shadow: 0 4px 20px rgba(0, 0, 0, 0.08);
+    box-shadow: 0 4px 24px rgba(0, 0, 0, 0.3);
   }
 
   .float-node:hover {
-    border-color: rgba(0, 0, 0, 0.15);
-    box-shadow: 0 12px 40px rgba(0, 0, 0, 0.12);
+    border-color: rgba(255, 255, 255, 0.12);
+    box-shadow: 0 12px 40px rgba(0, 0, 0, 0.4);
   }
 
   .float-node.dragging {
     cursor: grabbing;
     transform: scale(1.05) !important;
-    box-shadow: 0 20px 60px rgba(0, 0, 0, 0.15);
+    box-shadow: 0 20px 60px rgba(0, 0, 0, 0.5);
     z-index: 100;
   }
 
@@ -454,18 +345,16 @@
     align-items: center;
     gap: 8px;
     padding: 10px 12px;
-    border-bottom: 1px solid rgba(0, 0, 0, 0.05);
+    border-bottom: 1px solid rgba(255, 255, 255, 0.04);
   }
 
-  .node-icon {
-    font-size: 1.1rem;
-  }
+  .node-icon { font-size: 1.1rem; }
 
   .node-title {
     flex: 1;
     font-size: 0.8rem;
     font-weight: 600;
-    color: rgba(0, 0, 0, 0.85);
+    color: rgba(255, 255, 255, 0.85);
     white-space: nowrap;
   }
 
@@ -473,7 +362,7 @@
     width: 8px;
     height: 8px;
     border-radius: 50%;
-    background: rgba(0, 0, 0, 0.1);
+    background: rgba(255, 255, 255, 0.1);
   }
 
   .node-status.active {
@@ -481,9 +370,7 @@
     box-shadow: 0 0 8px rgba(16, 185, 129, 0.6);
   }
 
-  .node-content {
-    padding: 10px 12px;
-  }
+  .node-content { padding: 10px 12px; }
 
   .node-field {
     display: flex;
@@ -493,25 +380,24 @@
 
   .field-label {
     font-size: 0.65rem;
-    color: rgba(0, 0, 0, 0.4);
+    color: rgba(255, 255, 255, 0.3);
     text-transform: uppercase;
     letter-spacing: 0.5px;
   }
 
   .field-value {
     font-size: 0.7rem;
-    color: rgba(0, 0, 0, 0.7);
+    color: rgba(255, 255, 255, 0.6);
     font-weight: 500;
   }
 
-  /* Connection handles */
   .node-handle {
     position: absolute;
     width: 10px;
     height: 10px;
     border-radius: 50%;
-    background: rgba(255, 255, 255, 0.9);
-    border: 2px solid rgba(0, 0, 0, 0.3);
+    background: rgba(255, 255, 255, 0.1);
+    border: 2px solid rgba(255, 255, 255, 0.3);
   }
 
   .node-handle-in {

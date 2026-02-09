@@ -12,18 +12,24 @@ const lang = 'en'
   <ScrollAnimations />
 
   <!-- Header -->
-  <header class="fixed top-0 left-0 right-0 z-50 bg-white/80 backdrop-blur-md border-b border-zinc-200">
+  <header class="fixed top-0 left-0 right-0 z-50 bg-[#07070e]/80 backdrop-blur-xl border-b border-white/[0.06]">
     <nav class="max-w-6xl mx-auto px-6 h-16 flex items-center justify-between">
-      <a href="/en" class="text-xl font-semibold tracking-tight text-zinc-900">
-        AITuberFlow
+      <a href="/en" class="text-xl font-bold tracking-tight text-white">
+        <span class="bg-gradient-to-r from-violet-400 to-cyan-400 bg-clip-text text-transparent">AITuber</span>Flow
       </a>
-      <div class="flex items-center gap-6">
+      <div class="flex items-center gap-4">
         <LanguageSwitcher currentLang={lang} />
-        <a href="https://github.com/oboroge0/AITuberFlow" target="_blank" rel="noopener" class="text-zinc-500 hover:text-zinc-900 transition-colors hidden sm:block">
-          {t(lang, 'nav.github')}
+        <a href="https://discord.gg/RazS3JsTmn" target="_blank" rel="noopener" class="hidden sm:flex items-center gap-2 text-sm text-zinc-400 hover:text-white transition-colors">
+          <svg class="w-4 h-4" fill="currentColor" viewBox="0 0 24 24">
+            <path d="M20.317 4.37a19.791 19.791 0 00-4.885-1.515.074.074 0 00-.079.037c-.21.375-.444.864-.608 1.25a18.27 18.27 0 00-5.487 0 12.64 12.64 0 00-.617-1.25.077.077 0 00-.079-.037A19.736 19.736 0 003.677 4.37a.07.07 0 00-.032.027C.533 9.046-.32 13.58.099 18.057a.082.082 0 00.031.057 19.9 19.9 0 005.993 3.03.078.078 0 00.084-.028c.462-.63.874-1.295 1.226-1.994a.076.076 0 00-.041-.106 13.107 13.107 0 01-1.872-.892.077.077 0 01-.008-.128 10.2 10.2 0 00.372-.292.074.074 0 01.077-.01c3.928 1.793 8.18 1.793 12.062 0a.074.074 0 01.078.01c.12.098.246.198.373.292a.077.077 0 01-.006.127 12.299 12.299 0 01-1.873.892.077.077 0 00-.041.107c.36.698.772 1.362 1.225 1.993a.076.076 0 00.084.028 19.839 19.839 0 006.002-3.03.077.077 0 00.032-.054c.5-5.177-.838-9.674-3.549-13.66a.061.061 0 00-.031-.03zM8.02 15.33c-1.183 0-2.157-1.085-2.157-2.419 0-1.333.956-2.419 2.157-2.419 1.21 0 2.176 1.096 2.157 2.42 0 1.333-.956 2.418-2.157 2.418zm7.975 0c-1.183 0-2.157-1.085-2.157-2.419 0-1.333.955-2.419 2.157-2.419 1.21 0 2.176 1.096 2.157 2.42 0 1.333-.946 2.418-2.157 2.418z"/>
+          </svg>
+          Discord
         </a>
-        <a href="https://app.aituber-flow.dev" class="px-4 py-2 bg-zinc-900 text-white rounded-lg font-medium text-sm hover:bg-zinc-800 transition-colors">
-          {t(lang, 'nav.tryDemo')}
+        <a href="https://github.com/and-and-and/AITuberFlow" target="_blank" rel="noopener" class="flex items-center gap-2 px-4 py-2 bg-white/[0.06] hover:bg-white/[0.1] border border-white/[0.08] text-white rounded-lg font-medium text-sm transition-all">
+          <svg class="w-4 h-4" fill="currentColor" viewBox="0 0 24 24">
+            <path fill-rule="evenodd" d="M12 2C6.477 2 2 6.484 2 12.017c0 4.425 2.865 8.18 6.839 9.504.5.092.682-.217.682-.483 0-.237-.008-.868-.013-1.703-2.782.605-3.369-1.343-3.369-1.343-.454-1.158-1.11-1.466-1.11-1.466-.908-.62.069-.608.069-.608 1.003.07 1.531 1.032 1.531 1.032.892 1.53 2.341 1.088 2.91.832.092-.647.35-1.088.636-1.338-2.22-.253-4.555-1.113-4.555-4.951 0-1.093.39-1.988 1.029-2.688-.103-.253-.446-1.272.098-2.65 0 0 .84-.27 2.75 1.026A9.564 9.564 0 0112 6.844c.85.004 1.705.115 2.504.337 1.909-1.296 2.747-1.027 2.747-1.027.546 1.379.202 2.398.1 2.651.64.7 1.028 1.595 1.028 2.688 0 3.848-2.339 4.695-4.566 4.943.359.309.678.92.678 1.855 0 1.338-.012 2.419-.012 2.747 0 .268.18.58.688.482A10.019 10.019 0 0022 12.017C22 6.484 17.522 2 12 2z" clip-rule="evenodd"/>
+          </svg>
+          {t(lang, 'nav.github')}
         </a>
       </div>
     </nav>
@@ -32,106 +38,89 @@ const lang = 'en'
   <main>
     <!-- Hero -->
     <section class="min-h-screen flex items-center justify-center px-6 pt-16 relative overflow-hidden">
-      <!-- Gradient Background -->
       <div class="absolute inset-0 hero-gradient"></div>
-      <div class="absolute inset-0 hero-noise opacity-10"></div>
+      <div class="absolute inset-0 hero-grid"></div>
+      <div class="absolute inset-0 hero-noise opacity-[0.03]"></div>
 
-      <!-- Mouse Follower with floating nodes -->
       <MouseFollower />
 
-      <!-- Floating Orbs - softer for light theme -->
-      <div class="absolute top-1/4 left-1/4 w-96 h-96 bg-violet-400/15 rounded-full blur-3xl animate-float"></div>
-      <div class="absolute bottom-1/4 right-1/4 w-80 h-80 bg-cyan-400/10 rounded-full blur-3xl animate-float-delayed"></div>
+      <div class="absolute top-1/4 left-1/4 w-[500px] h-[500px] bg-violet-500/[0.07] rounded-full blur-[120px] animate-float"></div>
+      <div class="absolute bottom-1/3 right-1/4 w-[400px] h-[400px] bg-cyan-500/[0.05] rounded-full blur-[100px] animate-float-delayed"></div>
+      <div class="absolute top-1/2 right-1/3 w-[300px] h-[300px] bg-pink-500/[0.04] rounded-full blur-[80px] animate-float"></div>
 
       <div class="hero-content max-w-3xl mx-auto text-center relative z-10">
-        <div class="inline-flex items-center gap-2 px-4 py-2 rounded-full bg-white/60 backdrop-blur-sm border border-zinc-200 shadow-sm mb-6 animate-fade-in-up" style="animation-delay: 0.1s;">
-          <span class="w-2 h-2 rounded-full bg-emerald-500 animate-pulse"></span>
-          <span class="text-sm font-medium text-zinc-700">{t(lang, 'hero.badge')}</span>
+        <div class="inline-flex items-center gap-2 px-4 py-2 rounded-full bg-white/[0.04] backdrop-blur-sm border border-white/[0.08] mb-8 animate-fade-in-up" style="animation-delay: 0.1s;">
+          <span class="w-2 h-2 rounded-full bg-emerald-400 animate-pulse shadow-[0_0_8px_rgba(52,211,153,0.6)]"></span>
+          <span class="text-sm font-medium text-zinc-300">{t(lang, 'hero.badge')}</span>
         </div>
-        <h1 class="text-4xl sm:text-5xl md:text-7xl font-bold tracking-tight leading-tight mb-6 text-zinc-900 animate-fade-in-up" style="animation-delay: 0.2s;">
-          {t(lang, 'hero.title1')}
-          <span class="block">{t(lang, 'hero.title2')}</span>
+        <h1 class="text-5xl sm:text-6xl md:text-8xl font-black tracking-tight leading-[1.1] mb-8 animate-fade-in-up" style="animation-delay: 0.2s;">
+          <span class="text-white">{t(lang, 'hero.title1')}</span>
+          <span class="block bg-gradient-to-r from-violet-400 via-pink-400 to-cyan-400 bg-clip-text text-transparent glow-text">{t(lang, 'hero.title2')}</span>
         </h1>
-        <p class="text-lg sm:text-xl text-zinc-600 mb-10 max-w-xl mx-auto leading-relaxed animate-fade-in-up" style="animation-delay: 0.3s;">
+        <p class="text-lg sm:text-xl text-zinc-400 mb-12 max-w-xl mx-auto leading-relaxed animate-fade-in-up" style="animation-delay: 0.3s;">
           {t(lang, 'hero.description')}
         </p>
         <div class="flex flex-col sm:flex-row gap-4 justify-center animate-fade-in-up" style="animation-delay: 0.4s;">
-          <a href="https://app.aituber-flow.dev" class="group px-8 py-3.5 bg-zinc-900 text-white rounded-xl font-semibold hover:bg-zinc-800 transition-all shadow-lg shadow-zinc-900/20 hover:shadow-xl hover:shadow-zinc-900/30 hover:-translate-y-0.5">
-            {t(lang, 'hero.cta')}
-            <span class="inline-block ml-2 group-hover:translate-x-1 transition-transform">→</span>
-          </a>
-          <a href="https://github.com/oboroge0/AITuberFlow" target="_blank" rel="noopener" class="px-8 py-3.5 bg-white/80 backdrop-blur-sm border border-zinc-200 text-zinc-700 rounded-xl font-semibold hover:bg-white hover:border-zinc-300 transition-all shadow-sm">
+          <a href="https://github.com/and-and-and/AITuberFlow" target="_blank" rel="noopener" class="group inline-flex items-center gap-2 px-8 py-4 bg-gradient-to-r from-violet-600 to-violet-500 text-white rounded-xl font-semibold hover:from-violet-500 hover:to-violet-400 transition-all shadow-lg shadow-violet-500/25 hover:shadow-xl hover:shadow-violet-500/30 hover:-translate-y-0.5">
+            <svg class="w-5 h-5" fill="currentColor" viewBox="0 0 24 24">
+              <path fill-rule="evenodd" d="M12 2C6.477 2 2 6.484 2 12.017c0 4.425 2.865 8.18 6.839 9.504.5.092.682-.217.682-.483 0-.237-.008-.868-.013-1.703-2.782.605-3.369-1.343-3.369-1.343-.454-1.158-1.11-1.466-1.11-1.466-.908-.62.069-.608.069-.608 1.003.07 1.531 1.032 1.531 1.032.892 1.53 2.341 1.088 2.91.832.092-.647.35-1.088.636-1.338-2.22-.253-4.555-1.113-4.555-4.951 0-1.093.39-1.988 1.029-2.688-.103-.253-.446-1.272.098-2.65 0 0 .84-.27 2.75 1.026A9.564 9.564 0 0112 6.844c.85.004 1.705.115 2.504.337 1.909-1.296 2.747-1.027 2.747-1.027.546 1.379.202 2.398.1 2.651.64.7 1.028 1.595 1.028 2.688 0 3.848-2.339 4.695-4.566 4.943.359.309.678.92.678 1.855 0 1.338-.012 2.419-.012 2.747 0 .268.18.58.688.482A10.019 10.019 0 0022 12.017C22 6.484 17.522 2 12 2z" clip-rule="evenodd"/>
+            </svg>
             {t(lang, 'hero.github')}
+            <span class="inline-block group-hover:translate-x-1 transition-transform">&rarr;</span>
+          </a>
+          <a href="https://discord.gg/RazS3JsTmn" target="_blank" rel="noopener" class="inline-flex items-center gap-2 px-8 py-4 bg-white/[0.04] backdrop-blur-sm border border-white/[0.08] text-zinc-200 rounded-xl font-semibold hover:bg-white/[0.08] hover:border-white/[0.12] transition-all hover:-translate-y-0.5">
+            <svg class="w-5 h-5 text-indigo-400" fill="currentColor" viewBox="0 0 24 24">
+              <path d="M20.317 4.37a19.791 19.791 0 00-4.885-1.515.074.074 0 00-.079.037c-.21.375-.444.864-.608 1.25a18.27 18.27 0 00-5.487 0 12.64 12.64 0 00-.617-1.25.077.077 0 00-.079-.037A19.736 19.736 0 003.677 4.37a.07.07 0 00-.032.027C.533 9.046-.32 13.58.099 18.057a.082.082 0 00.031.057 19.9 19.9 0 005.993 3.03.078.078 0 00.084-.028c.462-.63.874-1.295 1.226-1.994a.076.076 0 00-.041-.106 13.107 13.107 0 01-1.872-.892.077.077 0 01-.008-.128 10.2 10.2 0 00.372-.292.074.074 0 01.077-.01c3.928 1.793 8.18 1.793 12.062 0a.074.074 0 01.078.01c.12.098.246.198.373.292a.077.077 0 01-.006.127 12.299 12.299 0 01-1.873.892.077.077 0 00-.041.107c.36.698.772 1.362 1.225 1.993a.076.076 0 00.084.028 19.839 19.839 0 006.002-3.03.077.077 0 00.032-.054c.5-5.177-.838-9.674-3.549-13.66a.061.061 0 00-.031-.03zM8.02 15.33c-1.183 0-2.157-1.085-2.157-2.419 0-1.333.956-2.419 2.157-2.419 1.21 0 2.176 1.096 2.157 2.42 0 1.333-.956 2.418-2.157 2.418zm7.975 0c-1.183 0-2.157-1.085-2.157-2.419 0-1.333.955-2.419 2.157-2.419 1.21 0 2.176 1.096 2.157 2.42 0 1.333-.946 2.418-2.157 2.418z"/>
+            </svg>
+            Discord
           </a>
         </div>
       </div>
 
-      <!-- Scroll indicator -->
       <div class="absolute bottom-8 left-1/2 -translate-x-1/2 animate-bounce">
-        <svg class="w-6 h-6 text-zinc-400" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+        <svg class="w-6 h-6 text-zinc-600" fill="none" stroke="currentColor" viewBox="0 0 24 24">
           <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 14l-7 7m0 0l-7-7m7 7V3"/>
         </svg>
       </div>
     </section>
 
     <!-- Features -->
-    <section class="py-32 px-6 bg-zinc-50">
+    <section class="py-32 px-6 relative">
+      <div class="section-divider absolute top-0 left-0 right-0"></div>
       <div class="max-w-6xl mx-auto">
         <div class="text-center mb-16" data-animate="fade-up">
-          <h2 class="text-3xl md:text-4xl font-bold mb-4 text-zinc-900">
-            {t(lang, 'features.title')}
-          </h2>
-          <p class="text-zinc-500 text-lg max-w-xl mx-auto">
-            {t(lang, 'features.subtitle')}
-          </p>
+          <h2 class="text-3xl md:text-4xl font-bold mb-4 text-white">{t(lang, 'features.title')}</h2>
+          <p class="text-zinc-500 text-lg max-w-xl mx-auto">{t(lang, 'features.subtitle')}</p>
         </div>
-
-        <div class="grid md:grid-cols-3 gap-8" data-animate-stagger data-animate="fade-up">
-          <!-- Feature 1 -->
-          <div class="group p-6 rounded-2xl bg-white border border-zinc-200 hover:border-emerald-300 relative overflow-hidden transition-all duration-300 hover:-translate-y-1 hover:shadow-xl hover:shadow-emerald-500/10">
-            <div class="absolute inset-0 bg-gradient-to-br from-emerald-50 to-transparent opacity-0 group-hover:opacity-100 transition-opacity"></div>
+        <div class="grid md:grid-cols-3 gap-6" data-animate-stagger data-animate="fade-up">
+          <div class="group neon-card p-6 rounded-2xl relative overflow-hidden transition-all duration-300 hover:-translate-y-1 hover:shadow-xl hover:shadow-emerald-500/[0.05]">
+            <div class="absolute inset-0 bg-gradient-to-br from-emerald-500/[0.05] to-transparent opacity-0 group-hover:opacity-100 transition-opacity"></div>
             <div class="relative">
-              <div class="w-12 h-12 rounded-xl bg-emerald-100 flex items-center justify-center mb-4 group-hover:scale-110 transition-transform">
-                <svg class="w-6 h-6 text-emerald-600" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                  <path stroke-linecap="round" stroke-linejoin="round" stroke-width="1.5" d="M4 5a1 1 0 011-1h14a1 1 0 011 1v2a1 1 0 01-1 1H5a1 1 0 01-1-1V5zM4 13a1 1 0 011-1h6a1 1 0 011 1v6a1 1 0 01-1 1H5a1 1 0 01-1-1v-6zM16 13a1 1 0 011-1h2a1 1 0 011 1v6a1 1 0 01-1 1h-2a1 1 0 01-1-1v-6z"/>
-                </svg>
+              <div class="w-12 h-12 rounded-xl bg-emerald-500/10 border border-emerald-500/20 flex items-center justify-center mb-4 group-hover:scale-110 group-hover:shadow-[0_0_20px_rgba(16,185,129,0.15)] transition-all">
+                <svg class="w-6 h-6 text-emerald-400" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="1.5" d="M4 5a1 1 0 011-1h14a1 1 0 011 1v2a1 1 0 01-1 1H5a1 1 0 01-1-1V5zM4 13a1 1 0 011-1h6a1 1 0 011 1v6a1 1 0 01-1 1H5a1 1 0 01-1-1v-6zM16 13a1 1 0 011-1h2a1 1 0 011 1v6a1 1 0 01-1 1h-2a1 1 0 01-1-1v-6z"/></svg>
               </div>
-              <h3 class="text-xl font-semibold mb-2 text-zinc-900">{t(lang, 'features.workflow.title')}</h3>
-              <p class="text-zinc-500 leading-relaxed">
-                {t(lang, 'features.workflow.description')}
-              </p>
+              <h3 class="text-xl font-semibold mb-2 text-white">{t(lang, 'features.workflow.title')}</h3>
+              <p class="text-zinc-400 leading-relaxed">{t(lang, 'features.workflow.description')}</p>
             </div>
           </div>
-
-          <!-- Feature 2 -->
-          <div class="group p-6 rounded-2xl bg-white border border-zinc-200 hover:border-violet-300 relative overflow-hidden transition-all duration-300 hover:-translate-y-1 hover:shadow-xl hover:shadow-violet-500/10">
-            <div class="absolute inset-0 bg-gradient-to-br from-violet-50 to-transparent opacity-0 group-hover:opacity-100 transition-opacity"></div>
+          <div class="group neon-card p-6 rounded-2xl relative overflow-hidden transition-all duration-300 hover:-translate-y-1 hover:shadow-xl hover:shadow-violet-500/[0.05]">
+            <div class="absolute inset-0 bg-gradient-to-br from-violet-500/[0.05] to-transparent opacity-0 group-hover:opacity-100 transition-opacity"></div>
             <div class="relative">
-              <div class="w-12 h-12 rounded-xl bg-violet-100 flex items-center justify-center mb-4 group-hover:scale-110 transition-transform">
-                <svg class="w-6 h-6 text-violet-600" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                  <path stroke-linecap="round" stroke-linejoin="round" stroke-width="1.5" d="M9.75 17L9 20l-1 1h8l-1-1-.75-3M3 13h18M5 17h14a2 2 0 002-2V5a2 2 0 00-2-2H5a2 2 0 00-2 2v10a2 2 0 002 2z"/>
-                </svg>
+              <div class="w-12 h-12 rounded-xl bg-violet-500/10 border border-violet-500/20 flex items-center justify-center mb-4 group-hover:scale-110 group-hover:shadow-[0_0_20px_rgba(139,92,246,0.15)] transition-all">
+                <svg class="w-6 h-6 text-violet-400" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="1.5" d="M9.75 17L9 20l-1 1h8l-1-1-.75-3M3 13h18M5 17h14a2 2 0 002-2V5a2 2 0 00-2-2H5a2 2 0 00-2 2v10a2 2 0 002 2z"/></svg>
               </div>
-              <h3 class="text-xl font-semibold mb-2 text-zinc-900">{t(lang, 'features.platform.title')}</h3>
-              <p class="text-zinc-500 leading-relaxed">
-                {t(lang, 'features.platform.description')}
-              </p>
+              <h3 class="text-xl font-semibold mb-2 text-white">{t(lang, 'features.platform.title')}</h3>
+              <p class="text-zinc-400 leading-relaxed">{t(lang, 'features.platform.description')}</p>
             </div>
           </div>
-
-          <!-- Feature 3 -->
-          <div class="group p-6 rounded-2xl bg-white border border-zinc-200 hover:border-pink-300 relative overflow-hidden transition-all duration-300 hover:-translate-y-1 hover:shadow-xl hover:shadow-pink-500/10">
-            <div class="absolute inset-0 bg-gradient-to-br from-pink-50 to-transparent opacity-0 group-hover:opacity-100 transition-opacity"></div>
+          <div class="group neon-card p-6 rounded-2xl relative overflow-hidden transition-all duration-300 hover:-translate-y-1 hover:shadow-xl hover:shadow-pink-500/[0.05]">
+            <div class="absolute inset-0 bg-gradient-to-br from-pink-500/[0.05] to-transparent opacity-0 group-hover:opacity-100 transition-opacity"></div>
             <div class="relative">
-              <div class="w-12 h-12 rounded-xl bg-pink-100 flex items-center justify-center mb-4 group-hover:scale-110 transition-transform">
-                <svg class="w-6 h-6 text-pink-600" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                  <path stroke-linecap="round" stroke-linejoin="round" stroke-width="1.5" d="M19 11a7 7 0 01-7 7m0 0a7 7 0 01-7-7m7 7v4m0 0H8m4 0h4m-4-8a3 3 0 01-3-3V5a3 3 0 116 0v6a3 3 0 01-3 3z"/>
-                </svg>
+              <div class="w-12 h-12 rounded-xl bg-pink-500/10 border border-pink-500/20 flex items-center justify-center mb-4 group-hover:scale-110 group-hover:shadow-[0_0_20px_rgba(236,72,153,0.15)] transition-all">
+                <svg class="w-6 h-6 text-pink-400" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="1.5" d="M19 11a7 7 0 01-7 7m0 0a7 7 0 01-7-7m7 7v4m0 0H8m4 0h4m-4-8a3 3 0 01-3-3V5a3 3 0 116 0v6a3 3 0 01-3 3z"/></svg>
               </div>
-              <h3 class="text-xl font-semibold mb-2 text-zinc-900">{t(lang, 'features.avatar.title')}</h3>
-              <p class="text-zinc-500 leading-relaxed">
-                {t(lang, 'features.avatar.description')}
-              </p>
+              <h3 class="text-xl font-semibold mb-2 text-white">{t(lang, 'features.avatar.title')}</h3>
+              <p class="text-zinc-400 leading-relaxed">{t(lang, 'features.avatar.description')}</p>
             </div>
           </div>
         </div>
@@ -139,137 +128,71 @@ const lang = 'en'
     </section>
 
     <!-- How it Works -->
-    <section class="py-32 px-6 bg-white relative overflow-hidden">
-      <!-- Decorative elements -->
-      <div class="absolute top-0 left-0 w-full h-px bg-gradient-to-r from-transparent via-zinc-200 to-transparent"></div>
-      <div class="absolute bottom-0 left-0 w-full h-px bg-gradient-to-r from-transparent via-zinc-200 to-transparent"></div>
-
+    <section class="py-32 px-6 relative overflow-hidden">
+      <div class="section-divider absolute top-0 left-0 right-0"></div>
       <div class="max-w-6xl mx-auto">
         <div class="text-center mb-16" data-animate="fade-up">
-          <h2 class="text-3xl md:text-4xl font-bold mb-4 text-zinc-900">
-            {t(lang, 'howItWorks.title')}
-          </h2>
-          <p class="text-zinc-500 text-lg max-w-xl mx-auto">
-            {t(lang, 'howItWorks.subtitle')}
-          </p>
+          <h2 class="text-3xl md:text-4xl font-bold mb-4 text-white">{t(lang, 'howItWorks.title')}</h2>
+          <p class="text-zinc-500 text-lg max-w-xl mx-auto">{t(lang, 'howItWorks.subtitle')}</p>
         </div>
-
         <div class="grid md:grid-cols-3 gap-12 relative">
-          <!-- Connection line -->
-          <div class="hidden md:block absolute top-8 left-[20%] right-[20%] h-0.5 bg-gradient-to-r from-emerald-400 via-violet-400 to-pink-400 progress-line" data-animate="fade-in"></div>
-
+          <div class="hidden md:block absolute top-8 left-[20%] right-[20%] h-px bg-gradient-to-r from-emerald-500/50 via-violet-500/50 to-pink-500/50 progress-line" data-animate="fade-in"></div>
           <div class="text-center relative" data-animate="fade-up" data-delay="0">
-            <div class="w-16 h-16 rounded-full bg-gradient-to-br from-emerald-500 to-emerald-600 flex items-center justify-center mx-auto mb-6 text-2xl font-bold text-white shadow-lg shadow-emerald-500/30 relative z-10">
-              1
-            </div>
-            <h3 class="text-xl font-semibold mb-3 text-zinc-900">{t(lang, 'howItWorks.step1.title')}</h3>
-            <p class="text-zinc-500">
-              {t(lang, 'howItWorks.step1.description')}
-            </p>
+            <div class="w-16 h-16 rounded-full bg-gradient-to-br from-emerald-500 to-emerald-600 flex items-center justify-center mx-auto mb-6 text-2xl font-bold text-white shadow-lg shadow-emerald-500/30 relative z-10">1</div>
+            <h3 class="text-xl font-semibold mb-3 text-white">{t(lang, 'howItWorks.step1.title')}</h3>
+            <p class="text-zinc-400">{t(lang, 'howItWorks.step1.description')}</p>
           </div>
-
           <div class="text-center relative" data-animate="fade-up" data-delay="150">
-            <div class="w-16 h-16 rounded-full bg-gradient-to-br from-violet-500 to-violet-600 flex items-center justify-center mx-auto mb-6 text-2xl font-bold text-white shadow-lg shadow-violet-500/30 relative z-10">
-              2
-            </div>
-            <h3 class="text-xl font-semibold mb-3 text-zinc-900">{t(lang, 'howItWorks.step2.title')}</h3>
-            <p class="text-zinc-500">
-              {t(lang, 'howItWorks.step2.description')}
-            </p>
+            <div class="w-16 h-16 rounded-full bg-gradient-to-br from-violet-500 to-violet-600 flex items-center justify-center mx-auto mb-6 text-2xl font-bold text-white shadow-lg shadow-violet-500/30 relative z-10">2</div>
+            <h3 class="text-xl font-semibold mb-3 text-white">{t(lang, 'howItWorks.step2.title')}</h3>
+            <p class="text-zinc-400">{t(lang, 'howItWorks.step2.description')}</p>
           </div>
-
           <div class="text-center relative" data-animate="fade-up" data-delay="300">
-            <div class="w-16 h-16 rounded-full bg-gradient-to-br from-pink-500 to-pink-600 flex items-center justify-center mx-auto mb-6 text-2xl font-bold text-white shadow-lg shadow-pink-500/30 relative z-10">
-              3
-            </div>
-            <h3 class="text-xl font-semibold mb-3 text-zinc-900">{t(lang, 'howItWorks.step3.title')}</h3>
-            <p class="text-zinc-500">
-              {t(lang, 'howItWorks.step3.description')}
-            </p>
+            <div class="w-16 h-16 rounded-full bg-gradient-to-br from-pink-500 to-pink-600 flex items-center justify-center mx-auto mb-6 text-2xl font-bold text-white shadow-lg shadow-pink-500/30 relative z-10">3</div>
+            <h3 class="text-xl font-semibold mb-3 text-white">{t(lang, 'howItWorks.step3.title')}</h3>
+            <p class="text-zinc-400">{t(lang, 'howItWorks.step3.description')}</p>
           </div>
         </div>
       </div>
     </section>
 
     <!-- Demo -->
-    <section class="py-32 px-6 bg-zinc-50 relative overflow-hidden">
+    <section class="py-32 px-6 relative overflow-hidden">
+      <div class="section-divider absolute top-0 left-0 right-0"></div>
       <div class="max-w-6xl mx-auto">
         <div class="text-center mb-16" data-animate="fade-up">
-          <h2 class="text-3xl md:text-4xl font-bold mb-4 text-zinc-900">
-            {t(lang, 'demo.title')}
-          </h2>
-          <p class="text-zinc-500 text-lg max-w-xl mx-auto">
-            {t(lang, 'demo.subtitle')}
-          </p>
+          <h2 class="text-3xl md:text-4xl font-bold mb-4 text-white">{t(lang, 'demo.title')}</h2>
+          <p class="text-zinc-500 text-lg max-w-xl mx-auto">{t(lang, 'demo.subtitle')}</p>
         </div>
-
-        <!-- Animated Demo Flow -->
         <div class="relative max-w-4xl mx-auto" data-animate="fade-up">
           <div class="flex flex-col md:flex-row items-center justify-center gap-6 md:gap-4">
-            <!-- Step 1: Chat Input -->
-            <div class="demo-node group p-6 rounded-2xl bg-white border-2 border-emerald-200 shadow-lg relative min-w-[200px]">
-              <div class="absolute -top-3 left-4 px-2 py-0.5 bg-emerald-500 text-white text-xs rounded-full">Input</div>
+            <div class="demo-node group p-6 rounded-2xl bg-white/[0.03] border-2 border-emerald-500/20 relative min-w-[200px] hover:border-emerald-500/40 transition-colors">
+              <div class="absolute -top-3 left-4 px-2 py-0.5 bg-emerald-500 text-white text-xs rounded-full font-medium">Input</div>
               <div class="flex items-center gap-3">
-                <div class="w-10 h-10 rounded-lg bg-emerald-100 flex items-center justify-center">
-                  <svg class="w-5 h-5 text-emerald-600" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M8 12h.01M12 12h.01M16 12h.01M21 12c0 4.418-4.03 8-9 8a9.863 9.863 0 01-4.255-.949L3 20l1.395-3.72C3.512 15.042 3 13.574 3 12c0-4.418 4.03-8 9-8s9 3.582 9 8z"/>
-                  </svg>
-                </div>
-                <span class="font-medium text-zinc-700">{t(lang, 'demo.step1')}</span>
+                <div class="w-10 h-10 rounded-lg bg-emerald-500/10 flex items-center justify-center"><svg class="w-5 h-5 text-emerald-400" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M8 12h.01M12 12h.01M16 12h.01M21 12c0 4.418-4.03 8-9 8a9.863 9.863 0 01-4.255-.949L3 20l1.395-3.72C3.512 15.042 3 13.574 3 12c0-4.418 4.03-8 9-8s9 3.582 9 8z"/></svg></div>
+                <span class="font-medium text-zinc-200">{t(lang, 'demo.step1')}</span>
               </div>
-              <div class="demo-pulse absolute inset-0 rounded-2xl border-2 border-emerald-400 opacity-0 animate-demo-pulse"></div>
+              <div class="demo-pulse absolute inset-0 rounded-2xl border-2 border-emerald-400/50 opacity-0 animate-demo-pulse"></div>
             </div>
-
-            <!-- Arrow -->
-            <div class="hidden md:block">
-              <svg class="w-8 h-8 text-zinc-300 animate-flow-arrow" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M17 8l4 4m0 0l-4 4m4-4H3"/>
-              </svg>
-            </div>
-            <div class="md:hidden">
-              <svg class="w-8 h-8 text-zinc-300 rotate-90 animate-flow-arrow" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M17 8l4 4m0 0l-4 4m4-4H3"/>
-              </svg>
-            </div>
-
-            <!-- Step 2: AI Processing -->
-            <div class="demo-node group p-6 rounded-2xl bg-white border-2 border-violet-200 shadow-lg relative min-w-[200px]" style="animation-delay: 0.3s;">
-              <div class="absolute -top-3 left-4 px-2 py-0.5 bg-violet-500 text-white text-xs rounded-full">LLM</div>
+            <div class="hidden md:block"><svg class="w-8 h-8 text-zinc-600 animate-flow-arrow" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M17 8l4 4m0 0l-4 4m4-4H3"/></svg></div>
+            <div class="md:hidden"><svg class="w-8 h-8 text-zinc-600 rotate-90 animate-flow-arrow" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M17 8l4 4m0 0l-4 4m4-4H3"/></svg></div>
+            <div class="demo-node group p-6 rounded-2xl bg-white/[0.03] border-2 border-violet-500/20 relative min-w-[200px] hover:border-violet-500/40 transition-colors" style="animation-delay: 0.3s;">
+              <div class="absolute -top-3 left-4 px-2 py-0.5 bg-violet-500 text-white text-xs rounded-full font-medium">LLM</div>
               <div class="flex items-center gap-3">
-                <div class="w-10 h-10 rounded-lg bg-violet-100 flex items-center justify-center">
-                  <svg class="w-5 h-5 text-violet-600 animate-spin-slow" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9.663 17h4.673M12 3v1m6.364 1.636l-.707.707M21 12h-1M4 12H3m3.343-5.657l-.707-.707m2.828 9.9a5 5 0 117.072 0l-.548.547A3.374 3.374 0 0014 18.469V19a2 2 0 11-4 0v-.531c0-.895-.356-1.754-.988-2.386l-.548-.547z"/>
-                  </svg>
-                </div>
-                <span class="font-medium text-zinc-700">{t(lang, 'demo.step2')}</span>
+                <div class="w-10 h-10 rounded-lg bg-violet-500/10 flex items-center justify-center"><svg class="w-5 h-5 text-violet-400 animate-spin-slow" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9.663 17h4.673M12 3v1m6.364 1.636l-.707.707M21 12h-1M4 12H3m3.343-5.657l-.707-.707m2.828 9.9a5 5 0 117.072 0l-.548.547A3.374 3.374 0 0014 18.469V19a2 2 0 11-4 0v-.531c0-.895-.356-1.754-.988-2.386l-.548-.547z"/></svg></div>
+                <span class="font-medium text-zinc-200">{t(lang, 'demo.step2')}</span>
               </div>
-              <div class="demo-pulse absolute inset-0 rounded-2xl border-2 border-violet-400 opacity-0 animate-demo-pulse" style="animation-delay: 0.3s;"></div>
+              <div class="demo-pulse absolute inset-0 rounded-2xl border-2 border-violet-400/50 opacity-0 animate-demo-pulse" style="animation-delay: 0.3s;"></div>
             </div>
-
-            <!-- Arrow -->
-            <div class="hidden md:block">
-              <svg class="w-8 h-8 text-zinc-300 animate-flow-arrow" style="animation-delay: 0.6s;" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M17 8l4 4m0 0l-4 4m4-4H3"/>
-              </svg>
-            </div>
-            <div class="md:hidden">
-              <svg class="w-8 h-8 text-zinc-300 rotate-90 animate-flow-arrow" style="animation-delay: 0.6s;" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M17 8l4 4m0 0l-4 4m4-4H3"/>
-              </svg>
-            </div>
-
-            <!-- Step 3: Voice Output -->
-            <div class="demo-node group p-6 rounded-2xl bg-white border-2 border-pink-200 shadow-lg relative min-w-[200px]" style="animation-delay: 0.6s;">
-              <div class="absolute -top-3 left-4 px-2 py-0.5 bg-pink-500 text-white text-xs rounded-full">Output</div>
+            <div class="hidden md:block"><svg class="w-8 h-8 text-zinc-600 animate-flow-arrow" style="animation-delay: 0.6s;" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M17 8l4 4m0 0l-4 4m4-4H3"/></svg></div>
+            <div class="md:hidden"><svg class="w-8 h-8 text-zinc-600 rotate-90 animate-flow-arrow" style="animation-delay: 0.6s;" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M17 8l4 4m0 0l-4 4m4-4H3"/></svg></div>
+            <div class="demo-node group p-6 rounded-2xl bg-white/[0.03] border-2 border-pink-500/20 relative min-w-[200px] hover:border-pink-500/40 transition-colors" style="animation-delay: 0.6s;">
+              <div class="absolute -top-3 left-4 px-2 py-0.5 bg-pink-500 text-white text-xs rounded-full font-medium">Output</div>
               <div class="flex items-center gap-3">
-                <div class="w-10 h-10 rounded-lg bg-pink-100 flex items-center justify-center">
-                  <svg class="w-5 h-5 text-pink-600" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15.536 8.464a5 5 0 010 7.072m2.828-9.9a9 9 0 010 12.728M5.586 15H4a1 1 0 01-1-1v-4a1 1 0 011-1h1.586l4.707-4.707C10.923 3.663 12 4.109 12 5v14c0 .891-1.077 1.337-1.707.707L5.586 15z"/>
-                  </svg>
-                </div>
-                <span class="font-medium text-zinc-700">{t(lang, 'demo.step3')}</span>
+                <div class="w-10 h-10 rounded-lg bg-pink-500/10 flex items-center justify-center"><svg class="w-5 h-5 text-pink-400" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15.536 8.464a5 5 0 010 7.072m2.828-9.9a9 9 0 010 12.728M5.586 15H4a1 1 0 01-1-1v-4a1 1 0 011-1h1.586l4.707-4.707C10.923 3.663 12 4.109 12 5v14c0 .891-1.077 1.337-1.707.707L5.586 15z"/></svg></div>
+                <span class="font-medium text-zinc-200">{t(lang, 'demo.step3')}</span>
               </div>
-              <div class="demo-pulse absolute inset-0 rounded-2xl border-2 border-pink-400 opacity-0 animate-demo-pulse" style="animation-delay: 0.6s;"></div>
+              <div class="demo-pulse absolute inset-0 rounded-2xl border-2 border-pink-400/50 opacity-0 animate-demo-pulse" style="animation-delay: 0.6s;"></div>
             </div>
           </div>
         </div>
@@ -277,171 +200,98 @@ const lang = 'en'
     </section>
 
     <!-- FAQ -->
-    <section class="py-32 px-6 bg-white">
+    <section class="py-32 px-6 relative">
+      <div class="section-divider absolute top-0 left-0 right-0"></div>
       <div class="max-w-3xl mx-auto">
         <div class="text-center mb-16" data-animate="fade-up">
-          <h2 class="text-3xl md:text-4xl font-bold mb-4 text-zinc-900">
-            {t(lang, 'faq.title')}
-          </h2>
+          <h2 class="text-3xl md:text-4xl font-bold mb-4 text-white">{t(lang, 'faq.title')}</h2>
         </div>
-
         <div class="space-y-4" data-animate="fade-up">
-          <!-- FAQ Item 1 -->
-          <details class="group faq-item">
-            <summary class="flex items-center justify-between p-6 bg-zinc-50 rounded-2xl cursor-pointer hover:bg-zinc-100 transition-colors">
-              <span class="font-semibold text-zinc-900">{t(lang, 'faq.q1')}</span>
-              <svg class="w-5 h-5 text-zinc-400 group-open:rotate-180 transition-transform" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 9l-7 7-7-7"/>
-              </svg>
-            </summary>
-            <div class="px-6 pb-6 pt-2 text-zinc-600">
-              {t(lang, 'faq.a1')}
-            </div>
-          </details>
-
-          <!-- FAQ Item 2 -->
-          <details class="group faq-item">
-            <summary class="flex items-center justify-between p-6 bg-zinc-50 rounded-2xl cursor-pointer hover:bg-zinc-100 transition-colors">
-              <span class="font-semibold text-zinc-900">{t(lang, 'faq.q2')}</span>
-              <svg class="w-5 h-5 text-zinc-400 group-open:rotate-180 transition-transform" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 9l-7 7-7-7"/>
-              </svg>
-            </summary>
-            <div class="px-6 pb-6 pt-2 text-zinc-600">
-              {t(lang, 'faq.a2')}
-            </div>
-          </details>
-
-          <!-- FAQ Item 3 -->
-          <details class="group faq-item">
-            <summary class="flex items-center justify-between p-6 bg-zinc-50 rounded-2xl cursor-pointer hover:bg-zinc-100 transition-colors">
-              <span class="font-semibold text-zinc-900">{t(lang, 'faq.q3')}</span>
-              <svg class="w-5 h-5 text-zinc-400 group-open:rotate-180 transition-transform" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 9l-7 7-7-7"/>
-              </svg>
-            </summary>
-            <div class="px-6 pb-6 pt-2 text-zinc-600">
-              {t(lang, 'faq.a3')}
-            </div>
-          </details>
-
-          <!-- FAQ Item 4 -->
-          <details class="group faq-item">
-            <summary class="flex items-center justify-between p-6 bg-zinc-50 rounded-2xl cursor-pointer hover:bg-zinc-100 transition-colors">
-              <span class="font-semibold text-zinc-900">{t(lang, 'faq.q4')}</span>
-              <svg class="w-5 h-5 text-zinc-400 group-open:rotate-180 transition-transform" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 9l-7 7-7-7"/>
-              </svg>
-            </summary>
-            <div class="px-6 pb-6 pt-2 text-zinc-600">
-              {t(lang, 'faq.a4')}
-            </div>
-          </details>
+          {[1,2,3,4].map((i) => (
+            <details class="group faq-item">
+              <summary class="flex items-center justify-between p-6 bg-white/[0.03] rounded-2xl cursor-pointer hover:bg-white/[0.05] transition-colors border border-white/[0.06]">
+                <span class="font-semibold text-zinc-100">{t(lang, `faq.q${i}` as any)}</span>
+                <svg class="w-5 h-5 text-zinc-500 group-open:rotate-180 transition-transform" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 9l-7 7-7-7"/></svg>
+              </summary>
+              <div class="px-6 pb-6 pt-2 text-zinc-400">{t(lang, `faq.a${i}` as any)}</div>
+            </details>
+          ))}
         </div>
       </div>
     </section>
 
     <!-- Community -->
-    <section class="py-32 px-6 bg-zinc-50">
+    <section class="py-32 px-6 relative">
+      <div class="section-divider absolute top-0 left-0 right-0"></div>
       <div class="max-w-6xl mx-auto">
         <div class="text-center mb-16" data-animate="fade-up">
-          <h2 class="text-3xl md:text-4xl font-bold mb-4 text-zinc-900">
-            {t(lang, 'community.title')}
-          </h2>
-          <p class="text-zinc-500 text-lg max-w-xl mx-auto">
-            {t(lang, 'community.subtitle')}
-          </p>
+          <h2 class="text-3xl md:text-4xl font-bold mb-4 text-white">{t(lang, 'community.title')}</h2>
+          <p class="text-zinc-500 text-lg max-w-xl mx-auto">{t(lang, 'community.subtitle')}</p>
         </div>
-
-        <div class="grid md:grid-cols-3 gap-8" data-animate="fade-up">
-          <!-- GitHub -->
-          <a href="https://github.com/oboroge0/AITuberFlow" target="_blank" rel="noopener" class="group p-8 rounded-2xl bg-white border border-zinc-200 hover:border-zinc-900 transition-all duration-300 hover:-translate-y-1 hover:shadow-xl">
-            <div class="w-14 h-14 rounded-2xl bg-zinc-900 flex items-center justify-center mb-6 group-hover:scale-110 transition-transform">
-              <svg class="w-7 h-7 text-white" fill="currentColor" viewBox="0 0 24 24">
-                <path fill-rule="evenodd" d="M12 2C6.477 2 2 6.484 2 12.017c0 4.425 2.865 8.18 6.839 9.504.5.092.682-.217.682-.483 0-.237-.008-.868-.013-1.703-2.782.605-3.369-1.343-3.369-1.343-.454-1.158-1.11-1.466-1.11-1.466-.908-.62.069-.608.069-.608 1.003.07 1.531 1.032 1.531 1.032.892 1.53 2.341 1.088 2.91.832.092-.647.35-1.088.636-1.338-2.22-.253-4.555-1.113-4.555-4.951 0-1.093.39-1.988 1.029-2.688-.103-.253-.446-1.272.098-2.65 0 0 .84-.27 2.75 1.026A9.564 9.564 0 0112 6.844c.85.004 1.705.115 2.504.337 1.909-1.296 2.747-1.027 2.747-1.027.546 1.379.202 2.398.1 2.651.64.7 1.028 1.595 1.028 2.688 0 3.848-2.339 4.695-4.566 4.943.359.309.678.92.678 1.855 0 1.338-.012 2.419-.012 2.747 0 .268.18.58.688.482A10.019 10.019 0 0022 12.017C22 6.484 17.522 2 12 2z" clip-rule="evenodd"/>
-              </svg>
+        <div class="grid md:grid-cols-3 gap-6" data-animate="fade-up">
+          <a href="https://github.com/and-and-and/AITuberFlow" target="_blank" rel="noopener" class="group neon-card p-8 rounded-2xl transition-all duration-300 hover:-translate-y-1 hover:shadow-xl hover:shadow-white/[0.02]">
+            <div class="w-14 h-14 rounded-2xl bg-white/[0.06] border border-white/[0.1] flex items-center justify-center mb-6 group-hover:scale-110 group-hover:bg-white/[0.1] transition-all">
+              <svg class="w-7 h-7 text-white" fill="currentColor" viewBox="0 0 24 24"><path fill-rule="evenodd" d="M12 2C6.477 2 2 6.484 2 12.017c0 4.425 2.865 8.18 6.839 9.504.5.092.682-.217.682-.483 0-.237-.008-.868-.013-1.703-2.782.605-3.369-1.343-3.369-1.343-.454-1.158-1.11-1.466-1.11-1.466-.908-.62.069-.608.069-.608 1.003.07 1.531 1.032 1.531 1.032.892 1.53 2.341 1.088 2.91.832.092-.647.35-1.088.636-1.338-2.22-.253-4.555-1.113-4.555-4.951 0-1.093.39-1.988 1.029-2.688-.103-.253-.446-1.272.098-2.65 0 0 .84-.27 2.75 1.026A9.564 9.564 0 0112 6.844c.85.004 1.705.115 2.504.337 1.909-1.296 2.747-1.027 2.747-1.027.546 1.379.202 2.398.1 2.651.64.7 1.028 1.595 1.028 2.688 0 3.848-2.339 4.695-4.566 4.943.359.309.678.92.678 1.855 0 1.338-.012 2.419-.012 2.747 0 .268.18.58.688.482A10.019 10.019 0 0022 12.017C22 6.484 17.522 2 12 2z" clip-rule="evenodd"/></svg>
             </div>
-            <h3 class="text-xl font-semibold mb-2 text-zinc-900">{t(lang, 'community.github.title')}</h3>
-            <p class="text-zinc-500">{t(lang, 'community.github.description')}</p>
+            <h3 class="text-xl font-semibold mb-2 text-white">{t(lang, 'community.github.title')}</h3>
+            <p class="text-zinc-400">{t(lang, 'community.github.description')}</p>
           </a>
-
-          <!-- Discord -->
-          <a href="#" class="group p-8 rounded-2xl bg-white border border-zinc-200 hover:border-indigo-400 transition-all duration-300 hover:-translate-y-1 hover:shadow-xl hover:shadow-indigo-500/10">
-            <div class="w-14 h-14 rounded-2xl bg-indigo-500 flex items-center justify-center mb-6 group-hover:scale-110 transition-transform">
-              <svg class="w-7 h-7 text-white" fill="currentColor" viewBox="0 0 24 24">
-                <path d="M20.317 4.37a19.791 19.791 0 00-4.885-1.515.074.074 0 00-.079.037c-.21.375-.444.864-.608 1.25a18.27 18.27 0 00-5.487 0 12.64 12.64 0 00-.617-1.25.077.077 0 00-.079-.037A19.736 19.736 0 003.677 4.37a.07.07 0 00-.032.027C.533 9.046-.32 13.58.099 18.057a.082.082 0 00.031.057 19.9 19.9 0 005.993 3.03.078.078 0 00.084-.028c.462-.63.874-1.295 1.226-1.994a.076.076 0 00-.041-.106 13.107 13.107 0 01-1.872-.892.077.077 0 01-.008-.128 10.2 10.2 0 00.372-.292.074.074 0 01.077-.01c3.928 1.793 8.18 1.793 12.062 0a.074.074 0 01.078.01c.12.098.246.198.373.292a.077.077 0 01-.006.127 12.299 12.299 0 01-1.873.892.077.077 0 00-.041.107c.36.698.772 1.362 1.225 1.993a.076.076 0 00.084.028 19.839 19.839 0 006.002-3.03.077.077 0 00.032-.054c.5-5.177-.838-9.674-3.549-13.66a.061.061 0 00-.031-.03zM8.02 15.33c-1.183 0-2.157-1.085-2.157-2.419 0-1.333.956-2.419 2.157-2.419 1.21 0 2.176 1.096 2.157 2.42 0 1.333-.956 2.418-2.157 2.418zm7.975 0c-1.183 0-2.157-1.085-2.157-2.419 0-1.333.955-2.419 2.157-2.419 1.21 0 2.176 1.096 2.157 2.42 0 1.333-.946 2.418-2.157 2.418z"/>
-              </svg>
+          <a href="https://discord.gg/RazS3JsTmn" target="_blank" rel="noopener" class="group neon-card p-8 rounded-2xl transition-all duration-300 hover:-translate-y-1 hover:shadow-xl hover:shadow-indigo-500/[0.05]">
+            <div class="w-14 h-14 rounded-2xl bg-indigo-500/10 border border-indigo-500/20 flex items-center justify-center mb-6 group-hover:scale-110 group-hover:shadow-[0_0_20px_rgba(99,102,241,0.15)] transition-all">
+              <svg class="w-7 h-7 text-indigo-400" fill="currentColor" viewBox="0 0 24 24"><path d="M20.317 4.37a19.791 19.791 0 00-4.885-1.515.074.074 0 00-.079.037c-.21.375-.444.864-.608 1.25a18.27 18.27 0 00-5.487 0 12.64 12.64 0 00-.617-1.25.077.077 0 00-.079-.037A19.736 19.736 0 003.677 4.37a.07.07 0 00-.032.027C.533 9.046-.32 13.58.099 18.057a.082.082 0 00.031.057 19.9 19.9 0 005.993 3.03.078.078 0 00.084-.028c.462-.63.874-1.295 1.226-1.994a.076.076 0 00-.041-.106 13.107 13.107 0 01-1.872-.892.077.077 0 01-.008-.128 10.2 10.2 0 00.372-.292.074.074 0 01.077-.01c3.928 1.793 8.18 1.793 12.062 0a.074.074 0 01.078.01c.12.098.246.198.373.292a.077.077 0 01-.006.127 12.299 12.299 0 01-1.873.892.077.077 0 00-.041.107c.36.698.772 1.362 1.225 1.993a.076.076 0 00.084.028 19.839 19.839 0 006.002-3.03.077.077 0 00.032-.054c.5-5.177-.838-9.674-3.549-13.66a.061.061 0 00-.031-.03zM8.02 15.33c-1.183 0-2.157-1.085-2.157-2.419 0-1.333.956-2.419 2.157-2.419 1.21 0 2.176 1.096 2.157 2.42 0 1.333-.956 2.418-2.157 2.418zm7.975 0c-1.183 0-2.157-1.085-2.157-2.419 0-1.333.955-2.419 2.157-2.419 1.21 0 2.176 1.096 2.157 2.42 0 1.333-.946 2.418-2.157 2.418z"/></svg>
             </div>
-            <h3 class="text-xl font-semibold mb-2 text-zinc-900">{t(lang, 'community.discord.title')}</h3>
-            <p class="text-zinc-500">{t(lang, 'community.discord.description')}</p>
+            <h3 class="text-xl font-semibold mb-2 text-white">{t(lang, 'community.discord.title')}</h3>
+            <p class="text-zinc-400">{t(lang, 'community.discord.description')}</p>
           </a>
-
-          <!-- Contribute -->
-          <a href="https://github.com/oboroge0/AITuberFlow/blob/main/CONTRIBUTING.md" target="_blank" rel="noopener" class="group p-8 rounded-2xl bg-white border border-zinc-200 hover:border-emerald-400 transition-all duration-300 hover:-translate-y-1 hover:shadow-xl hover:shadow-emerald-500/10">
-            <div class="w-14 h-14 rounded-2xl bg-gradient-to-br from-emerald-400 to-cyan-400 flex items-center justify-center mb-6 group-hover:scale-110 transition-transform">
-              <svg class="w-7 h-7 text-white" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 6v6m0 0v6m0-6h6m-6 0H6"/>
-              </svg>
+          <a href="https://github.com/and-and-and/AITuberFlow/blob/main/CONTRIBUTING.md" target="_blank" rel="noopener" class="group neon-card p-8 rounded-2xl transition-all duration-300 hover:-translate-y-1 hover:shadow-xl hover:shadow-emerald-500/[0.05]">
+            <div class="w-14 h-14 rounded-2xl bg-gradient-to-br from-emerald-500/10 to-cyan-500/10 border border-emerald-500/20 flex items-center justify-center mb-6 group-hover:scale-110 group-hover:shadow-[0_0_20px_rgba(16,185,129,0.15)] transition-all">
+              <svg class="w-7 h-7 text-emerald-400" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 6v6m0 0v6m0-6h6m-6 0H6"/></svg>
             </div>
-            <h3 class="text-xl font-semibold mb-2 text-zinc-900">{t(lang, 'community.contribute.title')}</h3>
-            <p class="text-zinc-500">{t(lang, 'community.contribute.description')}</p>
+            <h3 class="text-xl font-semibold mb-2 text-white">{t(lang, 'community.contribute.title')}</h3>
+            <p class="text-zinc-400">{t(lang, 'community.contribute.description')}</p>
           </a>
         </div>
       </div>
     </section>
 
     <!-- CTA -->
-    <section class="py-32 px-6 bg-zinc-900 relative overflow-hidden">
-      <div class="absolute inset-0 bg-gradient-to-t from-violet-500/10 to-transparent"></div>
-
-      <!-- Animated background dots -->
+    <section class="py-32 px-6 relative overflow-hidden">
+      <div class="section-divider absolute top-0 left-0 right-0"></div>
+      <div class="absolute inset-0 bg-gradient-to-t from-violet-500/[0.05] to-transparent"></div>
       <div class="absolute inset-0 overflow-hidden">
-        <div class="absolute w-2 h-2 rounded-full bg-violet-400/30 top-1/4 left-1/4 animate-pulse"></div>
-        <div class="absolute w-2 h-2 rounded-full bg-pink-400/30 top-1/3 right-1/3 animate-pulse" style="animation-delay: 0.5s;"></div>
-        <div class="absolute w-2 h-2 rounded-full bg-cyan-400/30 bottom-1/4 left-1/3 animate-pulse" style="animation-delay: 1s;"></div>
+        <div class="absolute w-1.5 h-1.5 rounded-full bg-violet-400/20 top-1/4 left-1/4 animate-pulse"></div>
+        <div class="absolute w-1.5 h-1.5 rounded-full bg-pink-400/20 top-1/3 right-1/3 animate-pulse" style="animation-delay: 0.5s;"></div>
+        <div class="absolute w-1.5 h-1.5 rounded-full bg-cyan-400/20 bottom-1/4 left-1/3 animate-pulse" style="animation-delay: 1s;"></div>
       </div>
-
       <div class="max-w-3xl mx-auto text-center relative" data-animate="scale-up">
-        <h2 class="text-3xl md:text-4xl font-bold mb-6 text-white">
-          {t(lang, 'cta.title')}
-        </h2>
-        <p class="text-zinc-400 text-lg mb-10">
-          {t(lang, 'cta.subtitle')}
-        </p>
-        <a href="https://app.aituber-flow.dev" class="group inline-flex items-center gap-2 px-8 py-4 bg-gradient-to-r from-violet-500 to-pink-500 text-white rounded-xl font-semibold hover:opacity-90 transition-all shadow-lg shadow-violet-500/30 hover:shadow-xl hover:shadow-violet-500/40 hover:-translate-y-0.5">
-          {t(lang, 'cta.button')}
-          <svg class="w-5 h-5 group-hover:translate-x-1 transition-transform" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M17 8l4 4m0 0l-4 4m4-4H3"/>
-          </svg>
-        </a>
+        <h2 class="text-3xl md:text-4xl font-bold mb-6 text-white">{t(lang, 'cta.title')}</h2>
+        <p class="text-zinc-400 text-lg mb-10">{t(lang, 'cta.subtitle')}</p>
+        <div class="flex flex-col sm:flex-row gap-4 justify-center">
+          <a href="https://github.com/and-and-and/AITuberFlow" target="_blank" rel="noopener" class="group inline-flex items-center gap-3 px-8 py-4 bg-gradient-to-r from-violet-600 to-pink-600 text-white rounded-xl font-semibold hover:from-violet-500 hover:to-pink-500 transition-all shadow-lg shadow-violet-500/20 hover:shadow-xl hover:shadow-violet-500/30 hover:-translate-y-0.5">
+            <svg class="w-6 h-6" fill="currentColor" viewBox="0 0 24 24"><path fill-rule="evenodd" d="M12 2C6.477 2 2 6.484 2 12.017c0 4.425 2.865 8.18 6.839 9.504.5.092.682-.217.682-.483 0-.237-.008-.868-.013-1.703-2.782.605-3.369-1.343-3.369-1.343-.454-1.158-1.11-1.466-1.11-1.466-.908-.62.069-.608.069-.608 1.003.07 1.531 1.032 1.531 1.032.892 1.53 2.341 1.088 2.91.832.092-.647.35-1.088.636-1.338-2.22-.253-4.555-1.113-4.555-4.951 0-1.093.39-1.988 1.029-2.688-.103-.253-.446-1.272.098-2.65 0 0 .84-.27 2.75 1.026A9.564 9.564 0 0112 6.844c.85.004 1.705.115 2.504.337 1.909-1.296 2.747-1.027 2.747-1.027.546 1.379.202 2.398.1 2.651.64.7 1.028 1.595 1.028 2.688 0 3.848-2.339 4.695-4.566 4.943.359.309.678.92.678 1.855 0 1.338-.012 2.419-.012 2.747 0 .268.18.58.688.482A10.019 10.019 0 0022 12.017C22 6.484 17.522 2 12 2z" clip-rule="evenodd"/></svg>
+            {t(lang, 'nav.github')}
+            <svg class="w-5 h-5 group-hover:translate-x-1 transition-transform" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M17 8l4 4m0 0l-4 4m4-4H3"/></svg>
+          </a>
+          <a href="https://discord.gg/RazS3JsTmn" target="_blank" rel="noopener" class="inline-flex items-center gap-3 px-8 py-4 bg-white/[0.04] border border-white/[0.08] text-zinc-200 rounded-xl font-semibold hover:bg-white/[0.08] transition-all hover:-translate-y-0.5">
+            <svg class="w-6 h-6 text-indigo-400" fill="currentColor" viewBox="0 0 24 24"><path d="M20.317 4.37a19.791 19.791 0 00-4.885-1.515.074.074 0 00-.079.037c-.21.375-.444.864-.608 1.25a18.27 18.27 0 00-5.487 0 12.64 12.64 0 00-.617-1.25.077.077 0 00-.079-.037A19.736 19.736 0 003.677 4.37a.07.07 0 00-.032.027C.533 9.046-.32 13.58.099 18.057a.082.082 0 00.031.057 19.9 19.9 0 005.993 3.03.078.078 0 00.084-.028c.462-.63.874-1.295 1.226-1.994a.076.076 0 00-.041-.106 13.107 13.107 0 01-1.872-.892.077.077 0 01-.008-.128 10.2 10.2 0 00.372-.292.074.074 0 01.077-.01c3.928 1.793 8.18 1.793 12.062 0a.074.074 0 01.078.01c.12.098.246.198.373.292a.077.077 0 01-.006.127 12.299 12.299 0 01-1.873.892.077.077 0 00-.041.107c.36.698.772 1.362 1.225 1.993a.076.076 0 00.084.028 19.839 19.839 0 006.002-3.03.077.077 0 00.032-.054c.5-5.177-.838-9.674-3.549-13.66a.061.061 0 00-.031-.03zM8.02 15.33c-1.183 0-2.157-1.085-2.157-2.419 0-1.333.956-2.419 2.157-2.419 1.21 0 2.176 1.096 2.157 2.42 0 1.333-.956 2.418-2.157 2.418zm7.975 0c-1.183 0-2.157-1.085-2.157-2.419 0-1.333.955-2.419 2.157-2.419 1.21 0 2.176 1.096 2.157 2.42 0 1.333-.946 2.418-2.157 2.418z"/></svg>
+            Discord
+          </a>
+        </div>
       </div>
     </section>
   </main>
 
   <!-- Footer -->
-  <footer class="py-20 px-6 bg-zinc-900 relative overflow-hidden">
-    <!-- Big AITuberFlow text -->
+  <footer class="py-20 px-6 relative overflow-hidden">
+    <div class="section-divider absolute top-0 left-0 right-0"></div>
     <div class="max-w-6xl mx-auto text-center mb-16" data-animate="fade-up">
-      <h2 class="text-6xl sm:text-7xl md:text-8xl lg:text-9xl font-black tracking-tighter text-transparent bg-clip-text bg-gradient-to-r from-violet-400 via-pink-400 to-cyan-400 select-none">
-        AITuberFlow
-      </h2>
+      <h2 class="text-6xl sm:text-7xl md:text-8xl lg:text-9xl font-black tracking-tighter text-transparent bg-clip-text bg-gradient-to-r from-violet-400/80 via-pink-400/80 to-cyan-400/80 select-none">AITuberFlow</h2>
     </div>
-
-    <div class="max-w-6xl mx-auto flex flex-col md:flex-row items-center justify-between gap-6 border-t border-zinc-800 pt-8">
-      <div class="text-zinc-500 text-sm">
-        {t(lang, 'footer.copyright')}
-      </div>
+    <div class="max-w-6xl mx-auto flex flex-col md:flex-row items-center justify-between gap-6 border-t border-white/[0.06] pt-8">
+      <div class="text-zinc-600 text-sm">{t(lang, 'footer.copyright')}</div>
       <div class="flex items-center gap-6">
-        <a href="https://github.com/oboroge0/AITuberFlow" target="_blank" rel="noopener" class="text-zinc-500 hover:text-white transition-colors">
-          <svg class="w-6 h-6" fill="currentColor" viewBox="0 0 24 24">
-            <path fill-rule="evenodd" d="M12 2C6.477 2 2 6.484 2 12.017c0 4.425 2.865 8.18 6.839 9.504.5.092.682-.217.682-.483 0-.237-.008-.868-.013-1.703-2.782.605-3.369-1.343-3.369-1.343-.454-1.158-1.11-1.466-1.11-1.466-.908-.62.069-.608.069-.608 1.003.07 1.531 1.032 1.531 1.032.892 1.53 2.341 1.088 2.91.832.092-.647.35-1.088.636-1.338-2.22-.253-4.555-1.113-4.555-4.951 0-1.093.39-1.988 1.029-2.688-.103-.253-.446-1.272.098-2.65 0 0 .84-.27 2.75 1.026A9.564 9.564 0 0112 6.844c.85.004 1.705.115 2.504.337 1.909-1.296 2.747-1.027 2.747-1.027.546 1.379.202 2.398.1 2.651.64.7 1.028 1.595 1.028 2.688 0 3.848-2.339 4.695-4.566 4.943.359.309.678.92.678 1.855 0 1.338-.012 2.419-.012 2.747 0 .268.18.58.688.482A10.019 10.019 0 0022 12.017C22 6.484 17.522 2 12 2z" clip-rule="evenodd"/>
-          </svg>
-        </a>
-        <a href="#" class="text-zinc-500 hover:text-white transition-colors">
-          <svg class="w-6 h-6" fill="currentColor" viewBox="0 0 24 24">
-            <path d="M20.317 4.37a19.791 19.791 0 00-4.885-1.515.074.074 0 00-.079.037c-.21.375-.444.864-.608 1.25a18.27 18.27 0 00-5.487 0 12.64 12.64 0 00-.617-1.25.077.077 0 00-.079-.037A19.736 19.736 0 003.677 4.37a.07.07 0 00-.032.027C.533 9.046-.32 13.58.099 18.057a.082.082 0 00.031.057 19.9 19.9 0 005.993 3.03.078.078 0 00.084-.028c.462-.63.874-1.295 1.226-1.994a.076.076 0 00-.041-.106 13.107 13.107 0 01-1.872-.892.077.077 0 01-.008-.128 10.2 10.2 0 00.372-.292.074.074 0 01.077-.01c3.928 1.793 8.18 1.793 12.062 0a.074.074 0 01.078.01c.12.098.246.198.373.292a.077.077 0 01-.006.127 12.299 12.299 0 01-1.873.892.077.077 0 00-.041.107c.36.698.772 1.362 1.225 1.993a.076.076 0 00.084.028 19.839 19.839 0 006.002-3.03.077.077 0 00.032-.054c.5-5.177-.838-9.674-3.549-13.66a.061.061 0 00-.031-.03zM8.02 15.33c-1.183 0-2.157-1.085-2.157-2.419 0-1.333.956-2.419 2.157-2.419 1.21 0 2.176 1.096 2.157 2.42 0 1.333-.956 2.418-2.157 2.418zm7.975 0c-1.183 0-2.157-1.085-2.157-2.419 0-1.333.955-2.419 2.157-2.419 1.21 0 2.176 1.096 2.157 2.42 0 1.333-.946 2.418-2.157 2.418z"/>
-          </svg>
-        </a>
+        <a href="https://github.com/and-and-and/AITuberFlow" target="_blank" rel="noopener" class="text-zinc-600 hover:text-white transition-colors"><svg class="w-5 h-5" fill="currentColor" viewBox="0 0 24 24"><path fill-rule="evenodd" d="M12 2C6.477 2 2 6.484 2 12.017c0 4.425 2.865 8.18 6.839 9.504.5.092.682-.217.682-.483 0-.237-.008-.868-.013-1.703-2.782.605-3.369-1.343-3.369-1.343-.454-1.158-1.11-1.466-1.11-1.466-.908-.62.069-.608.069-.608 1.003.07 1.531 1.032 1.531 1.032.892 1.53 2.341 1.088 2.91.832.092-.647.35-1.088.636-1.338-2.22-.253-4.555-1.113-4.555-4.951 0-1.093.39-1.988 1.029-2.688-.103-.253-.446-1.272.098-2.65 0 0 .84-.27 2.75 1.026A9.564 9.564 0 0112 6.844c.85.004 1.705.115 2.504.337 1.909-1.296 2.747-1.027 2.747-1.027.546 1.379.202 2.398.1 2.651.64.7 1.028 1.595 1.028 2.688 0 3.848-2.339 4.695-4.566 4.943.359.309.678.92.678 1.855 0 1.338-.012 2.419-.012 2.747 0 .268.18.58.688.482A10.019 10.019 0 0022 12.017C22 6.484 17.522 2 12 2z" clip-rule="evenodd"/></svg></a>
+        <a href="https://discord.gg/RazS3JsTmn" target="_blank" rel="noopener" class="text-zinc-600 hover:text-white transition-colors"><svg class="w-5 h-5" fill="currentColor" viewBox="0 0 24 24"><path d="M20.317 4.37a19.791 19.791 0 00-4.885-1.515.074.074 0 00-.079.037c-.21.375-.444.864-.608 1.25a18.27 18.27 0 00-5.487 0 12.64 12.64 0 00-.617-1.25.077.077 0 00-.079-.037A19.736 19.736 0 003.677 4.37a.07.07 0 00-.032.027C.533 9.046-.32 13.58.099 18.057a.082.082 0 00.031.057 19.9 19.9 0 005.993 3.03.078.078 0 00.084-.028c.462-.63.874-1.295 1.226-1.994a.076.076 0 00-.041-.106 13.107 13.107 0 01-1.872-.892.077.077 0 01-.008-.128 10.2 10.2 0 00.372-.292.074.074 0 01.077-.01c3.928 1.793 8.18 1.793 12.062 0a.074.074 0 01.078.01c.12.098.246.198.373.292a.077.077 0 01-.006.127 12.299 12.299 0 01-1.873.892.077.077 0 00-.041.107c.36.698.772 1.362 1.225 1.993a.076.076 0 00.084.028 19.839 19.839 0 006.002-3.03.077.077 0 00.032-.054c.5-5.177-.838-9.674-3.549-13.66a.061.061 0 00-.031-.03zM8.02 15.33c-1.183 0-2.157-1.085-2.157-2.419 0-1.333.956-2.419 2.157-2.419 1.21 0 2.176 1.096 2.157 2.42 0 1.333-.956 2.418-2.157 2.418zm7.975 0c-1.183 0-2.157-1.085-2.157-2.419 0-1.333.955-2.419 2.157-2.419 1.21 0 2.176 1.096 2.157 2.42 0 1.333-.946 2.418-2.157 2.418z"/></svg></a>
       </div>
     </div>
   </footer>
