@@ -1,7 +1,8 @@
-# Cloudflare Pages SPA routing for AITuberFlow Demo
-# Rewrite dynamic IDs to the SPA shell pages (copied by post-build script)
-# Target paths are outside /editor/* to avoid infinite loop detection
+# AITuberFlow Demo fixed-route redirects
+# Keep legacy URLs compatible while avoiding SPA rewrite loops.
 
-/editor/*    /_spa/editor.html   200
-/preview/*   /_spa/preview.html  200
-/overlay/*   /_spa/overlay.html  200
+/_spa/editor         /demo/editor/   301
+/_spa/editor.html    /demo/editor/   301
+/editor/*            /demo/editor/   301
+/preview/*           /demo/preview/  301
+/overlay/*           /demo/overlay/  301

@@ -14,6 +14,7 @@ import { useWorkflowStore } from '@/stores/workflowStore';
 import { useWebSocket } from '@/hooks/useWebSocket';
 import api from '@/lib/api';
 import { DEFAULT_MODEL_URL } from '@/lib/constants';
+import { DEMO_ROUTES, DEMO_WORKFLOW_ID } from '@/lib/demoRoutes';
 
 const API_BASE = process.env.NEXT_PUBLIC_API_URL || 'http://localhost:8001';
 const isDemoMode = process.env.NEXT_PUBLIC_DEMO_MODE === 'true';
@@ -32,46 +33,34 @@ const getFullUrl = (url: string | undefined): string | undefined => {
   return url;
 };
 
-export default function EditorClient() {
+interface EditorClientProps {
+  forcedWorkflowId?: string;
+  homePath?: string;
+  overlayPath?: string;
+}
+
+export default function EditorClient({
+  forcedWorkflowId,
+  homePath,
+  overlayPath,
+}: EditorClientProps = {}) {
   const params = useParams();
   const router = useRouter();
 
-  // In demo/static mode, read from URL pathname to support dynamic IDs.
-  // Next.js static export only generates /editor/demo, but Cloudflare _redirects
-  // serves this page for all /editor/* URLs with a 200 rewrite.
   const workflowId = useMemo(() => {
+    if (forcedWorkflowId) {
+      return forcedWorkflowId;
+    }
     const routeParamId = typeof params.id === 'string' ? params.id : undefined;
+    return routeParamId || (isDemoMode ? DEMO_WORKFLOW_ID : '');
+  }, [forcedWorkflowId, params.id]);
 
-    // Keep a deterministic fallback during SSR/hydration.
-    if (typeof window === 'undefined') {
-      return routeParamId || (isDemoMode ? 'demo' : '');
-    }
-
-    const pathname = window.location.pathname.replace(/\/+$/, '');
-
-    // Cloudflare may expose the copied static shell directly at /_spa/editor.
-    // In that case we should always open the bundled demo workflow.
-    if (isDemoMode && (pathname === '/_spa/editor' || pathname === '/_spa/editor.html')) {
-      return 'demo';
-    }
-
-    const segments = pathname.split('/');
-    const editorIdx = segments.indexOf('editor');
-    const pathWorkflowId = editorIdx !== -1 ? segments[editorIdx + 1] : undefined;
-    if (pathWorkflowId) {
-      return pathWorkflowId;
-    }
-
-    // Ignore a bogus route param like "editor" that can appear on static shells.
-    if (routeParamId && routeParamId !== 'editor') {
-      return routeParamId;
-    }
-
-    return isDemoMode ? 'demo' : (routeParamId || '');
-  }, [params.id]);
+  const resolvedHomePath = homePath || (isDemoMode ? DEMO_ROUTES.home : '/');
+  const resolvedOverlayPath = overlayPath || (isDemoMode ? DEMO_ROUTES.overlay : `/overlay/${workflowId}`);
 
   const [saving, setSaving] = useState(false);
   const [showSaved, setShowSaved] = useState(false);
+  const [loadError, setLoadError] = useState<string | null>(null);
   const [isEditingName, setIsEditingName] = useState(false);
   const [previewKey] = useState(() => Date.now());
   const [editedName, setEditedName] = useState('');
@@ -167,6 +156,7 @@ export default function EditorClient() {
     isInitialLoad.current = true;
     const response = await api.getWorkflow(workflowId);
     if (response.data) {
+      setLoadError(null);
       loadWorkflow({
         id: response.data.id,
         name: response.data.name,
@@ -183,14 +173,8 @@ export default function EditorClient() {
       }, 500);
     } else if (response.error) {
       console.error('Failed to load workflow:', response.error);
-      if (response.error.includes('not found')) {
-        if (isDemoMode) {
-          // In demo/static deployments, unknown IDs should recover to the demo editor.
-          window.location.href = '/editor/demo';
-        } else {
-          router.push('/');
-        }
-      }
+      setLoadError(response.error);
+      addLog({ level: 'error', message: `Failed to load workflow: ${response.error}` });
     }
   };
 
@@ -375,6 +359,21 @@ export default function EditorClient() {
     input.click();
   };
 
+  const handleBack = () => {
+    router.push(resolvedHomePath);
+  };
+
+  const handleResetDemo = async () => {
+    if (!isDemoMode) return;
+    const response = await api.deleteWorkflow(workflowId);
+    if (response.error) {
+      addLog({ level: 'error', message: `Failed to reset demo: ${response.error}` });
+      return;
+    }
+    await loadWorkflowData();
+    addLog({ level: 'success', message: 'Demo workflow reset' });
+  };
+
   return (
     <div
       className="h-screen w-screen relative overflow-hidden"
@@ -399,7 +398,7 @@ export default function EditorClient() {
       <div className="absolute top-5 left-5 z-10 flex items-center gap-4">
         {/* Back button */}
         <button
-          onClick={() => isDemoMode ? (window.location.href = '/') : router.push('/')}
+          onClick={handleBack}
           className="w-10 h-10 rounded-[10px] flex items-center justify-center text-white/70 hover:text-white hover:bg-white/10 transition-all"
           title="Back to Workflows"
         >
@@ -458,6 +457,11 @@ export default function EditorClient() {
             <p className="text-xs text-white/50 m-0">
               Build your AI streamer visually
             </p>
+            {loadError && (
+              <span className="text-xs text-red-400">
+                {loadError}
+              </span>
+            )}
             {/* Auto-save indicator */}
             {saving ? (
               <span className="text-xs flex items-center gap-1 text-emerald-400">
@@ -514,7 +518,7 @@ export default function EditorClient() {
 
         {/* Open Overlay button */}
         <button
-          onClick={() => window.open(`/overlay/${workflowId}`, '_blank')}
+          onClick={() => window.open(resolvedOverlayPath, '_blank')}
           className="px-4 py-2 rounded-lg bg-purple-500/20 border border-purple-500/50 text-purple-300 hover:bg-purple-500/30 transition-all flex items-center gap-2 text-sm"
           title="Open OBS Overlay (new tab)"
         >
@@ -525,6 +529,16 @@ export default function EditorClient() {
           </svg>
           Overlay
         </button>
+
+        {isDemoMode && (
+          <button
+            onClick={handleResetDemo}
+            className="px-4 py-2 rounded-lg bg-amber-500/20 border border-amber-500/50 text-amber-300 hover:bg-amber-500/30 transition-all text-sm"
+            title="Reset demo workflow"
+          >
+            Reset Demo
+          </button>
+        )}
       </div>
 
       {/* Preview Panel - Avatar Only (shown only when avatar node exists and VRM is selected) */}

@@ -4,16 +4,16 @@
  */
 
 import { Workflow, ApiResponse } from './types';
+import { DEMO_WORKFLOW_ID } from './demoRoutes';
 
 const STORAGE_KEYS = {
-  WORKFLOWS: 'aituber_demo_workflows',
+  WORKFLOW: 'aituber_demo_workflow',
   MODELS: 'aituber_demo_models',
   ANIMATIONS: 'aituber_demo_animations',
 } as const;
 
-// Demo workflow template
-const DEMO_WORKFLOW: Workflow = {
-  id: 'demo',
+const DEMO_WORKFLOW_BASE: Omit<Workflow, 'createdAt' | 'updatedAt'> = {
+  id: DEMO_WORKFLOW_ID,
   name: 'Demo Workflow',
   description: 'Welcome to AITuberFlow! This is a demo workflow.',
   nodes: [
@@ -52,11 +52,8 @@ const DEMO_WORKFLOW: Workflow = {
     name: 'AI Assistant',
     personality: 'Friendly and helpful',
   },
-  createdAt: new Date().toISOString(),
-  updatedAt: new Date().toISOString(),
 };
 
-// Helper functions for localStorage
 function getFromStorage<T>(key: string, defaultValue: T): T {
   if (typeof window === 'undefined') return defaultValue;
   try {
@@ -76,8 +73,39 @@ function setToStorage<T>(key: string, value: T): void {
   }
 }
 
-function generateId(): string {
-  return `demo-${Date.now()}-${Math.random().toString(36).substr(2, 9)}`;
+function createDefaultDemoWorkflow(): Workflow {
+  const now = new Date().toISOString();
+  return {
+    ...JSON.parse(JSON.stringify(DEMO_WORKFLOW_BASE)),
+    createdAt: now,
+    updatedAt: now,
+  };
+}
+
+function getStoredWorkflow(): Workflow {
+  const stored = getFromStorage<Workflow | null>(STORAGE_KEYS.WORKFLOW, null);
+  if (!stored || typeof stored !== 'object') {
+    const initial = createDefaultDemoWorkflow();
+    setToStorage(STORAGE_KEYS.WORKFLOW, initial);
+    return initial;
+  }
+
+  return {
+    ...createDefaultDemoWorkflow(),
+    ...stored,
+    id: DEMO_WORKFLOW_ID,
+    nodes: Array.isArray(stored.nodes) ? stored.nodes : [],
+    connections: Array.isArray(stored.connections) ? stored.connections : [],
+    character: stored.character || { name: 'AI Assistant', personality: 'Friendly and helpful' },
+    updatedAt: stored.updatedAt || new Date().toISOString(),
+  };
+}
+
+function setStoredWorkflow(workflow: Workflow): void {
+  setToStorage(STORAGE_KEYS.WORKFLOW, {
+    ...workflow,
+    id: DEMO_WORKFLOW_ID,
+  });
 }
 
 // Demo plugin definition
@@ -196,90 +224,56 @@ class DemoApiClient {
   // Workflow methods
   async listWorkflows(): Promise<ApiResponse<Workflow[]>> {
     await this.delay(100);
-    const workflows = getFromStorage<Workflow[]>(STORAGE_KEYS.WORKFLOWS, [DEMO_WORKFLOW]);
-    return { data: workflows };
+    return { data: [getStoredWorkflow()] };
   }
 
-  async getWorkflow(id: string): Promise<ApiResponse<Workflow>> {
+  async getWorkflow(_id: string): Promise<ApiResponse<Workflow>> {
     await this.delay(50);
-    const workflows = getFromStorage<Workflow[]>(STORAGE_KEYS.WORKFLOWS, [DEMO_WORKFLOW]);
-    const workflow = workflows.find(w => w.id === id);
-    if (!workflow) {
-      return { error: 'Workflow not found' };
-    }
-    return { data: workflow };
+    return { data: getStoredWorkflow() };
   }
 
   async createWorkflow(workflow: Partial<Workflow>): Promise<ApiResponse<Workflow>> {
     await this.delay(100);
-    const workflows = getFromStorage<Workflow[]>(STORAGE_KEYS.WORKFLOWS, [DEMO_WORKFLOW]);
-    const newWorkflow: Workflow = {
-      id: generateId(),
-      name: workflow.name || 'New Workflow',
-      description: workflow.description || '',
-      nodes: workflow.nodes || [],
-      connections: workflow.connections || [],
-      character: workflow.character || { name: 'AI Assistant', personality: '' },
-      createdAt: new Date().toISOString(),
-      updatedAt: new Date().toISOString(),
+    const current = getStoredWorkflow();
+    const now = new Date().toISOString();
+    const created: Workflow = {
+      ...current,
+      ...workflow,
+      id: DEMO_WORKFLOW_ID,
+      createdAt: current.createdAt || now,
+      updatedAt: now,
     };
-    workflows.push(newWorkflow);
-    setToStorage(STORAGE_KEYS.WORKFLOWS, workflows);
-    return { data: newWorkflow };
+    setStoredWorkflow(created);
+    return { data: created };
   }
 
-  async updateWorkflow(id: string, workflow: Partial<Workflow>): Promise<ApiResponse<Workflow>> {
+  async updateWorkflow(_id: string, workflow: Partial<Workflow>): Promise<ApiResponse<Workflow>> {
     await this.delay(100);
-    const workflows = getFromStorage<Workflow[]>(STORAGE_KEYS.WORKFLOWS, [DEMO_WORKFLOW]);
-    const index = workflows.findIndex(w => w.id === id);
-    if (index === -1) {
-      return { error: 'Workflow not found' };
-    }
+    const current = getStoredWorkflow();
     const updated: Workflow = {
-      ...workflows[index],
+      ...current,
       ...workflow,
-      id,
+      id: DEMO_WORKFLOW_ID,
       updatedAt: new Date().toISOString(),
     };
-    workflows[index] = updated;
-    setToStorage(STORAGE_KEYS.WORKFLOWS, workflows);
+    setStoredWorkflow(updated);
     return { data: updated };
   }
 
-  async deleteWorkflow(id: string): Promise<ApiResponse<void>> {
+  async deleteWorkflow(_id: string): Promise<ApiResponse<void>> {
     await this.delay(100);
-    const workflows = getFromStorage<Workflow[]>(STORAGE_KEYS.WORKFLOWS, [DEMO_WORKFLOW]);
-    const filtered = workflows.filter(w => w.id !== id);
-    setToStorage(STORAGE_KEYS.WORKFLOWS, filtered);
+    setStoredWorkflow(createDefaultDemoWorkflow());
     return { data: undefined };
   }
 
-  async duplicateWorkflow(id: string): Promise<ApiResponse<Workflow>> {
+  async duplicateWorkflow(_id: string): Promise<ApiResponse<Workflow>> {
     await this.delay(100);
-    const workflows = getFromStorage<Workflow[]>(STORAGE_KEYS.WORKFLOWS, [DEMO_WORKFLOW]);
-    const original = workflows.find(w => w.id === id);
-    if (!original) {
-      return { error: 'Workflow not found' };
-    }
-    const duplicate: Workflow = {
-      ...original,
-      id: generateId(),
-      name: `${original.name} (Copy)`,
-      createdAt: new Date().toISOString(),
-      updatedAt: new Date().toISOString(),
-    };
-    workflows.push(duplicate);
-    setToStorage(STORAGE_KEYS.WORKFLOWS, workflows);
-    return { data: duplicate };
+    return { error: 'Demo mode supports a single workflow' };
   }
 
-  async exportWorkflow(id: string): Promise<ApiResponse<WorkflowExport>> {
+  async exportWorkflow(_id: string): Promise<ApiResponse<WorkflowExport>> {
     await this.delay(50);
-    const workflows = getFromStorage<Workflow[]>(STORAGE_KEYS.WORKFLOWS, [DEMO_WORKFLOW]);
-    const workflow = workflows.find(w => w.id === id);
-    if (!workflow) {
-      return { error: 'Workflow not found' };
-    }
+    const workflow = getStoredWorkflow();
     return {
       data: {
         name: workflow.name,
@@ -294,13 +288,20 @@ class DemoApiClient {
   }
 
   async importWorkflow(data: WorkflowExport): Promise<ApiResponse<Workflow>> {
-    return this.createWorkflow({
+    await this.delay(100);
+    const current = getStoredWorkflow();
+    const imported: Workflow = {
+      ...current,
       name: data.name,
       description: data.description,
       nodes: data.nodes,
       connections: data.connections,
       character: data.character,
-    });
+      id: DEMO_WORKFLOW_ID,
+      updatedAt: new Date().toISOString(),
+    };
+    setStoredWorkflow(imported);
+    return { data: imported };
   }
 
   // Execution (demo mode - just simulates)
@@ -342,12 +343,13 @@ class DemoApiClient {
     if (!summary) {
       return { error: 'Template not found' };
     }
+    const templateWorkflow = createDefaultDemoWorkflow();
     return {
       data: {
         ...summary,
-        nodes: DEMO_WORKFLOW.nodes,
-        connections: DEMO_WORKFLOW.connections,
-        character: DEMO_WORKFLOW.character,
+        nodes: templateWorkflow.nodes,
+        connections: templateWorkflow.connections,
+        character: templateWorkflow.character,
       },
     };
   }

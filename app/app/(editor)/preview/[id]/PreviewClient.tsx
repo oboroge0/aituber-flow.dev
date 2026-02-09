@@ -7,6 +7,7 @@ import { AvatarView, AvatarState, RendererType } from '@/components/avatar';
 import api, { ModelInfo } from '@/lib/api';
 import { Workflow } from '@/lib/types';
 import { DEFAULT_MODEL_URL } from '@/lib/constants';
+import { DEMO_ROUTES } from '@/lib/demoRoutes';
 
 const WS_URL = process.env.NEXT_PUBLIC_WS_URL || 'http://localhost:8001';
 const API_BASE = process.env.NEXT_PUBLIC_API_URL || 'http://localhost:8001';
@@ -39,6 +40,7 @@ interface AvatarConfig {
 
 interface PreviewPageProps {
   params: Promise<{ id: string }>;
+  editorPath?: string;
 }
 
 // Demo mode detection
@@ -46,7 +48,7 @@ const isDemoMode = typeof window !== 'undefined'
   ? (process.env.NEXT_PUBLIC_DEMO_MODE === 'true' || window.location.hostname === 'app.aituber-flow.dev')
   : process.env.NEXT_PUBLIC_DEMO_MODE === 'true';
 
-export default function PreviewClient({ params }: PreviewPageProps) {
+export default function PreviewClient({ params, editorPath }: PreviewPageProps) {
   const { id: workflowId } = use(params);
   const router = useRouter();
 
@@ -246,8 +248,9 @@ export default function PreviewClient({ params }: PreviewPageProps) {
   }, [workflowId]);
 
   const handleBackToEditor = useCallback(() => {
-    router.push(`/editor/${workflowId}`);
-  }, [router, workflowId]);
+    const nextPath = editorPath || (isDemoMode ? DEMO_ROUTES.editor : `/editor/${workflowId}`);
+    router.push(nextPath);
+  }, [editorPath, router, workflowId]);
 
   // Expression test buttons (for development)
   const testExpressions = ['neutral', 'happy', 'sad', 'angry', 'surprised'];

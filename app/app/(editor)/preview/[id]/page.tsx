@@ -1,15 +1,11 @@
 import PreviewClient from './PreviewClient';
+import { DEMO_WORKFLOW_ID } from '@/lib/demoRoutes';
 
-// For static export - generate demo page
+// Keep this route for non-demo environments.
+// Demo export uses fixed routes under /demo/*.
 export function generateStaticParams() {
-  if (process.env.NEXT_PUBLIC_DEMO_MODE !== 'true') {
-    return [];
-  }
-  return [{ id: 'demo' }];
+  return [{ id: DEMO_WORKFLOW_ID }];
 }
-
-// For static export compatibility
-export const dynamicParams = false;
 
 interface PreviewPageProps {
   params: Promise<{ id: string }>;

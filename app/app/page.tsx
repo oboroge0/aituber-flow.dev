@@ -6,6 +6,7 @@ import { useRouter } from 'next/navigation';
 import api, { TemplateSummary, WorkflowExport } from '@/lib/api';
 import { Workflow } from '@/lib/types';
 import { useTranslation } from '@/stores/localeStore';
+import { DEMO_ROUTES } from '@/lib/demoRoutes';
 
 const isDemoMode = process.env.NEXT_PUBLIC_DEMO_MODE === 'true';
 
@@ -19,6 +20,10 @@ export default function HomePage() {
   const fileInputRef = useRef<HTMLInputElement>(null);
 
   useEffect(() => {
+    if (isDemoMode) {
+      window.location.replace(DEMO_ROUTES.home);
+      return;
+    }
     loadData();
   }, []);
 
@@ -42,15 +47,26 @@ export default function HomePage() {
     setLoading(false);
   };
 
-  // Navigate to the editor - bypasses Next.js client-side routing in demo mode
-  // because static export with dynamicParams=false only supports /editor/demo
   const navigateToEditor = (id: string) => {
-    if (isDemoMode) {
-      window.location.href = `/editor/${id}`;
-    } else {
-      router.push(`/editor/${id}`);
-    }
+    router.push(`/editor/${id}`);
   };
+
+  if (isDemoMode) {
+    return (
+      <main className="min-h-screen bg-slate-950 text-white flex items-center justify-center p-8">
+        <div className="max-w-xl text-center space-y-4">
+          <h1 className="text-3xl font-bold">AITuberFlow Demo</h1>
+          <p className="text-slate-300">Redirecting to demo workspace...</p>
+          <Link
+            href={DEMO_ROUTES.editor}
+            className="inline-flex items-center rounded-lg bg-emerald-600 px-5 py-2.5 font-semibold hover:bg-emerald-500 transition-colors"
+          >
+            Open Demo Workspace
+          </Link>
+        </div>
+      </main>
+    );
+  }
 
   const createNewWorkflow = async () => {
     const response = await api.createWorkflow({
