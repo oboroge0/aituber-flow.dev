@@ -40,14 +40,34 @@ export default function EditorClient() {
   // Next.js static export only generates /editor/demo, but Cloudflare _redirects
   // serves this page for all /editor/* URLs with a 200 rewrite.
   const workflowId = useMemo(() => {
-    if (typeof window !== 'undefined') {
-      const segments = window.location.pathname.split('/');
-      const editorIdx = segments.indexOf('editor');
-      if (editorIdx !== -1 && segments[editorIdx + 1]) {
-        return segments[editorIdx + 1].replace(/\/$/, '');
-      }
+    const routeParamId = typeof params.id === 'string' ? params.id : undefined;
+
+    // Keep a deterministic fallback during SSR/hydration.
+    if (typeof window === 'undefined') {
+      return routeParamId || (isDemoMode ? 'demo' : '');
     }
-    return params.id as string;
+
+    const pathname = window.location.pathname.replace(/\/+$/, '');
+
+    // Cloudflare may expose the copied static shell directly at /_spa/editor.
+    // In that case we should always open the bundled demo workflow.
+    if (isDemoMode && (pathname === '/_spa/editor' || pathname === '/_spa/editor.html')) {
+      return 'demo';
+    }
+
+    const segments = pathname.split('/');
+    const editorIdx = segments.indexOf('editor');
+    const pathWorkflowId = editorIdx !== -1 ? segments[editorIdx + 1] : undefined;
+    if (pathWorkflowId) {
+      return pathWorkflowId;
+    }
+
+    // Ignore a bogus route param like "editor" that can appear on static shells.
+    if (routeParamId && routeParamId !== 'editor') {
+      return routeParamId;
+    }
+
+    return isDemoMode ? 'demo' : (routeParamId || '');
   }, [params.id]);
 
   const [saving, setSaving] = useState(false);
@@ -165,7 +185,8 @@ export default function EditorClient() {
       console.error('Failed to load workflow:', response.error);
       if (response.error.includes('not found')) {
         if (isDemoMode) {
-          window.location.href = '/';
+          // In demo/static deployments, unknown IDs should recover to the demo editor.
+          window.location.href = '/editor/demo';
         } else {
           router.push('/');
         }
