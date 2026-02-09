@@ -16,6 +16,7 @@ import api from '@/lib/api';
 import { DEFAULT_MODEL_URL } from '@/lib/constants';
 
 const API_BASE = process.env.NEXT_PUBLIC_API_URL || 'http://localhost:8001';
+const isDemoMode = process.env.NEXT_PUBLIC_DEMO_MODE === 'true';
 
 // Helper to get full URL for backend-served files
 const getFullUrl = (url: string | undefined): string | undefined => {
@@ -34,7 +35,20 @@ const getFullUrl = (url: string | undefined): string | undefined => {
 export default function EditorClient() {
   const params = useParams();
   const router = useRouter();
-  const workflowId = params.id as string;
+
+  // In demo/static mode, read from URL pathname to support dynamic IDs.
+  // Next.js static export only generates /editor/demo, but Cloudflare _redirects
+  // serves this page for all /editor/* URLs with a 200 rewrite.
+  const workflowId = useMemo(() => {
+    if (typeof window !== 'undefined') {
+      const segments = window.location.pathname.split('/');
+      const editorIdx = segments.indexOf('editor');
+      if (editorIdx !== -1 && segments[editorIdx + 1]) {
+        return segments[editorIdx + 1].replace(/\/$/, '');
+      }
+    }
+    return params.id as string;
+  }, [params.id]);
 
   const [saving, setSaving] = useState(false);
   const [showSaved, setShowSaved] = useState(false);
@@ -150,7 +164,11 @@ export default function EditorClient() {
     } else if (response.error) {
       console.error('Failed to load workflow:', response.error);
       if (response.error.includes('not found')) {
-        router.push('/');
+        if (isDemoMode) {
+          window.location.href = '/';
+        } else {
+          router.push('/');
+        }
       }
     }
   };
@@ -360,7 +378,7 @@ export default function EditorClient() {
       <div className="absolute top-5 left-5 z-10 flex items-center gap-4">
         {/* Back button */}
         <button
-          onClick={() => router.push('/')}
+          onClick={() => isDemoMode ? (window.location.href = '/') : router.push('/')}
           className="w-10 h-10 rounded-[10px] flex items-center justify-center text-white/70 hover:text-white hover:bg-white/10 transition-all"
           title="Back to Workflows"
         >

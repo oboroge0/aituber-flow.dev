@@ -7,6 +7,8 @@ import api, { TemplateSummary, WorkflowExport } from '@/lib/api';
 import { Workflow } from '@/lib/types';
 import { useTranslation } from '@/stores/localeStore';
 
+const isDemoMode = process.env.NEXT_PUBLIC_DEMO_MODE === 'true';
+
 export default function HomePage() {
   const router = useRouter();
   const { t, locale, setLocale } = useTranslation();
@@ -40,6 +42,16 @@ export default function HomePage() {
     setLoading(false);
   };
 
+  // Navigate to the editor - bypasses Next.js client-side routing in demo mode
+  // because static export with dynamicParams=false only supports /editor/demo
+  const navigateToEditor = (id: string) => {
+    if (isDemoMode) {
+      window.location.href = `/editor/${id}`;
+    } else {
+      router.push(`/editor/${id}`);
+    }
+  };
+
   const createNewWorkflow = async () => {
     const response = await api.createWorkflow({
       name: 'New Workflow',
@@ -52,7 +64,7 @@ export default function HomePage() {
     });
 
     if (response.data) {
-      router.push(`/editor/${response.data.id}`);
+      navigateToEditor(response.data.id);
     } else if (response.error) {
       setError(response.error);
     }
@@ -74,7 +86,7 @@ export default function HomePage() {
     });
 
     if (response.data) {
-      router.push(`/editor/${response.data.id}`);
+      navigateToEditor(response.data.id);
     } else if (response.error) {
       setError(response.error);
     }
@@ -346,30 +358,57 @@ export default function HomePage() {
                       className="rounded-xl border border-white/10 overflow-hidden transition-all hover:border-[#10B981]/50 group"
                       style={{ background: 'rgba(17, 24, 39, 0.8)' }}
                     >
-                      <Link href={`/editor/${workflow.id}`} className="block p-4">
-                        <h3 className="text-lg font-semibold text-white group-hover:text-[#10B981] transition-colors">
-                          {workflow.name}
-                        </h3>
-                        {workflow.description && (
-                          <p className="text-gray-400 text-sm mt-1 line-clamp-2">
-                            {workflow.description}
-                          </p>
-                        )}
-                        <div className="flex items-center gap-4 mt-3 text-xs text-gray-500">
-                          <span className="flex items-center gap-1">
-                            <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2">
-                              <rect x="3" y="3" width="18" height="18" rx="2"/>
-                            </svg>
-                            {workflow.nodes?.length || 0} {t('home.nodes')}
-                          </span>
-                          <span className="flex items-center gap-1">
-                            <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2">
-                              <path d="M5 12h14"/><path d="M12 5l7 7-7 7"/>
-                            </svg>
-                            {workflow.connections?.length || 0} {t('home.connections')}
-                          </span>
-                        </div>
-                      </Link>
+                      {isDemoMode ? (
+                        <a href={`/editor/${workflow.id}`} className="block p-4">
+                          <h3 className="text-lg font-semibold text-white group-hover:text-[#10B981] transition-colors">
+                            {workflow.name}
+                          </h3>
+                          {workflow.description && (
+                            <p className="text-gray-400 text-sm mt-1 line-clamp-2">
+                              {workflow.description}
+                            </p>
+                          )}
+                          <div className="flex items-center gap-4 mt-3 text-xs text-gray-500">
+                            <span className="flex items-center gap-1">
+                              <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2">
+                                <rect x="3" y="3" width="18" height="18" rx="2"/>
+                              </svg>
+                              {workflow.nodes?.length || 0} {t('home.nodes')}
+                            </span>
+                            <span className="flex items-center gap-1">
+                              <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2">
+                                <path d="M5 12h14"/><path d="M12 5l7 7-7 7"/>
+                              </svg>
+                              {workflow.connections?.length || 0} {t('home.connections')}
+                            </span>
+                          </div>
+                        </a>
+                      ) : (
+                        <Link href={`/editor/${workflow.id}`} className="block p-4">
+                          <h3 className="text-lg font-semibold text-white group-hover:text-[#10B981] transition-colors">
+                            {workflow.name}
+                          </h3>
+                          {workflow.description && (
+                            <p className="text-gray-400 text-sm mt-1 line-clamp-2">
+                              {workflow.description}
+                            </p>
+                          )}
+                          <div className="flex items-center gap-4 mt-3 text-xs text-gray-500">
+                            <span className="flex items-center gap-1">
+                              <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2">
+                                <rect x="3" y="3" width="18" height="18" rx="2"/>
+                              </svg>
+                              {workflow.nodes?.length || 0} {t('home.nodes')}
+                            </span>
+                            <span className="flex items-center gap-1">
+                              <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2">
+                                <path d="M5 12h14"/><path d="M12 5l7 7-7 7"/>
+                              </svg>
+                              {workflow.connections?.length || 0} {t('home.connections')}
+                            </span>
+                          </div>
+                        </Link>
+                      )}
                       <div className="px-4 py-2 border-t border-white/10 flex justify-between items-center">
                         <span className="text-xs text-gray-600">
                           {new Date(workflow.updatedAt).toLocaleDateString()}
