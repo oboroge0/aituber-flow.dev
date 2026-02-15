@@ -1,0 +1,213 @@
+---
+import { t } from '../i18n/translations'
+import type { Lang } from '../i18n/translations'
+
+interface Props {
+  lang: Lang
+}
+
+const { lang } = Astro.props
+---
+
+<section class="py-32 px-6 relative overflow-hidden" id="download">
+  <div class="section-divider absolute top-0 left-0 right-0"></div>
+
+  <!-- Subtle background glow -->
+  <div class="absolute top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 w-[600px] h-[400px] bg-amber-500/[0.04] rounded-full blur-[120px]"></div>
+
+  <div class="max-w-4xl mx-auto relative">
+    <div class="text-center mb-12" data-animate="fade-up">
+      <div class="inline-flex items-center gap-2 px-4 py-2 rounded-full bg-amber-500/[0.08] border border-amber-500/20 mb-6">
+        <svg class="w-4 h-4 text-amber-400" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+          <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 16v1a3 3 0 003 3h10a3 3 0 003-3v-1m-4-4l-4 4m0 0l-4-4m4 4V4"/>
+        </svg>
+        <span class="text-sm font-medium text-amber-300" id="download-version-badge">{t(lang, 'download.loading')}</span>
+      </div>
+      <h2 class="text-3xl md:text-4xl font-bold mb-4 text-white">
+        {t(lang, 'download.title')}
+      </h2>
+      <p class="text-zinc-500 text-lg max-w-xl mx-auto">
+        {t(lang, 'download.subtitle')}
+      </p>
+    </div>
+
+    <!-- Download Cards -->
+    <div class="grid md:grid-cols-3 gap-4 mb-8" data-animate="fade-up" id="download-cards">
+      <!-- Windows -->
+      <a id="download-windows" href="#" class="group neon-card p-6 rounded-2xl relative overflow-hidden transition-all duration-300 hover:-translate-y-1 hover:shadow-xl hover:shadow-amber-500/[0.08] flex flex-col items-center text-center opacity-50 pointer-events-none">
+        <div class="absolute inset-0 bg-gradient-to-br from-amber-500/[0.05] to-transparent opacity-0 group-hover:opacity-100 transition-opacity"></div>
+        <div class="relative flex flex-col items-center">
+          <div class="w-14 h-14 rounded-2xl bg-blue-500/10 border border-blue-500/20 flex items-center justify-center mb-4 group-hover:scale-110 group-hover:shadow-[0_0_20px_rgba(59,130,246,0.15)] transition-all">
+            <!-- Windows icon -->
+            <svg class="w-7 h-7 text-blue-400" fill="currentColor" viewBox="0 0 24 24">
+              <path d="M3 5.557l7.357-1.002v7.1H3V5.557zm0 12.886l7.357 1.002v-7.1H3v6.098zM11.543 4.38L21 3v8.655h-9.457V4.38zM21 12.345v8.655l-9.457-1.38v-7.275H21z"/>
+            </svg>
+          </div>
+          <span class="text-sm font-semibold text-white mb-1">Windows</span>
+          <span class="text-xs text-zinc-500">x64 Installer</span>
+        </div>
+      </a>
+
+      <!-- macOS Apple Silicon -->
+      <a id="download-mac-arm" href="#" class="group neon-card p-6 rounded-2xl relative overflow-hidden transition-all duration-300 hover:-translate-y-1 hover:shadow-xl hover:shadow-amber-500/[0.08] flex flex-col items-center text-center opacity-50 pointer-events-none">
+        <div class="absolute inset-0 bg-gradient-to-br from-amber-500/[0.05] to-transparent opacity-0 group-hover:opacity-100 transition-opacity"></div>
+        <div class="relative flex flex-col items-center">
+          <div class="w-14 h-14 rounded-2xl bg-zinc-500/10 border border-zinc-500/20 flex items-center justify-center mb-4 group-hover:scale-110 group-hover:shadow-[0_0_20px_rgba(161,161,170,0.15)] transition-all">
+            <!-- Apple icon -->
+            <svg class="w-7 h-7 text-zinc-300" fill="currentColor" viewBox="0 0 24 24">
+              <path d="M18.71 19.5c-.83 1.24-1.71 2.45-3.05 2.47-1.34.03-1.77-.79-3.29-.79-1.53 0-2 .77-3.27.82-1.31.05-2.3-1.32-3.14-2.53C4.25 17 2.94 12.45 4.7 9.39c.87-1.52 2.43-2.48 4.12-2.51 1.28-.02 2.5.87 3.29.87.78 0 2.26-1.07 3.8-.91.65.03 2.47.26 3.64 1.98-.09.06-2.17 1.28-2.15 3.81.03 3.02 2.65 4.03 2.68 4.04-.03.07-.42 1.44-1.38 2.83M13 3.5c.73-.83 1.94-1.46 2.94-1.5.13 1.17-.34 2.35-1.04 3.19-.69.85-1.83 1.51-2.95 1.42-.15-1.15.41-2.35 1.05-3.11z"/>
+            </svg>
+          </div>
+          <span class="text-sm font-semibold text-white mb-1">macOS</span>
+          <span class="text-xs text-zinc-500">Apple Silicon (M1/M2/M3/M4)</span>
+        </div>
+      </a>
+
+      <!-- macOS Intel -->
+      <a id="download-mac-intel" href="#" class="group neon-card p-6 rounded-2xl relative overflow-hidden transition-all duration-300 hover:-translate-y-1 hover:shadow-xl hover:shadow-amber-500/[0.08] flex flex-col items-center text-center opacity-50 pointer-events-none">
+        <div class="absolute inset-0 bg-gradient-to-br from-amber-500/[0.05] to-transparent opacity-0 group-hover:opacity-100 transition-opacity"></div>
+        <div class="relative flex flex-col items-center">
+          <div class="w-14 h-14 rounded-2xl bg-zinc-500/10 border border-zinc-500/20 flex items-center justify-center mb-4 group-hover:scale-110 group-hover:shadow-[0_0_20px_rgba(161,161,170,0.15)] transition-all">
+            <!-- Apple icon -->
+            <svg class="w-7 h-7 text-zinc-300" fill="currentColor" viewBox="0 0 24 24">
+              <path d="M18.71 19.5c-.83 1.24-1.71 2.45-3.05 2.47-1.34.03-1.77-.79-3.29-.79-1.53 0-2 .77-3.27.82-1.31.05-2.3-1.32-3.14-2.53C4.25 17 2.94 12.45 4.7 9.39c.87-1.52 2.43-2.48 4.12-2.51 1.28-.02 2.5.87 3.29.87.78 0 2.26-1.07 3.8-.91.65.03 2.47.26 3.64 1.98-.09.06-2.17 1.28-2.15 3.81.03 3.02 2.65 4.03 2.68 4.04-.03.07-.42 1.44-1.38 2.83M13 3.5c.73-.83 1.94-1.46 2.94-1.5.13 1.17-.34 2.35-1.04 3.19-.69.85-1.83 1.51-2.95 1.42-.15-1.15.41-2.35 1.05-3.11z"/>
+            </svg>
+          </div>
+          <span class="text-sm font-semibold text-white mb-1">macOS</span>
+          <span class="text-xs text-zinc-500">Intel (x64)</span>
+        </div>
+      </a>
+    </div>
+
+    <!-- Recommended highlight (shows for detected OS) -->
+    <div id="download-recommended" class="hidden text-center mb-6">
+      <span class="text-xs text-amber-400/80" id="download-recommended-text"></span>
+    </div>
+
+    <!-- Secondary links -->
+    <div class="flex flex-wrap items-center justify-center gap-4" data-animate="fade-up">
+      <a href="https://app.aituber-flow.dev" target="_blank" rel="noopener" class="inline-flex items-center gap-2 px-6 py-3 bg-white/[0.04] backdrop-blur-sm border border-white/[0.08] text-zinc-300 rounded-xl text-sm font-medium hover:bg-white/[0.08] hover:border-white/[0.12] transition-all hover:-translate-y-0.5">
+        <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+          <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M21 12a9 9 0 01-9 9m9-9a9 9 0 00-9-9m9 9H3m9 9a9 9 0 01-9-9m9 9c1.657 0 3-4.03 3-9s-1.343-9-3-9m0 18c-1.657 0-3-4.03-3-9s1.343-9 3-9"/>
+        </svg>
+        {t(lang, 'download.webVersion')}
+      </a>
+      <a href="https://github.com/oboroge0/AITuberFlow/releases" target="_blank" rel="noopener" class="inline-flex items-center gap-2 px-6 py-3 text-zinc-500 text-sm font-medium hover:text-zinc-300 transition-colors">
+        <svg class="w-4 h-4" fill="currentColor" viewBox="0 0 24 24">
+          <path fill-rule="evenodd" d="M12 2C6.477 2 2 6.484 2 12.017c0 4.425 2.865 8.18 6.839 9.504.5.092.682-.217.682-.483 0-.237-.008-.868-.013-1.703-2.782.605-3.369-1.343-3.369-1.343-.454-1.158-1.11-1.466-1.11-1.466-.908-.62.069-.608.069-.608 1.003.07 1.531 1.032 1.531 1.032.892 1.53 2.341 1.088 2.91.832.092-.647.35-1.088.636-1.338-2.22-.253-4.555-1.113-4.555-4.951 0-1.093.39-1.988 1.029-2.688-.103-.253-.446-1.272.098-2.65 0 0 .84-.27 2.75 1.026A9.564 9.564 0 0112 6.844c.85.004 1.705.115 2.504.337 1.909-1.296 2.747-1.027 2.747-1.027.546 1.379.202 2.398.1 2.651.64.7 1.028 1.595 1.028 2.688 0 3.848-2.339 4.695-4.566 4.943.359.309.678.92.678 1.855 0 1.338-.012 2.419-.012 2.747 0 .268.18.58.688.482A10.019 10.019 0 0022 12.017C22 6.484 17.522 2 12 2z" clip-rule="evenodd"/>
+        </svg>
+        {t(lang, 'download.allReleases')} &rarr;
+      </a>
+    </div>
+  </div>
+</section>
+
+<script>
+  const GITHUB_API = 'https://api.github.com/repos/oboroge0/AITuberFlow/releases/latest';
+  const RELEASES_PAGE = 'https://github.com/oboroge0/AITuberFlow/releases/latest';
+
+  function detectOS(): 'windows' | 'mac-arm' | 'mac-intel' | 'unknown' {
+    const ua = navigator.userAgent.toLowerCase();
+    const platform = navigator.platform?.toLowerCase() || '';
+
+    if (ua.includes('win')) return 'windows';
+    if (ua.includes('mac')) {
+      // Check for Apple Silicon - modern browsers on M-series report this
+      // Also use a canvas-based detection as fallback
+      if (navigator.userAgent.includes('ARM') || (platform === 'macintel' && navigator.maxTouchPoints > 0)) {
+        return 'mac-arm';
+      }
+      return 'mac-intel';
+    }
+    return 'unknown';
+  }
+
+  function findAssetUrl(assets: Array<{name: string; browser_download_url: string}>, pattern: string): string | null {
+    const asset = assets.find(a => a.name.includes(pattern) && !a.name.endsWith('.sig'));
+    return asset?.browser_download_url || null;
+  }
+
+  async function initDownloads() {
+    const versionBadge = document.getElementById('download-version-badge');
+    const winCard = document.getElementById('download-windows') as HTMLAnchorElement;
+    const macArmCard = document.getElementById('download-mac-arm') as HTMLAnchorElement;
+    const macIntelCard = document.getElementById('download-mac-intel') as HTMLAnchorElement;
+    const recommended = document.getElementById('download-recommended');
+    const recommendedText = document.getElementById('download-recommended-text');
+
+    try {
+      const res = await fetch(GITHUB_API);
+      if (!res.ok) throw new Error('API error');
+      const data = await res.json();
+
+      const version = data.tag_name?.replace('v', '') || '';
+      if (versionBadge) versionBadge.textContent = `v${version}`;
+
+      const assets: Array<{name: string; browser_download_url: string}> = data.assets || [];
+
+      // Find download URLs
+      const winUrl = findAssetUrl(assets, 'x64-setup.exe');
+      const macArmUrl = findAssetUrl(assets, 'aarch64.dmg');
+      const macIntelUrl = findAssetUrl(assets, 'x64.dmg');
+
+      // Enable available cards
+      if (winUrl && winCard) {
+        winCard.href = winUrl;
+        winCard.classList.remove('opacity-50', 'pointer-events-none');
+      }
+      if (macArmUrl && macArmCard) {
+        macArmCard.href = macArmUrl;
+        macArmCard.classList.remove('opacity-50', 'pointer-events-none');
+      }
+      if (macIntelUrl && macIntelCard) {
+        macIntelCard.href = macIntelUrl;
+        macIntelCard.classList.remove('opacity-50', 'pointer-events-none');
+      }
+
+      // Highlight detected OS card
+      const os = detectOS();
+      const osCardMap: Record<string, HTMLElement | null> = {
+        'windows': winCard,
+        'mac-arm': macArmCard,
+        'mac-intel': macIntelCard,
+      };
+
+      const targetCard = osCardMap[os];
+      if (targetCard) {
+        targetCard.classList.add('ring-2', 'ring-amber-500/40', 'shadow-lg', 'shadow-amber-500/10');
+        if (recommended && recommendedText) {
+          const labels: Record<string, string> = {
+            'windows': 'Windows',
+            'mac-arm': 'macOS (Apple Silicon)',
+            'mac-intel': 'macOS (Intel)',
+          };
+          const isJa = document.documentElement.lang === 'ja' ||
+                       !window.location.pathname.startsWith('/en');
+          recommendedText.textContent = isJa
+            ? `${labels[os]} - お使いの環境に推奨`
+            : `${labels[os]} - Recommended for your system`;
+          recommended.classList.remove('hidden');
+        }
+      }
+
+    } catch {
+      // Fallback: link all cards to the releases page
+      if (versionBadge) versionBadge.textContent = 'v2.0.0';
+      [winCard, macArmCard, macIntelCard].forEach(card => {
+        if (card) {
+          card.href = RELEASES_PAGE;
+          card.setAttribute('target', '_blank');
+          card.setAttribute('rel', 'noopener');
+          card.classList.remove('opacity-50', 'pointer-events-none');
+        }
+      });
+    }
+  }
+
+  // Run when DOM is ready
+  if (document.readyState === 'loading') {
+    document.addEventListener('DOMContentLoaded', initDownloads);
+  } else {
+    initDownloads();
+  }
+</script>

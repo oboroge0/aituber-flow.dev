@@ -72,6 +72,18 @@ export const translations = {
     'community.contribute.title': 'コントリビュート',
     'community.contribute.description': '新機能の提案やバグ修正を歓迎します',
 
+    // Download
+    'download.title': 'デスクトップアプリ',
+    'download.subtitle': 'インストールしてすぐに使える。ブラウザ不要のスタンドアロン版。',
+    'download.version': 'v{version}',
+    'download.windows': 'Windows版をダウンロード',
+    'download.macArm': 'macOS版をダウンロード (Apple Silicon)',
+    'download.macIntel': 'macOS版をダウンロード (Intel)',
+    'download.otherPlatforms': 'その他のプラットフォーム',
+    'download.allReleases': 'すべてのリリース',
+    'download.loading': '読み込み中...',
+    'download.webVersion': 'ブラウザ版を使う',
+
     // Footer
     'footer.copyright': '© 2026 AITuberFlow. MITライセンス',
   },
@@ -140,6 +152,18 @@ export const translations = {
     'community.discord.description': 'Ask questions, share info, discuss development',
     'community.contribute.title': 'Contribute',
     'community.contribute.description': 'Feature proposals and bug fixes welcome',
+
+    // Download
+    'download.title': 'Desktop App',
+    'download.subtitle': 'Install and start using immediately. Standalone version, no browser required.',
+    'download.version': 'v{version}',
+    'download.windows': 'Download for Windows',
+    'download.macArm': 'Download for macOS (Apple Silicon)',
+    'download.macIntel': 'Download for macOS (Intel)',
+    'download.otherPlatforms': 'Other Platforms',
+    'download.allReleases': 'All Releases',
+    'download.loading': 'Loading...',
+    'download.webVersion': 'Use Web Version',
 
     // Footer
     'footer.copyright': '© 2026 AITuberFlow. MIT License',
