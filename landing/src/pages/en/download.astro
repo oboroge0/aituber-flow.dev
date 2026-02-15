@@ -1,0 +1,225 @@
+---
+import Layout from '../../layouts/Layout.astro'
+import ScrollAnimations from '../../components/ScrollAnimations.astro'
+import LanguageSwitcher from '../../components/LanguageSwitcher.astro'
+import DownloadSection from '../../components/DownloadSection.astro'
+import { t } from '../../i18n/translations'
+
+const lang = 'en'
+---
+
+<Layout title="Download - AITuberFlow">
+  <ScrollAnimations />
+
+  <!-- Header -->
+  <header class="fixed top-0 left-0 right-0 z-50 bg-[#07070e]/80 backdrop-blur-xl border-b border-white/[0.06]">
+    <nav class="max-w-6xl mx-auto px-6 h-16 flex items-center justify-between">
+      <a href="/en" class="text-xl font-bold tracking-tight text-white">
+        <span class="bg-gradient-to-r from-violet-400 to-cyan-400 bg-clip-text text-transparent">AITuber</span>Flow
+      </a>
+      <div class="flex items-center gap-4">
+        <LanguageSwitcher currentLang={lang} />
+        <a href="/en/download" class="hidden sm:flex items-center gap-2 text-sm text-amber-400 transition-colors">
+          <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 16v1a3 3 0 003 3h10a3 3 0 003-3v-1m-4-4l-4 4m0 0l-4-4m4 4V4"/>
+          </svg>
+          Download
+        </a>
+        <a href="https://discord.gg/RazS3JsTmn" target="_blank" rel="noopener" class="hidden sm:flex items-center gap-2 text-sm text-zinc-400 hover:text-white transition-colors">
+          <svg class="w-4 h-4" fill="currentColor" viewBox="0 0 24 24">
+            <path d="M20.317 4.37a19.791 19.791 0 00-4.885-1.515.074.074 0 00-.079.037c-.21.375-.444.864-.608 1.25a18.27 18.27 0 00-5.487 0 12.64 12.64 0 00-.617-1.25.077.077 0 00-.079-.037A19.736 19.736 0 003.677 4.37a.07.07 0 00-.032.027C.533 9.046-.32 13.58.099 18.057a.082.082 0 00.031.057 19.9 19.9 0 005.993 3.03.078.078 0 00.084-.028c.462-.63.874-1.295 1.226-1.994a.076.076 0 00-.041-.106 13.107 13.107 0 01-1.872-.892.077.077 0 01-.008-.128 10.2 10.2 0 00.372-.292.074.074 0 01.077-.01c3.928 1.793 8.18 1.793 12.062 0a.074.074 0 01.078.01c.12.098.246.198.373.292a.077.077 0 01-.006.127 12.299 12.299 0 01-1.873.892.077.077 0 00-.041.107c.36.698.772 1.362 1.225 1.993a.076.076 0 00.084.028 19.839 19.839 0 006.002-3.03.077.077 0 00.032-.054c.5-5.177-.838-9.674-3.549-13.66a.061.061 0 00-.031-.03zM8.02 15.33c-1.183 0-2.157-1.085-2.157-2.419 0-1.333.956-2.419 2.157-2.419 1.21 0 2.176 1.096 2.157 2.42 0 1.333-.956 2.418-2.157 2.418zm7.975 0c-1.183 0-2.157-1.085-2.157-2.419 0-1.333.955-2.419 2.157-2.419 1.21 0 2.176 1.096 2.157 2.42 0 1.333-.946 2.418-2.157 2.418z"/>
+          </svg>
+          Discord
+        </a>
+        <a href="https://app.aituber-flow.dev" target="_blank" rel="noopener" class="flex items-center gap-2 px-4 py-2 bg-gradient-to-r from-violet-600 to-cyan-600 hover:from-violet-500 hover:to-cyan-500 text-white rounded-lg font-medium text-sm transition-all shadow-lg shadow-violet-500/20">
+          {t(lang, 'nav.tryDemo')}
+        </a>
+        <a href="https://github.com/oboroge0/AITuberFlow" target="_blank" rel="noopener" class="flex items-center gap-2 px-4 py-2 bg-white/[0.06] hover:bg-white/[0.1] border border-white/[0.08] text-white rounded-lg font-medium text-sm transition-all">
+          <svg class="w-4 h-4" fill="currentColor" viewBox="0 0 24 24">
+            <path fill-rule="evenodd" d="M12 2C6.477 2 2 6.484 2 12.017c0 4.425 2.865 8.18 6.839 9.504.5.092.682-.217.682-.483 0-.237-.008-.868-.013-1.703-2.782.605-3.369-1.343-3.369-1.343-.454-1.158-1.11-1.466-1.11-1.466-.908-.62.069-.608.069-.608 1.003.07 1.531 1.032 1.531 1.032.892 1.53 2.341 1.088 2.91.832.092-.647.35-1.088.636-1.338-2.22-.253-4.555-1.113-4.555-4.951 0-1.093.39-1.988 1.029-2.688-.103-.253-.446-1.272.098-2.65 0 0 .84-.27 2.75 1.026A9.564 9.564 0 0112 6.844c.85.004 1.705.115 2.504.337 1.909-1.296 2.747-1.027 2.747-1.027.546 1.379.202 2.398.1 2.651.64.7 1.028 1.595 1.028 2.688 0 3.848-2.339 4.695-4.566 4.943.359.309.678.92.678 1.855 0 1.338-.012 2.419-.012 2.747 0 .268.18.58.688.482A10.019 10.019 0 0022 12.017C22 6.484 17.522 2 12 2z" clip-rule="evenodd"/>
+          </svg>
+          {t(lang, 'nav.github')}
+        </a>
+      </div>
+    </nav>
+  </header>
+
+  <main class="pt-16">
+    <!-- Page Hero -->
+    <section class="py-20 px-6 relative overflow-hidden">
+      <div class="absolute inset-0 hero-gradient"></div>
+      <div class="absolute inset-0 hero-grid"></div>
+      <div class="max-w-3xl mx-auto text-center relative z-10">
+        <h1 class="text-4xl md:text-5xl font-bold mb-4 text-white animate-fade-in-up">
+          {t(lang, 'downloadPage.title')}
+        </h1>
+        <p class="text-lg text-zinc-400 max-w-xl mx-auto animate-fade-in-up" style="animation-delay: 0.1s;">
+          {t(lang, 'downloadPage.subtitle')}
+        </p>
+      </div>
+    </section>
+
+    <!-- Download Cards (reusing component) -->
+    <DownloadSection lang={lang} />
+
+    <!-- Installation Steps -->
+    <section class="py-24 px-6 relative">
+      <div class="section-divider absolute top-0 left-0 right-0"></div>
+      <div class="max-w-4xl mx-auto">
+        <h2 class="text-2xl md:text-3xl font-bold mb-12 text-white text-center" data-animate="fade-up">
+          {t(lang, 'downloadPage.installSteps')}
+        </h2>
+
+        <div class="grid md:grid-cols-3 gap-8 relative">
+          <!-- Connection line -->
+          <div class="hidden md:block absolute top-10 left-[20%] right-[20%] h-px bg-gradient-to-r from-amber-500/40 via-violet-500/40 to-emerald-500/40" data-animate="fade-in"></div>
+
+          <!-- Step 1: Download -->
+          <div class="text-center relative" data-animate="fade-up" data-delay="0">
+            <div class="w-20 h-20 rounded-2xl bg-gradient-to-br from-amber-500/20 to-amber-600/10 border border-amber-500/20 flex items-center justify-center mx-auto mb-6 relative z-10">
+              <svg class="w-9 h-9 text-amber-400" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="1.5" d="M4 16v1a3 3 0 003 3h10a3 3 0 003-3v-1m-4-4l-4 4m0 0l-4-4m4 4V4"/>
+              </svg>
+            </div>
+            <div class="inline-flex items-center justify-center w-7 h-7 rounded-full bg-amber-500/20 text-amber-400 text-sm font-bold mb-3">1</div>
+            <h3 class="text-lg font-semibold mb-2 text-white">{t(lang, 'downloadPage.step1.title')}</h3>
+            <p class="text-zinc-400 text-sm leading-relaxed">{t(lang, 'downloadPage.step1.description')}</p>
+          </div>
+
+          <!-- Step 2: Install -->
+          <div class="text-center relative" data-animate="fade-up" data-delay="150">
+            <div class="w-20 h-20 rounded-2xl bg-gradient-to-br from-violet-500/20 to-violet-600/10 border border-violet-500/20 flex items-center justify-center mx-auto mb-6 relative z-10">
+              <svg class="w-9 h-9 text-violet-400" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="1.5" d="M9 3v2m6-2v2M9 19v2m6-2v2M5 9H3m2 6H3m18-6h-2m2 6h-2M7 19h10a2 2 0 002-2V7a2 2 0 00-2-2H7a2 2 0 00-2 2v10a2 2 0 002 2zM9 9h6v6H9V9z"/>
+              </svg>
+            </div>
+            <div class="inline-flex items-center justify-center w-7 h-7 rounded-full bg-violet-500/20 text-violet-400 text-sm font-bold mb-3">2</div>
+            <h3 class="text-lg font-semibold mb-2 text-white">{t(lang, 'downloadPage.step2.title')}</h3>
+            <div class="space-y-2 text-sm text-zinc-400 leading-relaxed">
+              <p class="flex items-start gap-2">
+                <span class="inline-block mt-0.5 w-4 h-4 shrink-0">
+                  <svg class="w-4 h-4 text-blue-400" fill="currentColor" viewBox="0 0 24 24"><path d="M3 5.557l7.357-1.002v7.1H3V5.557zm0 12.886l7.357 1.002v-7.1H3v6.098zM11.543 4.38L21 3v8.655h-9.457V4.38zM21 12.345v8.655l-9.457-1.38v-7.275H21z"/></svg>
+                </span>
+                {t(lang, 'downloadPage.step2.description.win')}
+              </p>
+              <p class="flex items-start gap-2">
+                <span class="inline-block mt-0.5 w-4 h-4 shrink-0">
+                  <svg class="w-4 h-4 text-zinc-300" fill="currentColor" viewBox="0 0 24 24"><path d="M18.71 19.5c-.83 1.24-1.71 2.45-3.05 2.47-1.34.03-1.77-.79-3.29-.79-1.53 0-2 .77-3.27.82-1.31.05-2.3-1.32-3.14-2.53C4.25 17 2.94 12.45 4.7 9.39c.87-1.52 2.43-2.48 4.12-2.51 1.28-.02 2.5.87 3.29.87.78 0 2.26-1.07 3.8-.91.65.03 2.47.26 3.64 1.98-.09.06-2.17 1.28-2.15 3.81.03 3.02 2.65 4.03 2.68 4.04-.03.07-.42 1.44-1.38 2.83M13 3.5c.73-.83 1.94-1.46 2.94-1.5.13 1.17-.34 2.35-1.04 3.19-.69.85-1.83 1.51-2.95 1.42-.15-1.15.41-2.35 1.05-3.11z"/></svg>
+                </span>
+                {t(lang, 'downloadPage.step2.description.mac')}
+              </p>
+            </div>
+          </div>
+
+          <!-- Step 3: Launch -->
+          <div class="text-center relative" data-animate="fade-up" data-delay="300">
+            <div class="w-20 h-20 rounded-2xl bg-gradient-to-br from-emerald-500/20 to-emerald-600/10 border border-emerald-500/20 flex items-center justify-center mx-auto mb-6 relative z-10">
+              <svg class="w-9 h-9 text-emerald-400" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="1.5" d="M14.752 11.168l-3.197-2.132A1 1 0 0010 9.87v4.263a1 1 0 001.555.832l3.197-2.132a1 1 0 000-1.664z"/>
+                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="1.5" d="M21 12a9 9 0 11-18 0 9 9 0 0118 0z"/>
+              </svg>
+            </div>
+            <div class="inline-flex items-center justify-center w-7 h-7 rounded-full bg-emerald-500/20 text-emerald-400 text-sm font-bold mb-3">3</div>
+            <h3 class="text-lg font-semibold mb-2 text-white">{t(lang, 'downloadPage.step3.title')}</h3>
+            <p class="text-zinc-400 text-sm leading-relaxed">{t(lang, 'downloadPage.step3.description')}</p>
+          </div>
+        </div>
+      </div>
+    </section>
+
+    <!-- System Requirements + Notes -->
+    <section class="py-24 px-6 relative">
+      <div class="section-divider absolute top-0 left-0 right-0"></div>
+      <div class="max-w-4xl mx-auto grid md:grid-cols-2 gap-8">
+        <!-- System Requirements -->
+        <div class="neon-card p-8 rounded-2xl" data-animate="fade-up">
+          <h2 class="text-xl font-bold mb-6 text-white flex items-center gap-3">
+            <div class="w-10 h-10 rounded-xl bg-cyan-500/10 border border-cyan-500/20 flex items-center justify-center">
+              <svg class="w-5 h-5 text-cyan-400" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="1.5" d="M9 3v2m6-2v2M9 19v2m6-2v2M5 9H3m2 6H3m18-6h-2m2 6h-2M7 19h10a2 2 0 002-2V7a2 2 0 00-2-2H7a2 2 0 00-2 2v10a2 2 0 002 2zM9 9h6v6H9V9z"/>
+              </svg>
+            </div>
+            {t(lang, 'downloadPage.sysReq')}
+          </h2>
+          <table class="w-full text-sm">
+            <tbody>
+              <tr class="border-b border-white/[0.06]">
+                <td class="py-3 text-zinc-500 font-medium w-24">{t(lang, 'downloadPage.sysReq.os')}</td>
+                <td class="py-3 text-zinc-300">{t(lang, 'downloadPage.sysReq.os.value')}</td>
+              </tr>
+              <tr class="border-b border-white/[0.06]">
+                <td class="py-3 text-zinc-500 font-medium">{t(lang, 'downloadPage.sysReq.memory')}</td>
+                <td class="py-3 text-zinc-300">{t(lang, 'downloadPage.sysReq.memory.value')}</td>
+              </tr>
+              <tr class="border-b border-white/[0.06]">
+                <td class="py-3 text-zinc-500 font-medium">{t(lang, 'downloadPage.sysReq.disk')}</td>
+                <td class="py-3 text-zinc-300">{t(lang, 'downloadPage.sysReq.disk.value')}</td>
+              </tr>
+              <tr>
+                <td class="py-3 text-zinc-500 font-medium">{t(lang, 'downloadPage.sysReq.other')}</td>
+                <td class="py-3 text-zinc-300">{t(lang, 'downloadPage.sysReq.other.value')}</td>
+              </tr>
+            </tbody>
+          </table>
+        </div>
+
+        <!-- Notes -->
+        <div class="neon-card p-8 rounded-2xl" data-animate="fade-up" data-delay="150">
+          <h2 class="text-xl font-bold mb-6 text-white flex items-center gap-3">
+            <div class="w-10 h-10 rounded-xl bg-amber-500/10 border border-amber-500/20 flex items-center justify-center">
+              <svg class="w-5 h-5 text-amber-400" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="1.5" d="M12 9v2m0 4h.01m-6.938 4h13.856c1.54 0 2.502-1.667 1.732-3L13.732 4c-.77-1.333-2.694-1.333-3.464 0L3.34 16c-.77 1.333.192 3 1.732 3z"/>
+              </svg>
+            </div>
+            {t(lang, 'downloadPage.notes.title')}
+          </h2>
+          <div class="space-y-4 text-sm text-zinc-400 leading-relaxed">
+            <div class="flex items-start gap-3 p-3 rounded-lg bg-white/[0.02]">
+              <svg class="w-5 h-5 text-zinc-300 shrink-0 mt-0.5" fill="currentColor" viewBox="0 0 24 24"><path d="M18.71 19.5c-.83 1.24-1.71 2.45-3.05 2.47-1.34.03-1.77-.79-3.29-.79-1.53 0-2 .77-3.27.82-1.31.05-2.3-1.32-3.14-2.53C4.25 17 2.94 12.45 4.7 9.39c.87-1.52 2.43-2.48 4.12-2.51 1.28-.02 2.5.87 3.29.87.78 0 2.26-1.07 3.8-.91.65.03 2.47.26 3.64 1.98-.09.06-2.17 1.28-2.15 3.81.03 3.02 2.65 4.03 2.68 4.04-.03.07-.42 1.44-1.38 2.83M13 3.5c.73-.83 1.94-1.46 2.94-1.5.13 1.17-.34 2.35-1.04 3.19-.69.85-1.83 1.51-2.95 1.42-.15-1.15.41-2.35 1.05-3.11z"/></svg>
+              <p>{t(lang, 'downloadPage.notes.mac')}</p>
+            </div>
+            <div class="flex items-start gap-3 p-3 rounded-lg bg-white/[0.02]">
+              <svg class="w-5 h-5 text-amber-400 shrink-0 mt-0.5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="1.5" d="M12 15v2m-6 4h12a2 2 0 002-2v-6a2 2 0 00-2-2H6a2 2 0 00-2 2v6a2 2 0 002 2zm10-10V7a4 4 0 00-8 0v4h8z"/>
+              </svg>
+              <p>{t(lang, 'downloadPage.notes.firewall')}</p>
+            </div>
+          </div>
+        </div>
+      </div>
+    </section>
+
+    <!-- Web Alternative -->
+    <section class="py-24 px-6 relative overflow-hidden">
+      <div class="section-divider absolute top-0 left-0 right-0"></div>
+      <div class="absolute inset-0 bg-gradient-to-t from-violet-500/[0.03] to-transparent"></div>
+      <div class="max-w-3xl mx-auto text-center relative" data-animate="scale-up">
+        <h2 class="text-2xl md:text-3xl font-bold mb-4 text-white">{t(lang, 'downloadPage.webAlternative')}</h2>
+        <p class="text-zinc-400 text-lg mb-8">{t(lang, 'downloadPage.webAlternativeDesc')}</p>
+        <a href="https://app.aituber-flow.dev" target="_blank" rel="noopener" class="group inline-flex items-center gap-3 px-8 py-4 bg-white/[0.04] border border-white/[0.08] text-zinc-200 rounded-xl font-semibold hover:bg-white/[0.08] transition-all hover:-translate-y-0.5">
+          <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M21 12a9 9 0 01-9 9m9-9a9 9 0 00-9-9m9 9H3m9 9a9 9 0 01-9-9m9 9c1.657 0 3-4.03 3-9s-1.343-9-3-9m0 18c-1.657 0-3-4.03-3-9s1.343-9 3-9"/>
+          </svg>
+          {t(lang, 'download.webVersion')}
+          <svg class="w-5 h-5 group-hover:translate-x-1 transition-transform" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M17 8l4 4m0 0l-4 4m4-4H3"/></svg>
+        </a>
+      </div>
+    </section>
+  </main>
+
+  <!-- Footer -->
+  <footer class="py-12 px-6 relative">
+    <div class="section-divider absolute top-0 left-0 right-0"></div>
+    <div class="max-w-6xl mx-auto flex flex-col md:flex-row items-center justify-between gap-6">
+      <div class="text-zinc-600 text-sm">{t(lang, 'footer.copyright')}</div>
+      <div class="flex items-center gap-6">
+        <a href="https://github.com/oboroge0/AITuberFlow" target="_blank" rel="noopener" class="text-zinc-600 hover:text-white transition-colors">
+          <svg class="w-5 h-5" fill="currentColor" viewBox="0 0 24 24"><path fill-rule="evenodd" d="M12 2C6.477 2 2 6.484 2 12.017c0 4.425 2.865 8.18 6.839 9.504.5.092.682-.217.682-.483 0-.237-.008-.868-.013-1.703-2.782.605-3.369-1.343-3.369-1.343-.454-1.158-1.11-1.466-1.11-1.466-.908-.62.069-.608.069-.608 1.003.07 1.531 1.032 1.531 1.032.892 1.53 2.341 1.088 2.91.832.092-.647.35-1.088.636-1.338-2.22-.253-4.555-1.113-4.555-4.951 0-1.093.39-1.988 1.029-2.688-.103-.253-.446-1.272.098-2.65 0 0 .84-.27 2.75 1.026A9.564 9.564 0 0112 6.844c.85.004 1.705.115 2.504.337 1.909-1.296 2.747-1.027 2.747-1.027.546 1.379.202 2.398.1 2.651.64.7 1.028 1.595 1.028 2.688 0 3.848-2.339 4.695-4.566 4.943.359.309.678.92.678 1.855 0 1.338-.012 2.419-.012 2.747 0 .268.18.58.688.482A10.019 10.019 0 0022 12.017C22 6.484 17.522 2 12 2z" clip-rule="evenodd"/></svg>
+        </a>
+        <a href="https://discord.gg/RazS3JsTmn" target="_blank" rel="noopener" class="text-zinc-600 hover:text-white transition-colors">
+          <svg class="w-5 h-5" fill="currentColor" viewBox="0 0 24 24"><path d="M20.317 4.37a19.791 19.791 0 00-4.885-1.515.074.074 0 00-.079.037c-.21.375-.444.864-.608 1.25a18.27 18.27 0 00-5.487 0 12.64 12.64 0 00-.617-1.25.077.077 0 00-.079-.037A19.736 19.736 0 003.677 4.37a.07.07 0 00-.032.027C.533 9.046-.32 13.58.099 18.057a.082.082 0 00.031.057 19.9 19.9 0 005.993 3.03.078.078 0 00.084-.028c.462-.63.874-1.295 1.226-1.994a.076.076 0 00-.041-.106 13.107 13.107 0 01-1.872-.892.077.077 0 01-.008-.128 10.2 10.2 0 00.372-.292.074.074 0 01.077-.01c3.928 1.793 8.18 1.793 12.062 0a.074.074 0 01.078.01c.12.098.246.198.373.292a.077.077 0 01-.006.127 12.299 12.299 0 01-1.873.892.077.077 0 00-.041.107c.36.698.772 1.362 1.225 1.993a.076.076 0 00.084.028 19.839 19.839 0 006.002-3.03.077.077 0 00.032-.054c.5-5.177-.838-9.674-3.549-13.66a.061.061 0 00-.031-.03zM8.02 15.33c-1.183 0-2.157-1.085-2.157-2.419 0-1.333.956-2.419 2.157-2.419 1.21 0 2.176 1.096 2.157 2.42 0 1.333-.956 2.418-2.157 2.418zm7.975 0c-1.183 0-2.157-1.085-2.157-2.419 0-1.333.955-2.419 2.157-2.419 1.21 0 2.176 1.096 2.157 2.42 0 1.333-.946 2.418-2.157 2.418z"/></svg>
+        </a>
+      </div>
+    </div>
+  </footer>
+</Layout>
