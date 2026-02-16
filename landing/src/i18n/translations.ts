@@ -18,6 +18,7 @@ export const translations = {
     'hero.description': 'ドラッグ＆ドロップでノードをつなぎ、AIが応答するVTuberを構築。プログラミング不要。',
     'hero.cta': 'デモを試す',
     'hero.github': 'GitHubで見る',
+    'hero.discord': 'Discordに参加',
 
     // Features
     'features.title': '主な機能',
@@ -126,6 +127,7 @@ export const translations = {
     'hero.description': 'Connect nodes with drag & drop to create AI-powered VTubers. No coding required.',
     'hero.cta': 'Try Demo',
     'hero.github': 'View on GitHub',
+    'hero.discord': 'Join Discord',
 
     // Features
     'features.title': 'Features',
