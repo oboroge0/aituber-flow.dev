@@ -1,0 +1,81 @@
+---
+interface Props {
+  platform: 'windows' | 'mac-arm' | 'mac-intel'
+  label: string
+}
+
+const { platform, label } = Astro.props
+---
+
+<!doctype html>
+<html lang="en" data-platform={platform}>
+  <head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1" />
+    <meta name="robots" content="noindex" />
+    <title>Redirecting to AITuberFlow download...</title>
+    <style>
+      :root { color-scheme: dark; }
+      body {
+        min-height: 100vh;
+        margin: 0;
+        display: grid;
+        place-items: center;
+        font-family: ui-sans-serif, system-ui, -apple-system, BlinkMacSystemFont, "Segoe UI", sans-serif;
+        background: #07070e;
+        color: #f4f4f5;
+      }
+      main {
+        max-width: 32rem;
+        padding: 2rem;
+        text-align: center;
+      }
+      a { color: #67e8f9; }
+      .muted { color: #a1a1aa; }
+    </style>
+  </head>
+  <body>
+    <main>
+      <h1>Preparing your download...</h1>
+      <p class="muted">Resolving the latest AITuberFlow {label} installer.</p>
+      <p id="fallback" class="muted" hidden>
+        If the download does not start, open the
+        <a href="https://github.com/oboroge0/AITuberFlow/releases/latest">latest GitHub release</a>.
+      </p>
+    </main>
+
+    <script define:vars={{ platform }}>
+      const GITHUB_API = 'https://api.github.com/repos/oboroge0/AITuberFlow/releases/latest';
+      const RELEASES_PAGE = 'https://github.com/oboroge0/AITuberFlow/releases/latest';
+      const PATTERNS = {
+        windows: 'x64-setup.exe',
+        'mac-arm': 'aarch64.dmg',
+        'mac-intel': 'x64.dmg',
+      };
+
+      function findAssetUrl(assets, pattern) {
+        const asset = assets.find((item) => item.name.includes(pattern) && !item.name.endsWith('.sig'));
+        return asset?.browser_download_url || null;
+      }
+
+      async function redirectToLatestAsset() {
+        const fallback = document.getElementById('fallback');
+        try {
+          const res = await fetch(GITHUB_API, { headers: { Accept: 'application/vnd.github+json' } });
+          if (!res.ok) throw new Error(`GitHub API returned ${res.status}`);
+          const data = await res.json();
+          const url = findAssetUrl(data.assets || [], PATTERNS[platform]);
+          if (!url) throw new Error(`No matching asset for ${platform}`);
+          window.location.replace(url);
+        } catch (error) {
+          console.warn('[download-redirect] Falling back to latest release page', error);
+          if (fallback) fallback.hidden = false;
+          window.location.replace(RELEASES_PAGE);
+        }
+      }
+
+      redirectToLatestAsset();
+    </script>
+  </body>
+</html>
+

@@ -10,6 +10,7 @@
     "dev:app": "npm run dev -w app",
     "build:landing": "npm run build -w landing",
     "build:app": "npm run build -w app",
-    "build": "npm run build:landing && npm run build:app"
+    "build": "npm run build:landing && npm run build:app",
+    "stats:downloads": "node scripts/generate-download-stats.mjs"
   }
 }

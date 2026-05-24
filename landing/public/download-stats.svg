@@ -1,0 +1,43 @@
+<svg xmlns="http://www.w3.org/2000/svg" width="760" height="360" viewBox="0 0 760 360" role="img" aria-label="AITuberFlow installer downloads by platform">
+  <defs>
+    <linearGradient id="bg" x1="0" y1="0" x2="1" y2="1">
+      <stop offset="0%" stop-color="#09090f" />
+      <stop offset="55%" stop-color="#111827" />
+      <stop offset="100%" stop-color="#312e81" />
+    </linearGradient>
+    <filter id="shadow" x="-20%" y="-20%" width="140%" height="140%">
+      <feDropShadow dx="0" dy="16" stdDeviation="18" flood-color="#000000" flood-opacity="0.35" />
+    </filter>
+  </defs>
+  <rect width="760" height="360" rx="24" fill="url(#bg)" />
+  <circle cx="650" cy="40" r="160" fill="#7c3aed" opacity="0.16" />
+  <circle cx="110" cy="320" r="140" fill="#06b6d4" opacity="0.10" />
+  <g filter="url(#shadow)">
+    <rect x="24" y="24" width="712" height="312" rx="20" fill="#09090b" opacity="0.74" stroke="#ffffff" stroke-opacity="0.08" />
+  </g>
+  <text x="54" y="58" fill="#ffffff" font-size="26" font-weight="800">AITuberFlow Downloads</text>
+  <text x="54" y="80" fill="#a1a1aa" font-size="13">Installer downloads by platform · v2.3.2 · total 0</text>
+  
+      <g>
+        <text x="54" y="82" fill="#d4d4d8" font-size="15" font-weight="600">Windows x64</text>
+        <rect x="54" y="92" width="652" height="34" rx="10" fill="#18181b" />
+        <rect x="54" y="92" width="0" height="34" rx="10" fill="#60a5fa" />
+        <text x="68" y="115" fill="#ffffff" font-size="14" font-weight="700">0</text>
+        <text x="694" y="115" text-anchor="end" fill="#a1a1aa" font-size="13">0%</text>
+      </g>
+      <g>
+        <text x="54" y="136" fill="#d4d4d8" font-size="15" font-weight="600">macOS Apple Silicon</text>
+        <rect x="54" y="146" width="652" height="34" rx="10" fill="#18181b" />
+        <rect x="54" y="146" width="0" height="34" rx="10" fill="#a78bfa" />
+        <text x="68" y="169" fill="#ffffff" font-size="14" font-weight="700">0</text>
+        <text x="694" y="169" text-anchor="end" fill="#a1a1aa" font-size="13">0%</text>
+      </g>
+      <g>
+        <text x="54" y="190" fill="#d4d4d8" font-size="15" font-weight="600">macOS Intel</text>
+        <rect x="54" y="200" width="652" height="34" rx="10" fill="#18181b" />
+        <rect x="54" y="200" width="0" height="34" rx="10" fill="#f59e0b" />
+        <text x="68" y="223" fill="#ffffff" font-size="14" font-weight="700">0</text>
+        <text x="694" y="223" text-anchor="end" fill="#a1a1aa" font-size="13">0%</text>
+      </g>
+  <text x="54" y="310" fill="#71717a" font-size="12">Generated from public GitHub Release asset download_count. Updated: 2026-05-24 14:54 UTC</text>
+</svg>
