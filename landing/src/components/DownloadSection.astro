@@ -45,6 +45,12 @@ const { lang } = Astro.props
           </div>
           <span class="text-sm font-semibold text-white mb-1">Windows</span>
           <span class="text-xs text-zinc-500">x64 Installer</span>
+          <span id="download-windows-meta" class="mt-3 text-[11px] text-zinc-600">{t(lang, 'download.cardPending')}</span>
+          <span id="download-windows-count" class="mt-1 text-[11px] text-amber-300/70"></span>
+          <span class="mt-4 inline-flex items-center gap-1 text-xs font-medium text-amber-300 opacity-0 transition-opacity group-hover:opacity-100">
+            {t(lang, 'download.cardCta')}
+            <span class="inline-block group-hover:translate-x-0.5 transition-transform">&rarr;</span>
+          </span>
         </div>
       </a>
 
@@ -60,6 +66,12 @@ const { lang } = Astro.props
           </div>
           <span class="text-sm font-semibold text-white mb-1">macOS</span>
           <span class="text-xs text-zinc-500">Apple Silicon (M1/M2/M3/M4)</span>
+          <span id="download-mac-arm-meta" class="mt-3 text-[11px] text-zinc-600">{t(lang, 'download.cardPending')}</span>
+          <span id="download-mac-arm-count" class="mt-1 text-[11px] text-amber-300/70"></span>
+          <span class="mt-4 inline-flex items-center gap-1 text-xs font-medium text-amber-300 opacity-0 transition-opacity group-hover:opacity-100">
+            {t(lang, 'download.cardCta')}
+            <span class="inline-block group-hover:translate-x-0.5 transition-transform">&rarr;</span>
+          </span>
         </div>
       </a>
 
@@ -75,6 +87,12 @@ const { lang } = Astro.props
           </div>
           <span class="text-sm font-semibold text-white mb-1">macOS</span>
           <span class="text-xs text-zinc-500">Intel (x64)</span>
+          <span id="download-mac-intel-meta" class="mt-3 text-[11px] text-zinc-600">{t(lang, 'download.cardPending')}</span>
+          <span id="download-mac-intel-count" class="mt-1 text-[11px] text-amber-300/70"></span>
+          <span class="mt-4 inline-flex items-center gap-1 text-xs font-medium text-amber-300 opacity-0 transition-opacity group-hover:opacity-100">
+            {t(lang, 'download.cardCta')}
+            <span class="inline-block group-hover:translate-x-0.5 transition-transform">&rarr;</span>
+          </span>
         </div>
       </a>
     </div>
@@ -82,6 +100,43 @@ const { lang } = Astro.props
     <!-- Recommended highlight (shows for detected OS) -->
     <div id="download-recommended" class="hidden text-center mb-6">
       <span class="text-xs text-amber-400/80" id="download-recommended-text"></span>
+    </div>
+
+    <!-- Release confidence + download history -->
+    <div class="grid md:grid-cols-3 gap-4 mb-8" data-animate="fade-up">
+      <div class="neon-card p-4 rounded-2xl border-white/[0.06]">
+        <span class="text-[11px] uppercase tracking-[0.18em] text-zinc-600">{t(lang, 'download.latestRelease')}</span>
+        <div id="download-release-title" class="mt-2 text-sm font-semibold text-zinc-200">GitHub Releases</div>
+        <div id="download-release-date" class="mt-1 text-xs text-zinc-500">{t(lang, 'download.releaseFallback')}</div>
+      </div>
+      <div class="neon-card p-4 rounded-2xl border-white/[0.06]">
+        <span class="text-[11px] uppercase tracking-[0.18em] text-zinc-600">{t(lang, 'download.primaryDownloads')}</span>
+        <div id="download-total-count" class="mt-2 text-sm font-semibold text-zinc-200">--</div>
+        <div class="mt-1 text-xs text-zinc-500">{t(lang, 'download.primaryDownloadsDesc')}</div>
+      </div>
+      <a href="https://github.com/oboroge0/AITuberFlow/releases" target="_blank" rel="noopener" class="neon-card p-4 rounded-2xl border-white/[0.06] group hover:border-amber-500/20 transition-colors">
+        <span class="text-[11px] uppercase tracking-[0.18em] text-zinc-600">{t(lang, 'download.releaseNotes')}</span>
+        <div class="mt-2 text-sm font-semibold text-zinc-200 group-hover:text-amber-300 transition-colors">{t(lang, 'download.releaseNotesCta')}</div>
+        <div class="mt-1 text-xs text-zinc-500">{t(lang, 'download.releaseNotesDesc')}</div>
+      </a>
+    </div>
+
+    <div class="neon-card p-4 sm:p-6 rounded-2xl mb-8 overflow-hidden" data-animate="fade-up">
+      <div class="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-3 mb-4">
+        <div>
+          <h3 class="text-lg font-semibold text-white">{t(lang, 'download.historyTitle')}</h3>
+          <p class="mt-1 text-sm text-zinc-500">{t(lang, 'download.historyDescription')}</p>
+        </div>
+        <a href="https://github.com/oboroge0/AITuberFlow/releases" target="_blank" rel="noopener" class="inline-flex items-center gap-2 text-sm font-medium text-amber-300 hover:text-amber-200 transition-colors">
+          {t(lang, 'download.allReleases')} &rarr;
+        </a>
+      </div>
+      <img
+        src="https://raw.githubusercontent.com/oboroge0/AITuberFlow/gh-pages/gh-dl/downloads-trend.svg"
+        alt={t(lang, 'download.historyAlt')}
+        loading="lazy"
+        class="w-full rounded-xl border border-white/[0.08] bg-slate-950/60"
+      />
     </div>
 
     <!-- Secondary links -->
@@ -106,14 +161,24 @@ const { lang } = Astro.props
   const GITHUB_API = 'https://api.github.com/repos/oboroge0/AITuberFlow/releases/latest';
   const RELEASES_PAGE = 'https://github.com/oboroge0/AITuberFlow/releases/latest';
 
+  type ReleaseAsset = {
+    name: string;
+    browser_download_url: string;
+    size?: number;
+    download_count?: number;
+  };
+
+  function isJapanesePage(): boolean {
+    return document.documentElement.lang === 'ja' || !window.location.pathname.startsWith('/en');
+  }
+
   function detectOS(): 'windows' | 'mac-arm' | 'mac-intel' | 'unknown' {
     const ua = navigator.userAgent.toLowerCase();
     const platform = navigator.platform?.toLowerCase() || '';
 
     if (ua.includes('win')) return 'windows';
     if (ua.includes('mac')) {
-      // Check for Apple Silicon - modern browsers on M-series report this
-      // Also use a canvas-based detection as fallback
+      // Check for Apple Silicon - modern browsers on M-series report this.
       if (navigator.userAgent.includes('ARM') || (platform === 'macintel' && navigator.maxTouchPoints > 0)) {
         return 'mac-arm';
       }
@@ -122,18 +187,69 @@ const { lang } = Astro.props
     return 'unknown';
   }
 
-  function findAssetUrl(assets: Array<{name: string; browser_download_url: string}>, pattern: string): string | null {
-    const asset = assets.find(a => a.name.includes(pattern) && !a.name.endsWith('.sig'));
-    return asset?.browser_download_url || null;
+  function findAsset(assets: ReleaseAsset[], pattern: string): ReleaseAsset | null {
+    return assets.find(a => a.name.includes(pattern) && !a.name.endsWith('.sig')) || null;
+  }
+
+  function formatBytes(bytes?: number): string {
+    if (!bytes) return '';
+    const mb = bytes / 1024 / 1024;
+    return `${mb.toFixed(mb >= 100 ? 0 : 1)} MB`;
+  }
+
+  function formatNumber(value?: number): string {
+    return new Intl.NumberFormat(isJapanesePage() ? 'ja-JP' : 'en-US').format(value || 0);
+  }
+
+  function formatDate(value?: string): string {
+    if (!value) return '';
+    const date = new Date(value);
+    if (Number.isNaN(date.getTime())) return '';
+    return new Intl.DateTimeFormat(isJapanesePage() ? 'ja-JP' : 'en-US', {
+      year: 'numeric',
+      month: 'short',
+      day: 'numeric',
+    }).format(date);
+  }
+
+  function enableCard(
+    card: HTMLAnchorElement | null,
+    asset: ReleaseAsset | null,
+    meta: HTMLElement | null,
+    count: HTMLElement | null,
+  ) {
+    const isJa = isJapanesePage();
+
+    if (!card) return;
+    if (!asset) {
+      card.href = RELEASES_PAGE;
+      card.setAttribute('target', '_blank');
+      card.setAttribute('rel', 'noopener');
+      card.classList.remove('opacity-50', 'pointer-events-none');
+      if (meta) meta.textContent = isJa ? 'GitHub Releasesで確認' : 'Open GitHub Releases';
+      return;
+    }
+
+    card.href = asset.browser_download_url;
+    card.classList.remove('opacity-50', 'pointer-events-none');
+    if (meta) meta.textContent = [formatBytes(asset.size), asset.name].filter(Boolean).join(' · ');
+    if (count) {
+      const downloads = formatNumber(asset.download_count);
+      count.textContent = isJa ? `${downloads} ダウンロード` : `${downloads} downloads`;
+    }
   }
 
   async function initDownloads() {
     const versionBadge = document.getElementById('download-version-badge');
-    const winCard = document.getElementById('download-windows') as HTMLAnchorElement;
-    const macArmCard = document.getElementById('download-mac-arm') as HTMLAnchorElement;
-    const macIntelCard = document.getElementById('download-mac-intel') as HTMLAnchorElement;
+    const releaseTitle = document.getElementById('download-release-title');
+    const releaseDate = document.getElementById('download-release-date');
+    const totalCount = document.getElementById('download-total-count');
+    const winCard = document.getElementById('download-windows') as HTMLAnchorElement | null;
+    const macArmCard = document.getElementById('download-mac-arm') as HTMLAnchorElement | null;
+    const macIntelCard = document.getElementById('download-mac-intel') as HTMLAnchorElement | null;
     const recommended = document.getElementById('download-recommended');
     const recommendedText = document.getElementById('download-recommended-text');
+    const isJa = isJapanesePage();
 
     try {
       const res = await fetch(GITHUB_API);
@@ -142,29 +258,43 @@ const { lang } = Astro.props
 
       const version = data.tag_name?.replace('v', '') || '';
       if (versionBadge) versionBadge.textContent = `v${version}`;
-
-      const assets: Array<{name: string; browser_download_url: string}> = data.assets || [];
-
-      // Find download URLs
-      const winUrl = findAssetUrl(assets, 'x64-setup.exe');
-      const macArmUrl = findAssetUrl(assets, 'aarch64.dmg');
-      const macIntelUrl = findAssetUrl(assets, 'x64.dmg');
-
-      // Enable available cards
-      if (winUrl && winCard) {
-        winCard.href = winUrl;
-        winCard.classList.remove('opacity-50', 'pointer-events-none');
-      }
-      if (macArmUrl && macArmCard) {
-        macArmCard.href = macArmUrl;
-        macArmCard.classList.remove('opacity-50', 'pointer-events-none');
-      }
-      if (macIntelUrl && macIntelCard) {
-        macIntelCard.href = macIntelUrl;
-        macIntelCard.classList.remove('opacity-50', 'pointer-events-none');
+      if (releaseTitle) releaseTitle.textContent = data.name || `AITuberFlow v${version}`;
+      if (releaseDate) {
+        const label = isJa ? '公開日' : 'Published';
+        releaseDate.textContent = `${label}: ${formatDate(data.published_at)}`;
       }
 
-      // Highlight detected OS card
+      const assets: ReleaseAsset[] = data.assets || [];
+      const winAsset = findAsset(assets, 'x64-setup.exe');
+      const macArmAsset = findAsset(assets, 'aarch64.dmg');
+      const macIntelAsset = findAsset(assets, 'x64.dmg');
+      const primaryAssets = [winAsset, macArmAsset, macIntelAsset].filter(Boolean) as ReleaseAsset[];
+
+      enableCard(
+        winCard,
+        winAsset,
+        document.getElementById('download-windows-meta'),
+        document.getElementById('download-windows-count'),
+      );
+      enableCard(
+        macArmCard,
+        macArmAsset,
+        document.getElementById('download-mac-arm-meta'),
+        document.getElementById('download-mac-arm-count'),
+      );
+      enableCard(
+        macIntelCard,
+        macIntelAsset,
+        document.getElementById('download-mac-intel-meta'),
+        document.getElementById('download-mac-intel-count'),
+      );
+
+      if (totalCount) {
+        const downloads = primaryAssets.reduce((sum, asset) => sum + (asset.download_count || 0), 0);
+        totalCount.textContent = isJa ? `${formatNumber(downloads)} ダウンロード` : `${formatNumber(downloads)} downloads`;
+      }
+
+      // Highlight detected OS card.
       const os = detectOS();
       const osCardMap: Record<string, HTMLElement | null> = {
         'windows': winCard,
@@ -181,18 +311,26 @@ const { lang } = Astro.props
             'mac-arm': 'macOS (Apple Silicon)',
             'mac-intel': 'macOS (Intel)',
           };
-          const isJa = document.documentElement.lang === 'ja' ||
-                       !window.location.pathname.startsWith('/en');
           recommendedText.textContent = isJa
             ? `${labels[os]} - お使いの環境に推奨`
             : `${labels[os]} - Recommended for your system`;
           recommended.classList.remove('hidden');
         }
       }
-
     } catch {
-      // Fallback: link all cards to the releases page
-      if (versionBadge) versionBadge.textContent = 'v2.0.0';
+      // Fallback: link all cards to the releases page.
+      if (versionBadge) versionBadge.textContent = 'GitHub Releases';
+      if (releaseTitle) releaseTitle.textContent = 'GitHub Releases';
+      if (releaseDate) releaseDate.textContent = isJa ? '最新情報はGitHubで確認できます' : 'Latest information is available on GitHub';
+      if (totalCount) totalCount.textContent = '--';
+      ['download-windows-meta', 'download-mac-arm-meta', 'download-mac-intel-meta'].forEach(id => {
+        const meta = document.getElementById(id);
+        if (meta) meta.textContent = isJa ? 'GitHub Releasesで確認' : 'Open GitHub Releases';
+      });
+      ['download-windows-count', 'download-mac-arm-count', 'download-mac-intel-count'].forEach(id => {
+        const count = document.getElementById(id);
+        if (count) count.textContent = '';
+      });
       [winCard, macArmCard, macIntelCard].forEach(card => {
         if (card) {
           card.href = RELEASES_PAGE;
@@ -204,7 +342,7 @@ const { lang } = Astro.props
     }
   }
 
-  // Run when DOM is ready
+  // Run when DOM is ready.
   if (document.readyState === 'loading') {
     document.addEventListener('DOMContentLoaded', initDownloads);
   } else {
