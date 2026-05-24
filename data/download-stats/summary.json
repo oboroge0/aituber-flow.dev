@@ -1,0 +1,32 @@
+{
+  "generated_at": "2026-05-24T14:54:41.561Z",
+  "repository": "oboroge0/AITuberFlow",
+  "release": {
+    "tag_name": "v2.3.2",
+    "name": "Release v2.3.2",
+    "html_url": "https://github.com/oboroge0/AITuberFlow/releases/tag/v2.3.2",
+    "published_at": "2026-05-24T13:51:18Z"
+  },
+  "installer_downloads": {
+    "total": 0,
+    "delta_since_previous": 0,
+    "by_platform": {
+      "windows_x64": {
+        "label": "Windows x64",
+        "count": 0,
+        "delta_since_previous": 0
+      },
+      "macos_apple_silicon": {
+        "label": "macOS Apple Silicon",
+        "count": 0,
+        "delta_since_previous": 0
+      },
+      "macos_intel": {
+        "label": "macOS Intel",
+        "count": 0,
+        "delta_since_previous": 0
+      }
+    },
+    "macos_intel_share": null
+  }
+}

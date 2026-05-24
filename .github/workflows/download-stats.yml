@@ -1,0 +1,39 @@
+name: Generate download stats chart
+
+on:
+  workflow_dispatch:
+  schedule:
+    # GitHub Release asset download_count is cumulative only. Capture it
+    # periodically so the public SVG/JSON chart can show current totals.
+    - cron: '17 */6 * * *'
+
+permissions:
+  contents: write
+
+jobs:
+  generate:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+
+      - name: Set up Node.js
+        uses: actions/setup-node@v4
+        with:
+          node-version: 20
+
+      - name: Generate public download stats
+        run: node scripts/generate-download-stats.mjs
+
+      - name: Commit chart if changed
+        run: |
+          if [ -z "$(git status --porcelain -- data/download-stats landing/public/download-stats.svg)" ]; then
+            echo "No download stat changes to commit."
+            exit 0
+          fi
+          git config user.name "github-actions[bot]"
+          git config user.email "41898282+github-actions[bot]@users.noreply.github.com"
+          git add data/download-stats landing/public/download-stats.svg
+          git commit -m "chore: update download stats chart"
+          git push
+

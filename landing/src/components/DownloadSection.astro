@@ -145,22 +145,28 @@ const { lang } = Astro.props
 
       const assets: Array<{name: string; browser_download_url: string}> = data.assets || [];
 
-      // Find download URLs
+      // Find download URLs. The links below intentionally point to local
+      // redirect pages first so Cloudflare can count site-originated download
+      // clicks by platform before the browser is sent to the GitHub asset.
       const winUrl = findAssetUrl(assets, 'x64-setup.exe');
       const macArmUrl = findAssetUrl(assets, 'aarch64.dmg');
       const macIntelUrl = findAssetUrl(assets, 'x64.dmg');
+      const pathPrefix = window.location.pathname.startsWith('/en') ? '/en' : '';
 
       // Enable available cards
       if (winUrl && winCard) {
-        winCard.href = winUrl;
+        winCard.href = `${pathPrefix}/download/windows`;
+        winCard.dataset.githubDownloadUrl = winUrl;
         winCard.classList.remove('opacity-50', 'pointer-events-none');
       }
       if (macArmUrl && macArmCard) {
-        macArmCard.href = macArmUrl;
+        macArmCard.href = `${pathPrefix}/download/mac-arm`;
+        macArmCard.dataset.githubDownloadUrl = macArmUrl;
         macArmCard.classList.remove('opacity-50', 'pointer-events-none');
       }
       if (macIntelUrl && macIntelCard) {
-        macIntelCard.href = macIntelUrl;
+        macIntelCard.href = `${pathPrefix}/download/mac-intel`;
+        macIntelCard.dataset.githubDownloadUrl = macIntelUrl;
         macIntelCard.classList.remove('opacity-50', 'pointer-events-none');
       }
 
