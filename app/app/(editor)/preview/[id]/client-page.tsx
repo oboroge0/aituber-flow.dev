@@ -1,16 +1,19 @@
 'use client';
 
-import React, { useEffect, useState, useCallback, useRef, use } from 'react';
-import { useRouter } from 'next/navigation';
-import { io, Socket } from 'socket.io-client';
+import React, { useEffect, useState, useCallback, useRef, useMemo } from 'react';
+import { useRouter, useParams } from 'next/navigation';
 import { AvatarView, AvatarState, RendererType } from '@/components/avatar';
 import api, { ModelInfo } from '@/lib/api';
 import { Workflow } from '@/lib/types';
 import { DEFAULT_MODEL_URL } from '@/lib/constants';
+import { resolveWorkflowId } from '@/lib/routeParams';
+import { getApiBaseUrl, getWsBaseUrl } from '@/lib/runtimeEndpoints';
+import { toast } from '@/stores/toastStore';
 import { DEMO_ROUTES } from '@/lib/demoRoutes';
 
-const WS_URL = process.env.NEXT_PUBLIC_WS_URL || 'http://localhost:8001';
-const API_BASE = process.env.NEXT_PUBLIC_API_URL || 'http://localhost:8001';
+const WS_URL = getWsBaseUrl();
+const API_BASE = getApiBaseUrl();
+const isDemoMode = process.env.NEXT_PUBLIC_DEMO_MODE === 'true';
 
 // Helper to get full URL (backend serves uploaded files)
 const getFullUrl = (url: string | undefined): string | undefined => {
@@ -39,20 +42,25 @@ interface AvatarConfig {
 }
 
 interface PreviewPageProps {
-  params: Promise<{ id: string }>;
+  forcedWorkflowId?: string;
   editorPath?: string;
 }
 
-// Demo mode detection
-const isDemoMode = typeof window !== 'undefined'
-  ? (process.env.NEXT_PUBLIC_DEMO_MODE === 'true' || window.location.hostname === 'app.aituber-flow.dev')
-  : process.env.NEXT_PUBLIC_DEMO_MODE === 'true';
-
-export default function PreviewClient({ params, editorPath }: PreviewPageProps) {
-  const { id: workflowId } = use(params);
+export default function PreviewPage({
+  forcedWorkflowId,
+  editorPath,
+}: PreviewPageProps = {}) {
+  const params = useParams<{ id?: string | string[] }>();
+  const workflowId = useMemo(
+    () => forcedWorkflowId ?? resolveWorkflowId(params.id, 'preview'),
+    [forcedWorkflowId, params.id],
+  );
   const router = useRouter();
 
-  const [socket, setSocket] = useState<Socket | null>(null);
+  const resolvedEditorPath =
+    editorPath ?? (isDemoMode ? DEMO_ROUTES.editor : `/editor/${workflowId}`);
+
+  const wsRef = useRef<WebSocket | null>(null);
   const [connected, setConnected] = useState(false);
   const [workflow, setWorkflow] = useState<Workflow | null>(null);
   const [isRunning, setIsRunning] = useState(false);
@@ -93,6 +101,8 @@ export default function PreviewClient({ params, editorPath }: PreviewPageProps) 
   const [models, setModels] = useState<ModelInfo[]>([]);
   const [uploading, setUploading] = useState(false);
   const [uploadError, setUploadError] = useState<string | null>(null);
+  const [pendingDeleteModel, setPendingDeleteModel] = useState<string | null>(null);
+  const deleteModelTimerRef = useRef<ReturnType<typeof setTimeout> | null>(null);
 
   // Audio playback
   const audioRef = useRef<HTMLAudioElement | null>(null);
@@ -100,6 +110,8 @@ export default function PreviewClient({ params, editorPath }: PreviewPageProps) 
 
   // Load workflow data
   useEffect(() => {
+    if (!workflowId || workflowId === '_') return;
+
     const loadWorkflowData = async () => {
       try {
         const response = await api.getWorkflow(workflowId);
@@ -112,109 +124,103 @@ export default function PreviewClient({ params, editorPath }: PreviewPageProps) 
           );
 
           if (avatarNode?.config) {
-            const workflowModelUrl = avatarNode.config.model_url || avatarNode.config.vrm_model;
+            const workflowModelUrl = avatarNode.config.modelUrl || avatarNode.config.model_url || avatarNode.config.vrm_model;
             setAvatarConfig((prev) => ({
               renderer: avatarNode.config.renderer || 'vrm',
               // Keep saved model URL if workflow doesn't have one
               modelUrl: workflowModelUrl || prev.modelUrl,
-              animationUrl: avatarNode.config.animation_url,
-              vtubePort: avatarNode.config.vtube_port,
-              pngConfig: avatarNode.config.png_config,
+              animationUrl: avatarNode.config.animationUrl || avatarNode.config.idle_animation,
+              vtubePort: avatarNode.config.vtubePort ?? avatarNode.config.vtube_port,
+              pngConfig: avatarNode.config.pngConfig || avatarNode.config.png_config,
             }));
           }
         }
       } catch (error) {
         console.error('Failed to load workflow:', error);
+        toast.error('ワークフローの読み込みに失敗しました');
       }
     };
 
     loadWorkflowData();
   }, [workflowId]);
 
-  // WebSocket connection (skip in demo mode)
+  // WebSocket connection
   useEffect(() => {
-    if (isDemoMode) {
-      console.log('[Demo Mode] WebSocket connection skipped');
-      return;
-    }
+    if (!workflowId || workflowId === '_') return;
+    // Demo deployment is static (no backend), so skip the live WebSocket.
+    if (isDemoMode) return;
 
-    const newSocket = io(WS_URL, {
-      path: '/ws/socket.io',
-      transports: ['websocket', 'polling'],
-    });
+    const wsUrl = `${WS_URL.replace(/^http/, 'ws')}/ws`;
+    const ws = new WebSocket(wsUrl);
+    wsRef.current = ws;
 
-    newSocket.on('connect', () => {
+    ws.onopen = () => {
       console.log('Connected to WebSocket');
       setConnected(true);
-      newSocket.emit('join', { workflowId });
-    });
+      ws.send(JSON.stringify({ type: 'join', payload: { workflowId } }));
+    };
 
-    newSocket.on('disconnect', () => {
+    ws.onclose = () => {
       console.log('Disconnected from WebSocket');
       setConnected(false);
-    });
+    };
 
-    // Avatar events
-    newSocket.on('avatar.expression', (data: { expression: string }) => {
-      setAvatarState((prev) => ({ ...prev, expression: data.expression }));
-    });
+    ws.onmessage = (event) => {
+      try {
+        const data = JSON.parse(event.data);
+        const { type, ...rest } = data;
 
-    newSocket.on('avatar.mouth', (data: { value: number }) => {
-      setAvatarState((prev) => ({ ...prev, mouthOpen: data.value }));
-    });
-
-    newSocket.on('avatar.motion', (data: { motion: string }) => {
-      setAvatarState((prev) => ({ ...prev, motion: data.motion }));
-    });
-
-    newSocket.on('avatar.lookAt', (data: { x: number; y: number }) => {
-      setAvatarState((prev) => ({ ...prev, lookAt: data }));
-    });
-
-    // Combined avatar update
-    newSocket.on('avatar.update', (data: Partial<AvatarState>) => {
-      setAvatarState((prev) => ({ ...prev, ...data }));
-    });
-
-    // Subtitle events
-    newSocket.on('subtitle', (data: { text: string }) => {
-      setSubtitle(data.text);
-    });
-
-    // Audio events - play generated audio
-    newSocket.on('audio', (data: { filename: string; duration: number; text: string }) => {
-      if (data.filename) {
-        const audioUrl = `${API_BASE}/api/integrations/audio/${data.filename}`;
-        console.log('Playing audio:', audioUrl);
-
-        // Stop previous audio if playing
-        if (audioRef.current) {
-          audioRef.current.pause();
+        switch (type) {
+          case 'avatar.expression':
+            setAvatarState((prev) => ({ ...prev, expression: rest.expression }));
+            break;
+          case 'avatar.mouth':
+            setAvatarState((prev) => ({ ...prev, mouthOpen: rest.value }));
+            break;
+          case 'avatar.motion':
+            setAvatarState((prev) => ({ ...prev, motion: rest.motionUrl || rest.motion }));
+            break;
+          case 'avatar.lookAt':
+            setAvatarState((prev) => ({ ...prev, lookAt: rest }));
+            break;
+          case 'avatar.update':
+            setAvatarState((prev) => ({ ...prev, ...rest }));
+            break;
+          case 'subtitle':
+            setSubtitle(rest.text);
+            break;
+          case 'audio':
+            if (rest.filename) {
+              const audioUrl = `${API_BASE}/api/integrations/audio/${rest.filename}`;
+              console.log('Playing audio:', audioUrl);
+              if (audioRef.current) {
+                audioRef.current.pause();
+              }
+              const audio = new Audio(audioUrl);
+              audioRef.current = audio;
+              audio.play().catch((err) => {
+                console.error('Failed to play audio:', err);
+              });
+            }
+            break;
+          case 'execution.started':
+            setIsRunning(true);
+            break;
+          case 'execution.stopped':
+            setIsRunning(false);
+            break;
         }
-
-        // Create and play new audio
-        const audio = new Audio(audioUrl);
-        audioRef.current = audio;
-        audio.play().catch((err) => {
-          console.error('Failed to play audio:', err);
-        });
+      } catch (err) {
+        console.warn('Failed to parse WebSocket message:', err);
       }
-    });
-
-    // Execution events
-    newSocket.on('execution.started', () => {
-      setIsRunning(true);
-    });
-
-    newSocket.on('execution.stopped', () => {
-      setIsRunning(false);
-    });
-
-    setSocket(newSocket);
+    };
 
     return () => {
-      newSocket.disconnect();
-      // Stop any playing audio
+      if (ws.readyState === WebSocket.OPEN) {
+        ws.send(JSON.stringify({ type: 'leave', payload: { workflowId } }));
+      }
+      ws.close();
+      wsRef.current = null;
       if (audioRef.current) {
         audioRef.current.pause();
         audioRef.current = null;
@@ -225,7 +231,7 @@ export default function PreviewClient({ params, editorPath }: PreviewPageProps) 
   // Control handlers
   const handleStart = useCallback(async () => {
     if (!workflow) {
-      console.error('No workflow data loaded');
+      toast.error('ワークフローデータが読み込まれていません');
       return;
     }
     try {
@@ -236,6 +242,7 @@ export default function PreviewClient({ params, editorPath }: PreviewPageProps) 
       });
     } catch (error) {
       console.error('Failed to start workflow:', error);
+      toast.error('ワークフローの開始に失敗しました');
     }
   }, [workflowId, workflow]);
 
@@ -244,13 +251,13 @@ export default function PreviewClient({ params, editorPath }: PreviewPageProps) 
       await api.stopWorkflow(workflowId);
     } catch (error) {
       console.error('Failed to stop workflow:', error);
+      toast.error('ワークフローの停止に失敗しました');
     }
   }, [workflowId]);
 
   const handleBackToEditor = useCallback(() => {
-    const nextPath = editorPath || (isDemoMode ? DEMO_ROUTES.editor : `/editor/${workflowId}`);
-    router.push(nextPath);
-  }, [editorPath, router, workflowId]);
+    router.push(resolvedEditorPath);
+  }, [router, resolvedEditorPath]);
 
   // Expression test buttons (for development)
   const testExpressions = ['neutral', 'happy', 'sad', 'angry', 'surprised'];
@@ -299,19 +306,33 @@ export default function PreviewClient({ params, editorPath }: PreviewPageProps) 
     }
   }, [loadModels]);
 
-  // Handle model delete
+  // Handle model delete (double-click to confirm)
   const handleDeleteModel = useCallback(async (filename: string) => {
-    if (!confirm(`Delete ${filename}?`)) return;
+    if (pendingDeleteModel !== filename) {
+      setPendingDeleteModel(filename);
+      toast.warning(`もう一度押すと「${filename}」を削除します`);
+      if (deleteModelTimerRef.current) clearTimeout(deleteModelTimerRef.current);
+      deleteModelTimerRef.current = setTimeout(() => {
+        setPendingDeleteModel(null);
+        deleteModelTimerRef.current = null;
+      }, 5000);
+      return;
+    }
+    setPendingDeleteModel(null);
+    if (deleteModelTimerRef.current) {
+      clearTimeout(deleteModelTimerRef.current);
+      deleteModelTimerRef.current = null;
+    }
 
     const response = await api.deleteModel(filename);
     if (response.data?.success) {
       loadModels();
-      // Clear model URL if the deleted model was selected
       if (avatarConfig.modelUrl?.includes(filename)) {
         setAvatarConfig((prev) => ({ ...prev, modelUrl: '' }));
       }
+      toast.success(`${filename} を削除しました`);
     }
-  }, [loadModels, avatarConfig.modelUrl]);
+  }, [loadModels, avatarConfig.modelUrl, pendingDeleteModel]);
 
   return (
     <div className="h-screen bg-slate-900 flex flex-col overflow-hidden">

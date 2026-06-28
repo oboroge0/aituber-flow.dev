@@ -5,11 +5,13 @@
 
 import { Workflow, ApiResponse } from './types';
 import { DEMO_WORKFLOW_ID } from './demoRoutes';
+import type { ValidationResult } from './api';
 
 const STORAGE_KEYS = {
   WORKFLOW: 'aituber_demo_workflow',
   MODELS: 'aituber_demo_models',
   ANIMATIONS: 'aituber_demo_animations',
+  SETTINGS: 'aituber_demo_settings',
 } as const;
 
 const DEMO_WORKFLOW_BASE: Omit<Workflow, 'createdAt' | 'updatedAt'> = {
@@ -347,7 +349,10 @@ class DemoApiClient {
     return { error: 'Demo mode supports a single workflow' };
   }
 
-  async exportWorkflow(_id: string): Promise<ApiResponse<WorkflowExport>> {
+  async exportWorkflow(
+    _id: string,
+    _options: { excludeApiKeys?: boolean } = { excludeApiKeys: true },
+  ): Promise<ApiResponse<WorkflowExport>> {
     await this.delay(50);
     const workflow = getStoredWorkflow();
     return {
@@ -381,7 +386,10 @@ class DemoApiClient {
   }
 
   // Execution (demo mode - just simulates)
-  async startWorkflow(_id: string): Promise<ApiResponse<{ status: string }>> {
+  async startWorkflow(
+    _id: string,
+    _data?: { nodes: any[]; connections: any[]; character: any; startNodeId?: string },
+  ): Promise<ApiResponse<{ status: string }>> {
     await this.delay(200);
     console.log('[Demo Mode] Workflow execution simulated');
     return { data: { status: 'running' } };
@@ -390,6 +398,32 @@ class DemoApiClient {
   async stopWorkflow(_id: string): Promise<ApiResponse<{ status: string }>> {
     await this.delay(100);
     return { data: { status: 'stopped' } };
+  }
+
+  async getWorkflowStatus(
+    _id: string,
+  ): Promise<ApiResponse<{ workflowId: string; status: string; startedAt: string | null; error: string | null }>> {
+    await this.delay(20);
+    // Demo has no live runtime; always report a stopped workflow.
+    return {
+      data: {
+        workflowId: DEMO_WORKFLOW_ID,
+        status: 'stopped',
+        startedAt: null,
+        error: null,
+      },
+    };
+  }
+
+  async validateWorkflow(
+    _id: string,
+    _data?: { nodes: any[]; connections: any[] },
+  ): Promise<ApiResponse<ValidationResult>> {
+    await this.delay(20);
+    // Demo has no backend validation engine; treat workflows as valid.
+    return {
+      data: { valid: true, errors: [], warnings: [], issues: [] },
+    };
   }
 
   // Plugins
@@ -521,6 +555,31 @@ class DemoApiClient {
     const filtered = animations.filter(a => a.filename !== filename);
     setToStorage(STORAGE_KEYS.ANIMATIONS, filtered);
     return { data: { success: true } };
+  }
+
+  // Global settings (persisted to localStorage in demo mode)
+  async getSettings(): Promise<ApiResponse<Record<string, string>>> {
+    await this.delay(20);
+    if (typeof window === 'undefined') return { data: {} };
+    try {
+      const raw = localStorage.getItem(STORAGE_KEYS.SETTINGS);
+      return { data: raw ? (JSON.parse(raw) as Record<string, string>) : {} };
+    } catch {
+      return { data: {} };
+    }
+  }
+
+  async updateSettings(settings: Record<string, string>): Promise<ApiResponse<{ success: boolean }>> {
+    await this.delay(20);
+    if (typeof window === 'undefined') return { data: { success: true } };
+    try {
+      const raw = localStorage.getItem(STORAGE_KEYS.SETTINGS);
+      const current = raw ? (JSON.parse(raw) as Record<string, string>) : {};
+      localStorage.setItem(STORAGE_KEYS.SETTINGS, JSON.stringify({ ...current, ...settings }));
+      return { data: { success: true } };
+    } catch (error) {
+      return { error: error instanceof Error ? error.message : 'Failed to save settings' };
+    }
   }
 
   // Helper method for simulated delay

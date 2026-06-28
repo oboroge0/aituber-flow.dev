@@ -1,6 +1,6 @@
 import { create } from 'zustand';
 import { v4 as uuidv4 } from 'uuid';
-import { WorkflowNode, Connection, ExecutionLog, NodeStatus, CharacterConfig } from '@/lib/types';
+import { WorkflowNode, Connection, ExecutionLog, NodeStatus, CharacterConfig, ActivityCycle, CycleStep } from '@/lib/types';
 
 // History state for undo/redo
 interface HistoryState {
@@ -18,6 +18,7 @@ interface WorkflowState {
 
   // UI state
   selectedNodeId: string | null;
+  settingsPanelOpen: boolean;
   isExecuting: boolean;
 
   // History for undo/redo
@@ -30,6 +31,11 @@ interface WorkflowState {
   // Execution state
   logs: ExecutionLog[];
   nodeStatuses: Record<string, NodeStatus>;
+  cycles: ActivityCycle[];
+
+  // Derived state (reachable nodes from BFS)
+  reachableNodeIds: Set<string>;
+  hasStartNode: boolean;
 
   // Actions
   setWorkflowId: (id: string | null) => void;
@@ -42,6 +48,7 @@ interface WorkflowState {
   removeNode: (id: string) => void;
   setNodePosition: (id: string, position: { x: number; y: number }) => void;
   selectNode: (id: string | null) => void;
+  setSettingsPanelOpen: (open: boolean) => void;
 
   // Connection actions
   addConnection: (conn: Omit<Connection, 'id'>) => string;
@@ -62,6 +69,7 @@ interface WorkflowState {
   setExecuting: (executing: boolean) => void;
   addLog: (log: Omit<ExecutionLog, 'id' | 'timestamp'>) => void;
   clearLogs: () => void;
+  clearCycles: () => void;
   setNodeStatus: (nodeId: string, status: NodeStatus['status'], data?: any) => void;
 
   // Bulk actions
@@ -87,11 +95,137 @@ const defaultCharacter: CharacterConfig = {
   personality: 'Friendly and helpful virtual streamer',
 };
 
+const MAX_CYCLES = 100;
+
+// Fold a node.status event into the activity cycle list. Statuses without a
+// cycleId (validation highlights, listening, idle resets) are ignored here.
+function aggregateCycle(
+  cycles: ActivityCycle[],
+  nodeId: string,
+  status: NodeStatus['status'],
+  data?: any,
+): ActivityCycle[] {
+  const cycleId: string | undefined = data?.cycleId;
+  if (!cycleId || (status !== 'running' && status !== 'completed' && status !== 'error')) {
+    return cycles;
+  }
+
+  let next = [...cycles];
+  let idx = next.findIndex((c) => c.id === cycleId);
+  if (idx === -1) {
+    next.push({
+      id: cycleId,
+      startedAt: new Date().toISOString(),
+      trigger: data?.cycleTrigger,
+      steps: [],
+      status: 'running',
+      totalDuration: 0,
+    });
+    if (next.length > MAX_CYCLES) next = next.slice(-MAX_CYCLES);
+    idx = next.findIndex((c) => c.id === cycleId);
+  }
+
+  const cycle = { ...next[idx] };
+  if (data?.cycleTrigger && !cycle.trigger) cycle.trigger = data.cycleTrigger;
+
+  const steps = [...cycle.steps];
+  const runningIdx = steps.findIndex((s) => s.nodeId === nodeId && s.status === 'running');
+  if (status === 'running') {
+    steps.push({ nodeId, status: 'running', startedAt: new Date().toISOString() });
+  } else {
+    const finished: CycleStep = {
+      nodeId,
+      status,
+      startedAt: runningIdx !== -1 ? steps[runningIdx].startedAt : new Date().toISOString(),
+      duration: data?.duration,
+      resultSummary: data?.resultSummary,
+      textPreview: data?.textPreview,
+      error: data?.error,
+    };
+    if (runningIdx !== -1) {
+      steps[runningIdx] = finished;
+    } else {
+      steps.push(finished);
+    }
+  }
+
+  cycle.steps = steps;
+  cycle.status = steps.some((s) => s.status === 'error')
+    ? 'error'
+    : steps.some((s) => s.status === 'running')
+      ? 'running'
+      : 'completed';
+  cycle.totalDuration = steps.reduce((sum, s) => sum + (s.duration ?? 0), 0);
+
+  next[idx] = cycle;
+  return next;
+}
+
 // Helper to save current state to history
 const saveToHistory = (state: WorkflowState): Partial<WorkflowState> => ({
   past: [...state.past, { nodes: state.nodes, connections: state.connections }].slice(-50), // Keep last 50 states
   future: [], // Clear future on new action
 });
+
+
+// Helper to compute reachable nodes via BFS from entry points
+const computeReachableNodes = (
+  nodes: WorkflowNode[],
+  connections: Connection[]
+): { reachableNodeIds: Set<string>; hasStartNode: boolean } => {
+  // Build adjacency list
+  const adjacency: Record<string, string[]> = {};
+  nodes.forEach((n) => {
+    adjacency[n.id] = [];
+  });
+
+  connections.forEach((conn) => {
+    const fromId = conn.from.nodeId;
+    const toId = conn.to.nodeId;
+    if (fromId && toId && adjacency[fromId]) {
+      adjacency[fromId].push(toId);
+    }
+  });
+
+  // Find Start nodes
+  const startNodes = nodes.filter((n) => n.type === 'start').map((n) => n.id);
+  const hasStartNode = startNodes.length > 0;
+
+  // If no Start node, all nodes with no incoming connections are entry points
+  let entryPoints: string[];
+  if (hasStartNode) {
+    entryPoints = startNodes;
+  } else {
+    const incomingCount: Record<string, number> = {};
+    nodes.forEach((n) => {
+      incomingCount[n.id] = 0;
+    });
+    connections.forEach((conn) => {
+      if (incomingCount[conn.to.nodeId] !== undefined) {
+        incomingCount[conn.to.nodeId]++;
+      }
+    });
+    entryPoints = Object.entries(incomingCount)
+      .filter(([, count]) => count === 0)
+      .map(([id]) => id);
+  }
+
+  // BFS to find all reachable nodes
+  const reachableNodeIds = new Set<string>();
+  const queue = [...entryPoints];
+  while (queue.length > 0) {
+    const nodeId = queue.shift()!;
+    if (reachableNodeIds.has(nodeId)) continue;
+    reachableNodeIds.add(nodeId);
+    (adjacency[nodeId] || []).forEach((neighbor) => {
+      if (!reachableNodeIds.has(neighbor)) {
+        queue.push(neighbor);
+      }
+    });
+  }
+
+  return { reachableNodeIds, hasStartNode };
+};
 
 export const useWorkflowStore = create<WorkflowState>((set, get) => ({
   // Initial state
@@ -99,14 +233,18 @@ export const useWorkflowStore = create<WorkflowState>((set, get) => ({
   workflowName: 'New Workflow',
   nodes: [],
   connections: [],
+  reachableNodeIds: new Set<string>(),
+  hasStartNode: false,
   character: defaultCharacter,
   selectedNodeId: null,
+  settingsPanelOpen: false,
   isExecuting: false,
   past: [],
   future: [],
   clipboard: null,
   logs: [],
   nodeStatuses: {},
+  cycles: [],
 
   // Basic setters
   setWorkflowId: (id) => set({ workflowId: id }),
@@ -117,32 +255,45 @@ export const useWorkflowStore = create<WorkflowState>((set, get) => ({
   addNode: (node) => {
     const id = uuidv4();
     const newNode: WorkflowNode = { ...node, id };
-    set((state) => ({
-      ...saveToHistory(state),
-      nodes: [...state.nodes, newNode],
-      selectedNodeId: id,
-    }));
+    set((state) => {
+      const newNodes = [...state.nodes, newNode];
+      return {
+        ...saveToHistory(state),
+        nodes: newNodes,
+        selectedNodeId: id,
+        ...computeReachableNodes(newNodes, state.connections),
+      };
+    });
     return id;
   },
 
   updateNode: (id, updates) => {
-    set((state) => ({
-      ...saveToHistory(state),
-      nodes: state.nodes.map((node) =>
+    set((state) => {
+      const newNodes = state.nodes.map((node) =>
         node.id === id ? { ...node, ...updates } : node
-      ),
-    }));
+      );
+      return {
+        ...saveToHistory(state),
+        nodes: newNodes,
+        ...computeReachableNodes(newNodes, state.connections),
+      };
+    });
   },
 
   removeNode: (id) => {
-    set((state) => ({
-      ...saveToHistory(state),
-      nodes: state.nodes.filter((node) => node.id !== id),
-      connections: state.connections.filter(
+    set((state) => {
+      const newNodes = state.nodes.filter((node) => node.id !== id);
+      const newConnections = state.connections.filter(
         (conn) => conn.from.nodeId !== id && conn.to.nodeId !== id
-      ),
-      selectedNodeId: state.selectedNodeId === id ? null : state.selectedNodeId,
-    }));
+      );
+      return {
+        ...saveToHistory(state),
+        nodes: newNodes,
+        connections: newConnections,
+        selectedNodeId: state.selectedNodeId === id ? null : state.selectedNodeId,
+        ...computeReachableNodes(newNodes, newConnections),
+      };
+    });
   },
 
   setNodePosition: (id, position) => {
@@ -155,6 +306,8 @@ export const useWorkflowStore = create<WorkflowState>((set, get) => ({
   },
 
   selectNode: (id) => set({ selectedNodeId: id }),
+
+  setSettingsPanelOpen: (open) => set({ settingsPanelOpen: open }),
 
   // Connection actions
   addConnection: (conn) => {
@@ -171,28 +324,40 @@ export const useWorkflowStore = create<WorkflowState>((set, get) => ({
     );
 
     if (!exists) {
-      set((state) => ({
-        ...saveToHistory(state),
-        connections: [...state.connections, newConnection],
-      }));
+      set((state) => {
+        const newConnections = [...state.connections, newConnection];
+        return {
+          ...saveToHistory(state),
+          connections: newConnections,
+          ...computeReachableNodes(state.nodes, newConnections),
+        };
+      });
     }
     return id;
   },
 
   updateConnection: (id, updates) => {
-    set((state) => ({
-      ...saveToHistory(state),
-      connections: state.connections.map((conn) =>
+    set((state) => {
+      const newConnections = state.connections.map((conn) =>
         conn.id === id ? { ...conn, ...updates } : conn
-      ),
-    }));
+      );
+      return {
+        ...saveToHistory(state),
+        connections: newConnections,
+        ...computeReachableNodes(state.nodes, newConnections),
+      };
+    });
   },
 
   removeConnection: (id) => {
-    set((state) => ({
-      ...saveToHistory(state),
-      connections: state.connections.filter((conn) => conn.id !== id),
-    }));
+    set((state) => {
+      const newConnections = state.connections.filter((conn) => conn.id !== id);
+      return {
+        ...saveToHistory(state),
+        connections: newConnections,
+        ...computeReachableNodes(state.nodes, newConnections),
+      };
+    });
   },
 
   // History actions
@@ -208,6 +373,7 @@ export const useWorkflowStore = create<WorkflowState>((set, get) => ({
       future: [{ nodes: state.nodes, connections: state.connections }, ...state.future],
       nodes: previous.nodes,
       connections: previous.connections,
+      ...computeReachableNodes(previous.nodes, previous.connections),
     });
   },
 
@@ -223,6 +389,7 @@ export const useWorkflowStore = create<WorkflowState>((set, get) => ({
       future: newFuture,
       nodes: next.nodes,
       connections: next.connections,
+      ...computeReachableNodes(next.nodes, next.connections),
     });
   },
 
@@ -269,17 +436,21 @@ export const useWorkflowStore = create<WorkflowState>((set, get) => ({
       };
     });
 
-    set((s) => ({
-      ...saveToHistory(s),
-      nodes: [...s.nodes, ...newNodes],
-      selectedNodeId: newNodes.length > 0 ? newNodes[0].id : s.selectedNodeId,
-    }));
+    set((s) => {
+      const updatedNodes = [...s.nodes, ...newNodes];
+      return {
+        ...saveToHistory(s),
+        nodes: updatedNodes,
+        selectedNodeId: newNodes.length > 0 ? newNodes[0].id : s.selectedNodeId,
+        ...computeReachableNodes(updatedNodes, s.connections),
+      };
+    });
   },
 
   // Execution actions
   setExecuting: (executing) => set({
     isExecuting: executing,
-    nodeStatuses: executing ? {} : {}, // Clear statuses when starting
+    nodeStatuses: {},
   }),
 
   addLog: (log) => {
@@ -295,18 +466,21 @@ export const useWorkflowStore = create<WorkflowState>((set, get) => ({
 
   clearLogs: () => set({ logs: [] }),
 
+  clearCycles: () => set({ cycles: [] }),
+
   setNodeStatus: (nodeId, status, data) => {
     set((state) => ({
       nodeStatuses: {
         ...state.nodeStatuses,
         [nodeId]: { nodeId, status, data },
       },
+      cycles: aggregateCycle(state.cycles, nodeId, status, data),
     }));
   },
 
   // Bulk actions
   loadWorkflow: (data) => {
-    set({
+    set((state) => ({
       workflowId: data.id,
       workflowName: data.name,
       nodes: data.nodes,
@@ -315,9 +489,10 @@ export const useWorkflowStore = create<WorkflowState>((set, get) => ({
       selectedNodeId: null,
       past: [],
       future: [],
-      logs: [],
-      nodeStatuses: {},
-    });
+      logs: state.isExecuting ? state.logs : [],
+      nodeStatuses: state.isExecuting ? state.nodeStatuses : {},
+      ...computeReachableNodes(data.nodes, data.connections),
+    }));
   },
 
   clearWorkflow: () => {
@@ -334,6 +509,9 @@ export const useWorkflowStore = create<WorkflowState>((set, get) => ({
       clipboard: null,
       logs: [],
       nodeStatuses: {},
+      cycles: [],
+      reachableNodeIds: new Set<string>(),
+      hasStartNode: false,
     });
   },
 

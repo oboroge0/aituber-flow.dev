@@ -3,7 +3,6 @@
 import React, { useCallback, useRef, useMemo, useState, useEffect } from 'react';
 import {
   ReactFlow,
-  ReactFlowProvider,
   Background,
   Controls,
   useNodesState,
@@ -21,14 +20,19 @@ import {
 } from '@xyflow/react';
 import '@xyflow/react/dist/style.css';
 import { useWorkflowStore } from '@/stores/workflowStore';
+import { usePluginStore } from '@/stores/pluginStore';
+import { toast } from '@/stores/toastStore';
 import CustomNode, { type CustomNodeData } from './CustomNode';
 import FieldSelectorNode from './FieldSelectorNode';
 import ContextMenu, { type ContextMenuItem } from './ContextMenu';
-import DataPreviewPopup from './DataPreviewPopup';
-import { nodeTypes as sidebarNodeTypes, type SidebarNodeType } from './Sidebar';
-import { type PortType, type PortDefinition } from '@/lib/portTypes';
-import { useUIPreferencesStore, type NodeDisplayMode } from '@/stores/uiPreferencesStore';
+import SearchPanel from './SearchPanel';
+import { getNodeTypes, type SidebarNodeType, CATEGORY_COLORS, CATEGORY_LABELS } from './Sidebar';
+import { type PluginCategory } from '@/lib/types';
+import { type PortType, type PortDefinition, PORT_TYPE_COLORS, arePortTypesCompatible } from '@/lib/portTypes';
+import { useUIPreferencesStore } from '@/stores/uiPreferencesStore';
 import { type PromptSection } from '@/components/panels/NodeSettings';
+import { useDragStateStore } from '@/stores/dragStateStore';
+import { isEditableTarget } from '@/lib/domUtils';
 
 interface CanvasProps {
   onNodeSelect?: (nodeId: string | null) => void;
@@ -36,53 +40,32 @@ interface CanvasProps {
   onRunWorkflow?: (startNodeId?: string) => void;
 }
 
-const nodeTypes: NodeTypes = {
+const reactFlowNodeTypes: NodeTypes = {
   custom: CustomNode,
   'field-selector': FieldSelectorNode,
 };
 
-// Node type colors for edge styling
-const nodeTypeColors: Record<string, string> = {
-  // Control flow
-  'start': '#10B981',
-  'end': '#EF4444',
-  'loop': '#F59E0B',
-  'foreach': '#F97316',
-  // Input
-  'youtube-chat': '#FF0000',
-  'twitch-chat': '#9146FF',
-  'discord-chat': '#5865F2',
-  'manual-input': '#22C55E',
-  'timer': '#06B6D4',
-  // LLM
-  'openai-llm': '#10B981',
-  'anthropic-llm': '#D97706',
-  'google-llm': '#4285F4',
-  'ollama-llm': '#6B7280',
-  // TTS
-  'voicevox-tts': '#F59E0B',
-  'coeiroink-tts': '#E91E63',
-  'sbv2-tts': '#9C27B0',
-  // Output
-  'console-output': '#A855F7',
-  'donation-alert': '#F59E0B',
-  // Control
-  'switch': '#F97316',
-  'delay': '#F97316',
-  // Utility
-  'http-request': '#3B82F6',
-  'text-transform': '#EC4899',
-  'field-selector': '#8B5CF6',
-  'random': '#8B5CF6',
-  'variable': '#14B8A6',
-  // Avatar
-  'avatar-configuration': '#E879F9',
-  'emotion-analyzer': '#F472B6',
-  'motion-trigger': '#C084FC',
-  'lip-sync': '#FB7185',
-  'subtitle-display': '#A855F7',
-  'audio-player': '#8B5CF6',
-};
+// Default color for edges when plugin color is not found
+const DEFAULT_EDGE_COLOR = '#10B981';
+
+// Map plugin category to legacy category for CustomNodeData
+function mapPluginCategoryToLegacy(category: string): 'input' | 'process' | 'output' | 'control' {
+  switch (category) {
+    case 'control':
+      return 'control';
+    case 'input':
+      return 'input';
+    case 'output':
+    case 'tts':
+    case 'avatar':
+    case 'obs':
+      return 'output';
+    case 'llm':
+    case 'utility':
+    default:
+      return 'process';
+  }
+}
 
 interface ContextMenuState {
   show: boolean;
@@ -93,25 +76,8 @@ interface ContextMenuState {
   edgeId?: string;
 }
 
-interface DataPreviewState {
-  show: boolean;
-  x: number;
-  y: number;
-  edgeId: string;
-  sourceNodeId: string;
-  targetNodeId: string;
-}
-
-// Wrapper component to provide ReactFlowProvider context
-export default function Canvas(props: CanvasProps) {
-  return (
-    <ReactFlowProvider>
-      <CanvasInner {...props} />
-    </ReactFlowProvider>
-  );
-}
-
-function CanvasInner({ onNodeSelect, onSave, onRunWorkflow }: CanvasProps) {
+// Canvas component - requires ReactFlowProvider to be provided by parent
+export default function Canvas({ onNodeSelect, onSave, onRunWorkflow }: CanvasProps) {
   const reactFlowWrapper = useRef<HTMLDivElement>(null);
   const { screenToFlowPosition } = useReactFlow();
   const [contextMenu, setContextMenu] = useState<ContextMenuState>({
@@ -120,7 +86,6 @@ function CanvasInner({ onNodeSelect, onSave, onRunWorkflow }: CanvasProps) {
     y: 0,
     type: 'pane',
   });
-  const [dataPreview, setDataPreview] = useState<DataPreviewState | null>(null);
 
   const {
     nodes: workflowNodes,
@@ -137,23 +102,38 @@ function CanvasInner({ onNodeSelect, onSave, onRunWorkflow }: CanvasProps) {
     redo,
     copySelectedNodes,
     pasteNodes,
+    reachableNodeIds: reachableNodes,
+    hasStartNode,
     nodeStatuses,
   } = useWorkflowStore();
 
-  const { nodeDisplayMode, setNodeDisplayMode } = useUIPreferencesStore();
+  const { nodeDisplayMode, setNodeDisplayMode, searchVisible, searchQuery } = useUIPreferencesStore();
+  const { getPluginColor, getPluginLabel, getPluginById, getPluginInputs, getPluginOutputs, getPluginConfig, isLoaded: pluginsLoaded } = usePluginStore();
+  const { setDragging, clearDragging } = useDragStateStore();
+
+  // State for the "drop-on-canvas" compatible node suggestion panel
+  const [connectSuggest, setConnectSuggest] = useState<{
+    x: number; y: number;
+    sourceType: PortType; sourceNodeId: string; sourcePortId: string;
+  } | null>(null);
 
   // Keyboard shortcuts
   useEffect(() => {
     const handleKeyDown = (event: KeyboardEvent) => {
-      // Ignore if typing in an input field
-      if (
-        event.target instanceof HTMLInputElement ||
-        event.target instanceof HTMLTextAreaElement
-      ) {
+      const isCtrlOrCmd = event.ctrlKey || event.metaKey;
+
+      // Allow Ctrl+F even when typing in search input
+      if (isCtrlOrCmd && event.key === 'f') {
+        event.preventDefault();
+        const { searchVisible: visible, setSearchVisible: setVisible } = useUIPreferencesStore.getState();
+        setVisible(!visible);
         return;
       }
 
-      const isCtrlOrCmd = event.ctrlKey || event.metaKey;
+      // Ignore other shortcuts if typing in an input field (incl. select/contentEditable)
+      if (isEditableTarget(event.target)) {
+        return;
+      }
 
       // Ctrl+Z: Undo
       if (isCtrlOrCmd && event.key === 'z' && !event.shiftKey) {
@@ -190,111 +170,193 @@ function CanvasInner({ onNodeSelect, onSave, onRunWorkflow }: CanvasProps) {
     return () => window.removeEventListener('keydown', handleKeyDown);
   }, [undo, redo, copySelectedNodes, pasteNodes, onSave]);
 
-  // Calculate which nodes are reachable from Start nodes
-  const { reachableNodes, hasStartNode } = useMemo(() => {
-    // Build adjacency list
-    const adjacency: Record<string, string[]> = {};
-    workflowNodes.forEach((n) => {
-      adjacency[n.id] = [];
-    });
+  // Reachable nodes are now computed in the Zustand store (workflowStore)
 
-    connections.forEach((conn) => {
-      const fromId = conn.from.nodeId;
-      const toId = conn.to.nodeId;
-      if (fromId && toId && adjacency[fromId]) {
-        adjacency[fromId].push(toId);
+  // Check if any string value in a config object matches the search query
+  const configMatchesQuery = useCallback(
+    (config: Record<string, unknown> | undefined, query: string): boolean => {
+      if (!config) return false;
+      for (const value of Object.values(config)) {
+        if (typeof value === 'string') {
+          if (value.toLowerCase().includes(query)) return true;
+        } else if (typeof value === 'number' || typeof value === 'boolean') {
+          if (String(value).toLowerCase().includes(query)) return true;
+        } else if (Array.isArray(value)) {
+          for (const item of value) {
+            if (typeof item === 'string' || typeof item === 'number' || typeof item === 'boolean') {
+              if (String(item).toLowerCase().includes(query)) return true;
+            } else if (item !== null && typeof item === 'object') {
+              if (configMatchesQuery(item as Record<string, unknown>, query)) return true;
+            }
+          }
+        } else if (value && typeof value === 'object') {
+          if (configMatchesQuery(value as Record<string, unknown>, query)) return true;
+        }
       }
-    });
+      return false;
+    },
+    []
+  );
 
-    // Find Start nodes
-    const startNodes = workflowNodes.filter((n) => n.type === 'start').map((n) => n.id);
-    const hasStart = startNodes.length > 0;
+  // Compute search match node IDs
+  const searchMatchIds = useMemo(() => {
+    if (!searchVisible || !searchQuery.trim()) return new Set<string>();
+    const query = searchQuery.toLowerCase();
+    return new Set(
+      workflowNodes
+        .filter((node) => {
+          const label = getPluginLabel(node.type).toLowerCase();
+          return (
+            label.includes(query) ||
+            node.type.toLowerCase().includes(query) ||
+            configMatchesQuery(node.config, query)
+          );
+        })
+        .map((node) => node.id)
+    );
+  }, [searchVisible, searchQuery, workflowNodes, getPluginLabel, configMatchesQuery]);
 
-    // If no Start node, all nodes with no incoming connections are entry points
-    let entryPoints: string[];
-    if (hasStart) {
-      entryPoints = startNodes;
-    } else {
-      // Find nodes with no incoming connections
-      const incomingCount: Record<string, number> = {};
-      workflowNodes.forEach((n) => {
-        incomingCount[n.id] = 0;
-      });
-      connections.forEach((conn) => {
-        if (incomingCount[conn.to.nodeId] !== undefined) {
-          incomingCount[conn.to.nodeId]++;
-        }
-      });
-      entryPoints = Object.entries(incomingCount)
-        .filter(([, count]) => count === 0)
-        .map(([id]) => id);
-    }
-
-    // BFS to find all reachable nodes
-    const reachable = new Set<string>();
-    const queue = [...entryPoints];
-    while (queue.length > 0) {
-      const nodeId = queue.shift()!;
-      if (reachable.has(nodeId)) continue;
-      reachable.add(nodeId);
-      (adjacency[nodeId] || []).forEach((neighbor) => {
-        if (!reachable.has(neighbor)) {
-          queue.push(neighbor);
-        }
-      });
-    }
-
-    return { reachableNodes: reachable, hasStartNode: hasStart };
-  }, [workflowNodes, connections]);
-
-  // Convert workflow nodes to React Flow nodes
-  const flowNodes: Node[] = useMemo(
+  // Convert workflow nodes to React Flow nodes.
+  // NOTE: intentionally independent of selection — selecting a node only changes
+  // `selectedNodeId`, and re-running this expensive computation (plugin lookups +
+  // dynamic port generation for every node) on each click was dropping a frame and
+  // making the animated edges stutter. Selection is applied cheaply in `flowNodes`.
+  const baseFlowNodes: Node[] = useMemo(
     () => {
       // Entry point node types (nodes with no inputs that can start execution)
       const entryPointTypes = new Set(['start', 'manual-input', 'youtube-chat', 'twitch-chat', 'timer']);
 
+      // Convert port ID to display label (e.g., "text" -> "Text", "expression_id" -> "Expression ID")
+      const formatPortLabel = (id: string): string => {
+        return id
+          .split(/[_-]/)
+          .map(word => word.charAt(0).toUpperCase() + word.slice(1))
+          .join(' ');
+      };
+
       return workflowNodes.map((node) => {
-        const nodeInputs = getNodeInputs(node.type, node.config);
+        // Get inputs from plugin store or fall back to dynamic input logic
+        const pluginInputs = getPluginInputs(node.type);
+        let nodeInputs = pluginInputs.length > 0
+          ? pluginInputs.map(p => ({ id: p.id, label: formatPortLabel(p.id), type: p.type as PortType }))
+          : getNodeInputs(node.type, node.config);
+
+        // Dynamic port generation based on manifest config field types
+        const plugin = getPluginById(node.type);
+        if (plugin?.config && node.config) {
+          for (const [fieldKey, fieldDef] of Object.entries(plugin.config)) {
+            if (fieldDef.type === 'prompt-builder' && Array.isArray(node.config[fieldKey])) {
+              const sections = node.config[fieldKey] as PromptSection[];
+              const inputSections = sections.filter(s => s.type === 'input' && s.content);
+              if (inputSections.length > 0) {
+                nodeInputs = inputSections.map(section => ({
+                  id: section.content,
+                  label: formatPortLabel(section.content),
+                  type: 'string' as PortType,
+                }));
+              }
+              break;
+            }
+            if (fieldDef.type === 'input-list' && Array.isArray(node.config[fieldKey])) {
+              const inputs = (node.config[fieldKey] as string[]).filter(name => name);
+              if (inputs.length > 0) {
+                nodeInputs = inputs.map(name => ({
+                  id: name,
+                  label: formatPortLabel(name),
+                  type: 'string' as PortType,
+                }));
+              }
+              break;
+            }
+          }
+        }
+
+        // Get outputs from plugin store or fall back to static definitions
+        const pluginOutputs = getPluginOutputs(node.type);
+        const nodeOutputs = pluginOutputs.length > 0
+          ? pluginOutputs.map(p => ({ id: p.id, label: formatPortLabel(p.id), type: p.type as PortType }))
+          : getNodeOutputs(node.type);
+
         const isEntryPoint = entryPointTypes.has(node.type) || nodeInputs.length === 0;
         const isReachable = !hasStartNode || reachableNodes.has(node.id);
 
         // Use special node types for custom node components
         const reactFlowNodeType = node.type === 'field-selector' ? 'field-selector' : 'custom';
 
+        // Get category from plugin or fall back to legacy function
+        const category = plugin?.category
+          ? mapPluginCategoryToLegacy(plugin.category)
+          : getNodeCategory(node.type);
+
+        const pluginConfig = getPluginConfig(node.type);
+
         return {
           id: node.id,
           type: reactFlowNodeType,
           position: node.position,
           data: {
-            label: getNodeLabel(node.type),
+            label: getPluginLabel(node.type),
             type: node.type,
-            category: getNodeCategory(node.type),
+            category,
             config: node.config,
+            pluginConfig,
+            pluginsLoaded,
             inputs: nodeInputs,
-            outputs: getNodeOutputs(node.type),
+            outputs: nodeOutputs,
             isReachable,
             isEntryPoint,
             onPlayClick: () => onRunWorkflow?.(node.id),
+            isSearchMatch: searchMatchIds.has(node.id),
+            isSearchDimmed: searchMatchIds.size > 0 && !searchMatchIds.has(node.id),
+            nodeStatus: nodeStatuses[node.id],
           } as CustomNodeData,
-          selected: node.id === selectedNodeId,
+          selected: false,
         };
       });
     },
-    [workflowNodes, selectedNodeId, reachableNodes, hasStartNode, onRunWorkflow]
+    [workflowNodes, reachableNodes, hasStartNode, onRunWorkflow, getPluginLabel, getPluginById, getPluginInputs, getPluginOutputs, getPluginConfig, pluginsLoaded, searchMatchIds, nodeStatuses]
   );
+
+  // Apply selection in a cheap second pass. Unchanged nodes keep their object
+  // identity, so only the (de)selected node re-renders — the rest of the graph
+  // and its animated edges are left untouched, eliminating the click stutter.
+  const flowNodes: Node[] = useMemo(() => {
+    let changed = false;
+    const next = baseFlowNodes.map((node) => {
+      const selected = node.id === selectedNodeId;
+      if (!!node.selected === selected) return node;
+      changed = true;
+      return { ...node, selected };
+    });
+    return changed ? next : baseFlowNodes;
+  }, [baseFlowNodes, selectedNodeId]);
 
   // Convert workflow connections to React Flow edges with gradient style
   // Lines to/from unreachable nodes are dashed
+  // Edge color/animation reflects source node execution status
   const flowEdges: Edge[] = useMemo(
     () =>
       connections.map((conn) => {
         const sourceNode = workflowNodes.find((n) => n.id === conn.from.nodeId);
-        const edgeColor = sourceNode ? nodeTypeColors[sourceNode.type] || '#10B981' : '#10B981';
+        const baseEdgeColor = sourceNode ? (getPluginColor(sourceNode.type) || DEFAULT_EDGE_COLOR) : DEFAULT_EDGE_COLOR;
 
         // Check if this edge involves unreachable nodes (only when Start node exists)
         const sourceReachable = !hasStartNode || reachableNodes.has(conn.from.nodeId);
         const targetReachable = !hasStartNode || reachableNodes.has(conn.to.nodeId);
         const isReachableEdge = sourceReachable && targetReachable;
+
+        // Status-based edge styling
+        const sourceStatus = nodeStatuses[conn.from.nodeId]?.status;
+        let edgeColor = baseEdgeColor;
+        const animated = true;
+
+        if (sourceStatus === 'error') {
+          edgeColor = '#EF4444';
+        } else if (sourceStatus === 'running') {
+          edgeColor = '#3B82F6';
+        } else if (sourceStatus === 'completed') {
+          edgeColor = '#10B981';
+        }
 
         return {
           id: conn.id,
@@ -302,7 +364,7 @@ function CanvasInner({ onNodeSelect, onSave, onRunWorkflow }: CanvasProps) {
           sourceHandle: conn.from.port,
           target: conn.to.nodeId,
           targetHandle: conn.to.port,
-          animated: true, // Always animate edges
+          animated,
           style: {
             stroke: edgeColor,
             strokeWidth: 3,
@@ -311,7 +373,7 @@ function CanvasInner({ onNodeSelect, onSave, onRunWorkflow }: CanvasProps) {
           },
         };
       }),
-    [connections, workflowNodes, reachableNodes, hasStartNode]
+    [connections, workflowNodes, reachableNodes, hasStartNode, getPluginColor, nodeStatuses]
   );
 
   const [nodes, setNodes, onNodesChangeInternal] = useNodesState(flowNodes);
@@ -330,13 +392,17 @@ function CanvasInner({ onNodeSelect, onSave, onRunWorkflow }: CanvasProps) {
     (changes) => {
       onNodesChangeInternal(changes);
 
-      // Handle position changes
+      // Handle position changes. Store writes are skipped while dragging:
+      // each write rebuilds every node's data object and re-renders all
+      // nodes (now heavy with inline config fields). React Flow tracks the
+      // live position internally; persist to the store only on drop.
       changes.forEach((change) => {
-        if (change.type === 'position' && change.position) {
+        if (change.type === 'position' && change.position && !change.dragging) {
           setNodePosition(change.id, change.position);
         }
         if (change.type === 'remove') {
           removeNode(change.id);
+          toast.success('ノードを削除しました');
         }
       });
     },
@@ -364,16 +430,84 @@ function CanvasInner({ onNodeSelect, onSave, onRunWorkflow }: CanvasProps) {
           to: { nodeId: params.target, port: params.targetHandle },
         });
       }
+      setConnectSuggest(null);
     },
     [addConnection]
   );
 
+  // When dragging starts from a handle — notify drag state store so all nodes can highlight/dim
+  const onConnectStart = useCallback(
+    (_event: unknown, params: { nodeId?: string | null; handleId?: string | null; handleType?: 'source' | 'target' | null }) => {
+      const { nodeId, handleId, handleType } = params;
+      if (!nodeId || !handleId || !handleType) return;
+      const node = workflowNodes.find((n) => n.id === nodeId);
+      if (!node) return;
+      const portDefs = handleType === 'source' ? getPluginOutputs(node.type) : getPluginInputs(node.type);
+      const portDef = portDefs.find((p) => p.id === handleId);
+      if (portDef) {
+        setDragging(portDef.type as PortType, handleType);
+      }
+    },
+    [workflowNodes, getPluginInputs, getPluginOutputs, setDragging]
+  ) as Parameters<typeof ReactFlow>[0]['onConnectStart'];
+
+  // When dragging ends — clear drag state, show suggestion panel if dropped on empty canvas
+  const onConnectEnd = useCallback(
+    (event: MouseEvent | TouchEvent) => {
+      // Reconnecting an existing edge also fires connect events — don't show the
+      // "connectable nodes" suggestion panel when the user is just dragging an
+      // edge end and releasing it on the canvas.
+      if (isReconnecting.current) {
+        clearDragging();
+        return;
+      }
+      const state = useDragStateStore.getState();
+      const target = event.target as HTMLElement;
+      const isOnHandle = target.classList.contains('react-flow__handle');
+      const isOnNode = !!target.closest('.react-flow__node');
+      if (!isOnHandle && !isOnNode && state.draggingSourceType) {
+        const clientX = (event as MouseEvent).clientX ?? (event as TouchEvent).changedTouches?.[0]?.clientX;
+        const clientY = (event as MouseEvent).clientY ?? (event as TouchEvent).changedTouches?.[0]?.clientY;
+        if (clientX !== undefined && clientY !== undefined) {
+          setConnectSuggest({
+            x: clientX,
+            y: clientY,
+            sourceType: state.draggingSourceType,
+            sourceNodeId: '',
+            sourcePortId: '',
+          });
+        }
+      }
+      clearDragging();
+    },
+    [clearDragging]
+  );
+
+  /** Only allow connections where port types are compatible. */
+  const isValidConnection = useCallback(
+    (connection: { source?: string | null; target?: string | null; sourceHandle?: string | null; targetHandle?: string | null }) => {
+      const srcNode = workflowNodes.find((n) => n.id === connection.source);
+      const tgtNode = workflowNodes.find((n) => n.id === connection.target);
+      if (!srcNode || !tgtNode || !connection.sourceHandle || !connection.targetHandle) return true;
+      const srcPort = getPluginOutputs(srcNode.type).find((p) => p.id === connection.sourceHandle);
+      const tgtPort = getPluginInputs(tgtNode.type).find((p) => p.id === connection.targetHandle);
+      if (!srcPort || !tgtPort) return true; // unknown port — allow
+      return arePortTypesCompatible(srcPort.type as PortType, tgtPort.type as PortType);
+    },
+    [workflowNodes, getPluginInputs, getPluginOutputs]
+  ) as Parameters<typeof ReactFlow>[0]['isValidConnection'];
+
   // Track if edge was successfully reconnected
   const edgeReconnectSuccessful = useRef(true);
+  // True while an existing edge's end is being dragged (reconnect). Used to
+  // suppress the "connectable nodes" suggestion panel on reconnect drops, since
+  // reconnecting also fires the connect-start/end events.
+  const isReconnecting = useRef(false);
 
   // Called when edge reconnection starts
   const onReconnectStart = useCallback(() => {
     edgeReconnectSuccessful.current = false;
+    isReconnecting.current = true;
   }, []);
 
   // Handle edge reconnection (dragging edge end to a new target)
@@ -397,6 +531,7 @@ function CanvasInner({ onNodeSelect, onSave, onRunWorkflow }: CanvasProps) {
         removeConnection(edge.id);
       }
       edgeReconnectSuccessful.current = true;
+      isReconnecting.current = false;
     },
     [removeConnection]
   );
@@ -413,24 +548,18 @@ function CanvasInner({ onNodeSelect, onSave, onRunWorkflow }: CanvasProps) {
     selectNode(null);
     onNodeSelect?.(null);
     setContextMenu({ show: false, x: 0, y: 0, type: 'pane' });
-    setDataPreview(null);
+    setConnectSuggest(null);
   }, [selectNode, onNodeSelect]);
 
-  // Handle edge click to show data preview
-  const onEdgeClick = useCallback(
-    (event: React.MouseEvent, edge: Edge) => {
-      event.stopPropagation();
-      setDataPreview({
-        show: true,
-        x: event.clientX,
-        y: event.clientY,
-        edgeId: edge.id,
-        sourceNodeId: edge.source,
-        targetNodeId: edge.target,
-      });
-    },
-    []
-  );
+  // Dismiss the connect-suggest panel with the Escape key
+  useEffect(() => {
+    if (!connectSuggest) return;
+    const onKey = (e: KeyboardEvent) => {
+      if (e.key === 'Escape') setConnectSuggest(null);
+    };
+    window.addEventListener('keydown', onKey);
+    return () => window.removeEventListener('keydown', onKey);
+  }, [connectSuggest]);
 
   const onDragOver = useCallback((event: React.DragEvent) => {
     event.preventDefault();
@@ -590,24 +719,58 @@ function CanvasInner({ onNodeSelect, onSave, onRunWorkflow }: CanvasProps) {
       ];
     }
 
-    // Pane context menu - add nodes
-    return sidebarNodeTypes.map((nodeType) => ({
-      label: `Add ${nodeType.label}`,
-      icon: <span style={{ color: nodeType.color }}>{nodeType.icon}</span>,
-      onClick: () => {
-        const reactFlowBounds = reactFlowWrapper.current?.getBoundingClientRect();
-        if (!reactFlowBounds) return;
+    // Pane context menu — "Add Node ▶" with category flyout submenu
+    const nodeTypesList = getNodeTypes();
+    const { plugins } = usePluginStore.getState();
 
-        addNode({
-          type: nodeType.id,
-          position: {
-            x: contextMenu.x - reactFlowBounds.left - 80,
-            y: contextMenu.y - reactFlowBounds.top - 30,
+    // Group node types by category
+    const byCategory: Record<string, SidebarNodeType[]> = {};
+    for (const nt of nodeTypesList) {
+      const plugin = plugins.find((p) => p.id === nt.id);
+      const cat = plugin?.category ?? 'utility';
+      if (!byCategory[cat]) byCategory[cat] = [];
+      byCategory[cat].push(nt);
+    }
+
+    const categoryOrder: PluginCategory[] = [
+      'control', 'input', 'llm', 'tts', 'avatar', 'output', 'utility', 'obs',
+    ];
+
+    const submenuSections = categoryOrder
+      .filter((cat) => byCategory[cat]?.length > 0)
+      .map((cat) => ({
+        categoryId: cat,
+        label: CATEGORY_LABELS[cat] ?? cat,
+        color: CATEGORY_COLORS[cat] ?? '#6B7280',
+        items: (byCategory[cat] ?? []).map((nodeType) => ({
+          label: nodeType.label,
+          icon: <span style={{ color: nodeType.color }}>{nodeType.icon}</span>,
+          onClick: () => {
+            const reactFlowBounds = reactFlowWrapper.current?.getBoundingClientRect();
+            if (!reactFlowBounds) return;
+            addNode({
+              type: nodeType.id,
+              position: {
+                x: contextMenu.x - reactFlowBounds.left - 80,
+                y: contextMenu.y - reactFlowBounds.top - 30,
+              },
+              config: { ...nodeType.defaultConfig },
+            });
           },
-          config: { ...nodeType.defaultConfig },
-        });
+        })),
+      }));
+
+    return [
+      {
+        label: 'ノードを追加',
+        icon: (
+          <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2">
+            <circle cx="12" cy="12" r="10" /><line x1="12" y1="8" x2="12" y2="16" /><line x1="8" y1="12" x2="16" y2="12" />
+          </svg>
+        ),
+        submenuSections,
       },
-    }));
+    ];
   };
 
   return (
@@ -625,25 +788,27 @@ function CanvasInner({ onNodeSelect, onSave, onRunWorkflow }: CanvasProps) {
         onNodesChange={onNodesChange}
         onEdgesChange={onEdgesChange}
         onConnect={onConnect}
+        onConnectStart={onConnectStart}
+        onConnectEnd={onConnectEnd}
+        isValidConnection={isValidConnection}
         onReconnectStart={onReconnectStart}
         onReconnect={onReconnect}
         onReconnectEnd={onReconnectEnd}
-        reconnectRadius={10}
+        reconnectRadius={20}
         onNodeClick={onNodeClick}
-        onEdgeClick={onEdgeClick}
         onPaneClick={onPaneClick}
         onDragOver={onDragOver}
         onDrop={onDrop}
         onNodeContextMenu={onNodeContextMenu}
         onPaneContextMenu={onPaneContextMenu}
         onEdgeContextMenu={onEdgeContextMenu}
-        nodeTypes={nodeTypes}
+        nodeTypes={reactFlowNodeTypes}
         fitView
         className="!bg-transparent"
         connectionMode={ConnectionMode.Loose}
         defaultEdgeOptions={{
           animated: true,
-          style: { stroke: '#10B981', strokeWidth: 3 },
+          style: { stroke: DEFAULT_EDGE_COLOR, strokeWidth: 3 },
         }}
         deleteKeyCode={['Backspace', 'Delete']}
         multiSelectionKeyCode={['Shift']}
@@ -655,12 +820,58 @@ function CanvasInner({ onNodeSelect, onSave, onRunWorkflow }: CanvasProps) {
           style={{ background: 'transparent' }}
         />
         <Controls
-          className="!bg-gray-800/90 !border-white/20 !rounded-lg !shadow-lg"
+          className="!bg-gray-800/90 !border-white/20 !rounded-lg !shadow-lg !hidden"
           showZoom={true}
           showFitView={true}
           showInteractive={true}
         />
       </ReactFlow>
+
+      {/* Search Panel */}
+      <SearchPanel />
+
+      {/* Connect-suggest panel: shown when dragging a wire onto empty canvas */}
+      {connectSuggest && (() => {
+        const { plugins } = usePluginStore.getState();
+        const nodeTypesList = getNodeTypes();
+        const compatible = nodeTypesList.filter((nt) => {
+          const plugin = plugins.find((p) => p.id === nt.id);
+          if (!plugin) return false;
+          const inputs = plugin.node?.inputs ?? [];
+          return inputs.some((inp) => arePortTypesCompatible(connectSuggest.sourceType, inp.type as PortType));
+        });
+        if (compatible.length === 0) return null;
+        const adjust = (v: number, max: number, size: number) => Math.min(v, max - size);
+        const px = adjust(connectSuggest.x, window.innerWidth, 220);
+        const py = adjust(connectSuggest.y, window.innerHeight, compatible.length * 36 + 48);
+        return (
+          <div
+            className="fixed z-50 py-1 rounded-lg shadow-xl"
+            style={{ left: px, top: py, background: 'rgba(17,24,39,0.98)', border: '1px solid rgba(255,255,255,0.1)', minWidth: '210px' }}
+          >
+            <div className="px-3 pt-2 pb-1 text-[10px] text-white/40 uppercase tracking-wider flex items-center gap-1.5">
+              <span className="w-2 h-2 rounded-full" style={{ background: PORT_TYPE_COLORS[connectSuggest.sourceType] }} />
+              接続できるノード
+            </div>
+            {compatible.map((nt) => (
+              <button
+                key={nt.id}
+                onClick={() => {
+                  const bounds = reactFlowWrapper.current?.getBoundingClientRect();
+                  if (!bounds) return;
+                  addNode({ type: nt.id, position: { x: connectSuggest.x - bounds.left - 80, y: connectSuggest.y - bounds.top - 30 }, config: { ...nt.defaultConfig } });
+                  setConnectSuggest(null);
+                }}
+                className="w-full px-3 py-2 text-left text-sm flex items-center gap-2 text-white/90 hover:bg-white/10 transition-colors"
+              >
+                <span style={{ color: nt.color }}>{nt.icon}</span>
+                {nt.label}
+              </button>
+            ))}
+            <button onClick={() => setConnectSuggest(null)} className="w-full px-3 py-1.5 text-left text-[11px] text-white/30 hover:text-white/60 border-t border-white/10 mt-1">キャンセル</button>
+          </div>
+        );
+      })()}
 
       {/* Display Mode Toggle */}
       <div className="absolute top-4 right-4 flex gap-1 bg-gray-800/95 rounded-lg p-1 border border-white/10 shadow-lg z-10">
@@ -683,10 +894,7 @@ function CanvasInner({ onNodeSelect, onSave, onRunWorkflow }: CanvasProps) {
       {/* Custom styles for React Flow */}
       <style jsx global>{`
         .react-flow__controls {
-          background: rgba(31, 41, 55, 0.95) !important;
-          border: 1px solid rgba(255, 255, 255, 0.2) !important;
-          border-radius: 8px !important;
-          box-shadow: 0 4px 12px rgba(0, 0, 0, 0.3) !important;
+          display: none !important;
         }
         .react-flow__controls-button {
           background: transparent !important;
@@ -723,80 +931,11 @@ function CanvasInner({ onNodeSelect, onSave, onRunWorkflow }: CanvasProps) {
         />
       )}
 
-      {/* Data Preview Popup */}
-      {dataPreview && (() => {
-        const connection = connections.find((c) => c.id === dataPreview.edgeId);
-        const sourceNode = workflowNodes.find((n) => n.id === dataPreview.sourceNodeId);
-        const targetNode = workflowNodes.find((n) => n.id === dataPreview.targetNodeId);
-        return (
-          <DataPreviewPopup
-            x={dataPreview.x}
-            y={dataPreview.y}
-            sourceNodeLabel={getNodeLabel(sourceNode?.type || '')}
-            sourceNodeType={sourceNode?.type || ''}
-            targetNodeLabel={getNodeLabel(targetNode?.type || '')}
-            data={nodeStatuses[dataPreview.sourceNodeId]?.data?.outputs}
-            selectedFields={connection?.from.fieldPaths || []}
-            onFieldsChange={(fieldPaths) => {
-              if (connection) {
-                updateConnection(connection.id, {
-                  from: { ...connection.from, fieldPaths },
-                });
-              }
-            }}
-            onClose={() => setDataPreview(null)}
-          />
-        );
-      })()}
     </div>
   );
 }
 
-// Helper functions to get node metadata
-function getNodeLabel(type: string): string {
-  const labels: Record<string, string> = {
-    // Control flow
-    'start': 'Start',
-    'end': 'End',
-    'loop': 'Loop',
-    'foreach': 'ForEach',
-    // Input
-    'manual-input': 'Manual Input',
-    'youtube-chat': 'YouTube Chat',
-    'twitch-chat': 'Twitch Chat',
-    'discord-chat': 'Discord Chat',
-    'timer': 'Timer',
-    // LLM
-    'openai-llm': 'ChatGPT',
-    'anthropic-llm': 'Claude',
-    'google-llm': 'Gemini',
-    'ollama-llm': 'Ollama',
-    // Control
-    'switch': 'Switch',
-    'delay': 'Delay',
-    // Output
-    'console-output': 'Console Output',
-    'donation-alert': 'Donation Alert',
-    'voicevox-tts': 'VOICEVOX',
-    'coeiroink-tts': 'COEIROINK',
-    'sbv2-tts': 'Style-Bert-VITS2',
-    // Utility
-    'http-request': 'HTTP Request',
-    'text-transform': 'Text Transform',
-    'field-selector': 'Field Selector',
-    'random': 'Random',
-    'variable': 'Variable',
-    // Avatar
-    'avatar-configuration': 'Avatar Config',
-    'emotion-analyzer': 'Emotion Analyzer',
-    'motion-trigger': 'Motion Trigger',
-    'lip-sync': 'Lip Sync',
-    'subtitle-display': 'Subtitle Display',
-    'audio-player': 'Audio Player',
-  };
-  return labels[type] || type;
-}
-
+// Legacy helper functions for fallback when plugin data is not available
 function getNodeCategory(type: string): 'input' | 'process' | 'output' | 'control' {
   const categories: Record<string, 'input' | 'process' | 'output' | 'control'> = {
     // Control flow
@@ -840,36 +979,10 @@ function getNodeCategory(type: string): 'input' | 'process' | 'output' | 'contro
   return categories[type] || 'process';
 }
 
-function getNodeInputs(type: string, config?: Record<string, unknown>): PortDefinition[] {
-  // For LLM nodes with prompt builder, generate dynamic inputs from promptSections
-  if (type === 'openai-llm' && config?.promptSections) {
-    const sections = config.promptSections as PromptSection[];
-    const inputSections = sections.filter(s => s.type === 'input');
-    if (inputSections.length > 0) {
-      // Generate dynamic input ports from prompt sections
-      return inputSections.map(section => ({
-        id: section.content, // The input port name
-        label: section.content.replace(/_/g, ' '), // Convert underscores to spaces for display
-        type: 'string' as PortType,
-      }));
-    }
-    // If promptSections exists but has no inputs, still use default prompt
-    return [{ id: 'prompt', label: 'Prompt', type: 'string' }];
-  }
-
-  // For text-transform with templateInputs, generate dynamic inputs
-  if (type === 'text-transform' && config?.templateInputs) {
-    const templateInputs = config.templateInputs as string[];
-    if (templateInputs.length > 0) {
-      return templateInputs.map(inputName => ({
-        id: inputName,
-        label: inputName.replace(/_/g, ' '),
-        type: 'string' as PortType,
-      }));
-    }
-    // Fall back to default text input
-    return [{ id: 'text', label: 'Text', type: 'string' }];
-  }
+function getNodeInputs(type: string, _config?: Record<string, unknown>): PortDefinition[] {
+  // Dynamic port generation (prompt-builder, input-list) is now handled
+  // generically in the flowNodes useMemo via manifest config field types.
+  // This function only provides static fallback definitions.
 
   const inputs: Record<string, PortDefinition[]> = {
     // Control flow
@@ -1002,12 +1115,12 @@ function getNodeOutputs(type: string): PortDefinition[] {
     'motion-trigger': [
       { id: 'expression', label: 'Expression', type: 'string' },
       { id: 'intensity', label: 'Intensity', type: 'number' },
-      { id: 'motion_url', label: 'Motion URL', type: 'string' },
+      { id: 'motionUrl', label: 'Motion URL', type: 'string' },
       { id: 'motion', label: 'Motion', type: 'string' },
       { id: 'passthrough', label: 'Passthrough', type: 'any' },
     ],
     'lip-sync': [
-      { id: 'mouth_values', label: 'Mouth', type: 'array' },
+      { id: 'mouthValues', label: 'Mouth', type: 'array' },
       { id: 'duration', label: 'Duration', type: 'number' },
       { id: 'audio', label: 'Audio', type: 'audio' },
     ],

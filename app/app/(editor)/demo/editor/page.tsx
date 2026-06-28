@@ -1,9 +1,9 @@
-import EditorClient from '../../editor/[id]/EditorClient';
+import EditorPage from '../../editor/[id]/client-page';
 import { DEMO_ROUTES, DEMO_WORKFLOW_ID } from '@/lib/demoRoutes';
 
 export default function DemoEditorPage() {
   return (
-    <EditorClient
+    <EditorPage
       forcedWorkflowId={DEMO_WORKFLOW_ID}
       homePath={DEMO_ROUTES.home}
       overlayPath={DEMO_ROUTES.overlay}

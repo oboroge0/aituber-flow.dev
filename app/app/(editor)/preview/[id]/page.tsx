@@ -1,16 +1,11 @@
-import PreviewClient from './PreviewClient';
-import { DEMO_WORKFLOW_ID } from '@/lib/demoRoutes';
+import PreviewPage from './client-page';
 
-// Keep this route for non-demo environments.
-// Demo export uses fixed routes under /demo/*.
+// Required for static export (output: 'export') — generates an HTML shell
+// that the SPA fallback serves for any workflow ID at runtime
 export function generateStaticParams() {
-  return [{ id: DEMO_WORKFLOW_ID }];
+  return [{ id: '_' }];
 }
 
-interface PreviewPageProps {
-  params: Promise<{ id: string }>;
-}
-
-export default function PreviewPage({ params }: PreviewPageProps) {
-  return <PreviewClient params={params} />;
+export default function Page() {
+  return <PreviewPage />;
 }

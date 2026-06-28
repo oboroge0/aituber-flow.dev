@@ -1,6 +1,11 @@
 import { Workflow, PluginManifest, ApiResponse } from './types';
+import { demoApi } from './demoApi';
 
-const API_BASE = process.env.NEXT_PUBLIC_API_URL || 'http://localhost:8001';
+// Use relative URLs in browser (proxied via Next.js rewrites)
+// Use full URL only for server-side or when explicitly set
+const API_BASE = typeof window !== 'undefined'
+  ? ''  // Browser: use relative URLs (proxied by Next.js)
+  : (process.env.NEXT_PUBLIC_API_URL || 'http://localhost:8001');
 
 class ApiClient {
   private baseUrl: string;
@@ -69,8 +74,13 @@ class ApiClient {
     });
   }
 
-  async exportWorkflow(id: string): Promise<ApiResponse<WorkflowExport>> {
-    return this.request<WorkflowExport>(`/api/workflows/${id}/export`);
+  async exportWorkflow(
+    id: string,
+    options: { excludeApiKeys?: boolean } = { excludeApiKeys: true }
+  ): Promise<ApiResponse<WorkflowExport>> {
+    const params = new URLSearchParams();
+    params.set('exclude_api_keys', String(options.excludeApiKeys ?? true));
+    return this.request<WorkflowExport>(`/api/workflows/${id}/export?${params.toString()}`);
   }
 
   async importWorkflow(data: WorkflowExport): Promise<ApiResponse<Workflow>> {
@@ -94,6 +104,20 @@ class ApiClient {
   async stopWorkflow(id: string): Promise<ApiResponse<{ status: string }>> {
     return this.request<{ status: string }>(`/api/workflows/${id}/stop`, {
       method: 'POST',
+    });
+  }
+
+  async getWorkflowStatus(id: string): Promise<ApiResponse<{ workflowId: string; status: string; startedAt: string | null; error: string | null }>> {
+    return this.request(`/api/workflows/${id}/status`);
+  }
+
+  async validateWorkflow(
+    id: string,
+    data?: { nodes: any[]; connections: any[] }
+  ): Promise<ApiResponse<ValidationResult>> {
+    return this.request<ValidationResult>(`/api/workflows/${id}/validate`, {
+      method: 'POST',
+      body: data ? JSON.stringify(data) : undefined,
     });
   }
 
@@ -198,12 +222,26 @@ class ApiClient {
       method: 'DELETE',
     });
   }
+
+  // Global settings endpoints
+  async getSettings(): Promise<ApiResponse<Record<string, string>>> {
+    return this.request<Record<string, string>>('/api/settings');
+  }
+
+  async updateSettings(settings: Record<string, string>): Promise<ApiResponse<{ success: boolean }>> {
+    return this.request<{ success: boolean }>('/api/settings', {
+      method: 'PUT',
+      body: JSON.stringify(settings),
+    });
+  }
 }
 
 export interface TemplateSummary {
   id: string;
   name: string;
+  name_ja?: string;
   description: string;
+  description_ja?: string;
   nodeCount: number;
   connectionCount: number;
 }
@@ -224,7 +262,9 @@ export interface WorkflowExport {
 export interface Template {
   id: string;
   name: string;
+  name_ja?: string;
   description: string;
+  description_ja?: string;
   nodes: any[];
   connections: any[];
   character: {
@@ -268,13 +308,27 @@ export interface AnimationInfo {
   type: string;
 }
 
-// Check if we're in demo mode
+export interface ValidationIssue {
+  nodeId: string;
+  nodeName: string;
+  level: 'error' | 'warning';
+  message: string;
+}
+
+export interface ValidationResult {
+  valid: boolean;
+  errors: ValidationIssue[];
+  warnings: ValidationIssue[];
+  issues: ValidationIssue[];
+}
+
+// Detect the static demo deployment (Cloudflare Pages / app.aituber-flow.dev).
+// In demo mode there is no backend, so all API calls are served by the
+// localStorage-backed mock in ./demoApi.
 const isDemoMode = typeof window !== 'undefined'
   ? (process.env.NEXT_PUBLIC_DEMO_MODE === 'true' || window.location.hostname === 'app.aituber-flow.dev')
   : process.env.NEXT_PUBLIC_DEMO_MODE === 'true';
 
-// Export the appropriate API client
-import { demoApi } from './demoApi';
 const apiClient = new ApiClient(API_BASE);
 
 export const api = isDemoMode ? demoApi : apiClient;
