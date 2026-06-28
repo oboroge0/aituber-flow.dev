@@ -32,7 +32,7 @@ const { lang } = Astro.props
     </div>
 
     <!-- Download Cards -->
-    <div class="grid md:grid-cols-3 gap-4 mb-8" data-animate="fade-up" id="download-cards">
+    <div class="grid sm:grid-cols-2 gap-4 mb-8 max-w-xl mx-auto" data-animate="fade-up" id="download-cards">
       <!-- Windows -->
       <a id="download-windows" href="#" class="group neon-card p-6 rounded-2xl relative overflow-hidden transition-all duration-300 hover:-translate-y-1 hover:shadow-xl hover:shadow-amber-500/[0.08] flex flex-col items-center text-center opacity-50 pointer-events-none">
         <div class="absolute inset-0 bg-gradient-to-br from-amber-500/[0.05] to-transparent opacity-0 group-hover:opacity-100 transition-opacity"></div>
@@ -60,21 +60,6 @@ const { lang } = Astro.props
           </div>
           <span class="text-sm font-semibold text-white mb-1">macOS</span>
           <span class="text-xs text-zinc-500">Apple Silicon (M1/M2/M3/M4)</span>
-        </div>
-      </a>
-
-      <!-- macOS Intel -->
-      <a id="download-mac-intel" href="#" class="group neon-card p-6 rounded-2xl relative overflow-hidden transition-all duration-300 hover:-translate-y-1 hover:shadow-xl hover:shadow-amber-500/[0.08] flex flex-col items-center text-center opacity-50 pointer-events-none">
-        <div class="absolute inset-0 bg-gradient-to-br from-amber-500/[0.05] to-transparent opacity-0 group-hover:opacity-100 transition-opacity"></div>
-        <div class="relative flex flex-col items-center">
-          <div class="w-14 h-14 rounded-2xl bg-zinc-500/10 border border-zinc-500/20 flex items-center justify-center mb-4 group-hover:scale-110 group-hover:shadow-[0_0_20px_rgba(161,161,170,0.15)] transition-all">
-            <!-- Apple icon -->
-            <svg class="w-7 h-7 text-zinc-300" fill="currentColor" viewBox="0 0 24 24">
-              <path d="M18.71 19.5c-.83 1.24-1.71 2.45-3.05 2.47-1.34.03-1.77-.79-3.29-.79-1.53 0-2 .77-3.27.82-1.31.05-2.3-1.32-3.14-2.53C4.25 17 2.94 12.45 4.7 9.39c.87-1.52 2.43-2.48 4.12-2.51 1.28-.02 2.5.87 3.29.87.78 0 2.26-1.07 3.8-.91.65.03 2.47.26 3.64 1.98-.09.06-2.17 1.28-2.15 3.81.03 3.02 2.65 4.03 2.68 4.04-.03.07-.42 1.44-1.38 2.83M13 3.5c.73-.83 1.94-1.46 2.94-1.5.13 1.17-.34 2.35-1.04 3.19-.69.85-1.83 1.51-2.95 1.42-.15-1.15.41-2.35 1.05-3.11z"/>
-            </svg>
-          </div>
-          <span class="text-sm font-semibold text-white mb-1">macOS</span>
-          <span class="text-xs text-zinc-500">Intel (x64)</span>
         </div>
       </a>
     </div>
@@ -131,7 +116,6 @@ const { lang } = Astro.props
     const versionBadge = document.getElementById('download-version-badge');
     const winCard = document.getElementById('download-windows') as HTMLAnchorElement;
     const macArmCard = document.getElementById('download-mac-arm') as HTMLAnchorElement;
-    const macIntelCard = document.getElementById('download-mac-intel') as HTMLAnchorElement;
     const recommended = document.getElementById('download-recommended');
     const recommendedText = document.getElementById('download-recommended-text');
 
@@ -148,7 +132,6 @@ const { lang } = Astro.props
       // Find download URLs
       const winUrl = findAssetUrl(assets, 'x64-setup.exe');
       const macArmUrl = findAssetUrl(assets, 'aarch64.dmg');
-      const macIntelUrl = findAssetUrl(assets, 'x64.dmg');
 
       // Enable available cards
       if (winUrl && winCard) {
@@ -159,41 +142,47 @@ const { lang } = Astro.props
         macArmCard.href = macArmUrl;
         macArmCard.classList.remove('opacity-50', 'pointer-events-none');
       }
-      if (macIntelUrl && macIntelCard) {
-        macIntelCard.href = macIntelUrl;
-        macIntelCard.classList.remove('opacity-50', 'pointer-events-none');
-      }
 
-      // Highlight detected OS card
+      // Highlight detected OS card (Intel macOS support has ended)
       const os = detectOS();
-      const osCardMap: Record<string, HTMLElement | null> = {
-        'windows': winCard,
-        'mac-arm': macArmCard,
-        'mac-intel': macIntelCard,
-      };
+      const isJa = document.documentElement.lang === 'ja' ||
+                   !window.location.pathname.startsWith('/en');
 
-      const targetCard = osCardMap[os];
-      if (targetCard) {
-        targetCard.classList.add('ring-2', 'ring-amber-500/40', 'shadow-lg', 'shadow-amber-500/10');
+      if (os === 'mac-intel') {
+        // Only Apple Silicon macOS builds are offered; tell Intel users explicitly
+        // so they don't download an incompatible Apple Silicon build.
         if (recommended && recommendedText) {
-          const labels: Record<string, string> = {
-            'windows': 'Windows',
-            'mac-arm': 'macOS (Apple Silicon)',
-            'mac-intel': 'macOS (Intel)',
-          };
-          const isJa = document.documentElement.lang === 'ja' ||
-                       !window.location.pathname.startsWith('/en');
           recommendedText.textContent = isJa
-            ? `${labels[os]} - お使いの環境に推奨`
-            : `${labels[os]} - Recommended for your system`;
+            ? 'Intel版 macOS のサポートは終了しました（Apple Silicon 版のみ提供）'
+            : 'Intel macOS is no longer supported (Apple Silicon builds only)';
           recommended.classList.remove('hidden');
+        }
+      } else {
+        const osCardMap: Record<string, HTMLElement | null> = {
+          'windows': winCard,
+          'mac-arm': macArmCard,
+        };
+
+        const targetCard = osCardMap[os];
+        if (targetCard) {
+          targetCard.classList.add('ring-2', 'ring-amber-500/40', 'shadow-lg', 'shadow-amber-500/10');
+          if (recommended && recommendedText) {
+            const labels: Record<string, string> = {
+              'windows': 'Windows',
+              'mac-arm': 'macOS (Apple Silicon)',
+            };
+            recommendedText.textContent = isJa
+              ? `${labels[os]} - お使いの環境に推奨`
+              : `${labels[os]} - Recommended for your system`;
+            recommended.classList.remove('hidden');
+          }
         }
       }
 
     } catch {
       // Fallback: link all cards to the releases page
       if (versionBadge) versionBadge.textContent = 'v2.0.0';
-      [winCard, macArmCard, macIntelCard].forEach(card => {
+      [winCard, macArmCard].forEach(card => {
         if (card) {
           card.href = RELEASES_PAGE;
           card.setAttribute('target', '_blank');

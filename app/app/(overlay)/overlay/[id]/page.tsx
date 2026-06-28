@@ -1,21 +1,17 @@
 import { Suspense } from 'react';
-import OverlayClient from './OverlayClient';
-import { DEMO_WORKFLOW_ID } from '@/lib/demoRoutes';
+import OverlayPage from './client-page';
 
-// Keep this route for non-demo environments.
-// Demo export uses fixed routes under /demo/*.
+// Required for static export (output: 'export') — generates an HTML shell
+// that the SPA fallback serves for any workflow ID at runtime
 export function generateStaticParams() {
-  return [{ id: DEMO_WORKFLOW_ID }];
+  return [{ id: '_' }];
 }
 
-interface OverlayPageProps {
-  params: Promise<{ id: string }>;
-}
-
-export default function OverlayPage({ params }: OverlayPageProps) {
+// Suspense boundary required because OverlayPage uses useSearchParams()
+export default function Page() {
   return (
-    <Suspense fallback={<div className="w-screen h-screen" />}>
-      <OverlayClient params={params} />
+    <Suspense>
+      <OverlayPage />
     </Suspense>
   );
 }

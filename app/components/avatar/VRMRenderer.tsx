@@ -2,7 +2,7 @@
 
 import React, { useEffect, useRef, useCallback, useState, useImperativeHandle, forwardRef } from 'react';
 import * as THREE from 'three';
-import { VRM, VRMLoaderPlugin, VRMExpressionPresetName, VRMHumanBoneName } from '@pixiv/three-vrm';
+import { VRM, VRMLoaderPlugin, VRMExpressionPresetName } from '@pixiv/three-vrm';
 import { GLTFLoader } from 'three/examples/jsm/loaders/GLTFLoader.js';
 import { OrbitControls } from 'three/examples/jsm/controls/OrbitControls.js';
 import { loadMixamoAnimation } from './loadMixamoAnimation';
@@ -233,8 +233,30 @@ const VRMRenderer = forwardRef<VRMRendererRef, VRMRendererProps>(function VRMRen
     }
   }, []);
 
-  // Animation loop
+  // Animation loop — paused when the page is hidden (Page Visibility API)
+  // to avoid burning CPU/GPU while the user is in another tab or window.
+  const pausedRef = useRef(false);
+
+  useEffect(() => {
+    const onVisChange = () => {
+      if (document.hidden) {
+        pausedRef.current = true;
+        if (animationFrameRef.current) {
+          cancelAnimationFrame(animationFrameRef.current);
+          animationFrameRef.current = 0;
+        }
+      } else {
+        pausedRef.current = false;
+        clockRef.current.getDelta();
+        animate();
+      }
+    };
+    document.addEventListener('visibilitychange', onVisChange);
+    return () => document.removeEventListener('visibilitychange', onVisChange);
+  }, []);
+
   const animate = useCallback(() => {
+    if (pausedRef.current) return;
     animationFrameRef.current = requestAnimationFrame(animate);
 
     const delta = clockRef.current.getDelta();
@@ -441,6 +463,10 @@ const VRMRenderer = forwardRef<VRMRendererRef, VRMRendererProps>(function VRMRen
 
     window.addEventListener('resize', handleResize);
 
+    // Capture container ref for cleanup — containerRef.current may be null
+    // by the time the cleanup function runs after unmount.
+    const containerEl = containerRef.current;
+
     // Cleanup
     return () => {
       window.removeEventListener('resize', handleResize);
@@ -465,10 +491,10 @@ const VRMRenderer = forwardRef<VRMRendererRef, VRMRendererProps>(function VRMRen
       animationLoadedRef.current = false;
 
       // Remove renderer from DOM and dispose
-      if (rendererRef.current && containerRef.current) {
+      if (rendererRef.current && containerEl) {
         try {
-          containerRef.current.removeChild(rendererRef.current.domElement);
-        } catch (e) {
+          containerEl.removeChild(rendererRef.current.domElement);
+        } catch {
           // DOM element might already be removed
         }
         rendererRef.current.dispose();

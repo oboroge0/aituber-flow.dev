@@ -18,7 +18,10 @@
     "delete": "削除",
     "duplicate": "複製",
     "export": "エクスポート",
-    "deleteConfirm": "このワークフローを削除しますか？"
+    "deleteConfirm": "このワークフローを削除しますか？",
+    "workflowDeleted": "ワークフローを削除しました",
+    "saveFailed": "保存に失敗しました",
+    "workflowDownloaded": "ワークフローをダウンロードしました"
   },
   "editor": {
     "save": "保存",
@@ -29,7 +32,33 @@
     "running": "実行中",
     "back": "戻る",
     "undo": "元に戻す",
-    "redo": "やり直す"
+    "redo": "やり直す",
+    "zoomIn": "ズームイン",
+    "zoomOut": "ズームアウト",
+    "fitView": "全体表示",
+    "backToWorkflows": "ワークフロー一覧に戻る",
+    "clickToEditName": "クリックして名前を編集",
+    "toggleAvatarControls": "アバターコントロールを切替",
+    "openOverlay": "オーバーレイウィンドウを開く",
+    "copyOverlayUrl": "OBS用オーバーレイURLをコピー",
+    "overlay": "オーバーレイ",
+    "copyUrl": "URLをコピー",
+    "controls": "コントロール",
+    "reconnecting": "再接続中...",
+    "offline": "オフライン",
+    "nodeDetailSettings": "ノード詳細設定",
+    "close": "閉じる",
+    "closeSettingsPanel": "設定パネルを閉じる",
+    "preview": "プレビュー",
+    "expression": "表情",
+    "motion": "モーション",
+    "copiedOverlayUrl": "OBS用オーバーレイURLをコピーしました",
+    "copyUrlFailed": "URLコピーに失敗しました",
+    "importComplete": "インポート完了: ",
+    "loadWorkflowFailed": "ワークフローの読み込みに失敗: ",
+    "autoSaveFailed": "自動保存に失敗: ",
+    "validationSkipped": "バリデーションをスキップしました: ",
+    "importFailed": "インポートに失敗: "
   },
   "sidebar": {
     "search": "ノードを検索...",
@@ -43,7 +72,20 @@
   "settings": {
     "nodeSettings": "ノード設定",
     "selectNode": "ノードを選択して編集",
-    "deleteNode": "ノードを削除"
+    "deleteNode": "ノードを削除",
+    "hidePassword": "パスワードを隠す",
+    "showPassword": "パスワードを表示",
+    "nodeDeleted": "ノードを削除しました",
+    "uploadFailed": "アップロードに失敗: ",
+    "uploadAnimationFailed": "アニメーションファイルのアップロードに失敗しました",
+    "uploadModelFailed": "モデルファイルのアップロードに失敗しました",
+    "uploadImageFailed": "画像のアップロードに失敗しました",
+    "staticTextPlaceholder": "このプロンプトパーツの固定テキストを入力...",
+    "addInputHelp": "入力名を追加してポートを作成します。テンプレートで {{name}} を使用。",
+    "expressionIdPlaceholder": "表情ID (例: smug)",
+    "imageFilenamePlaceholder": "画像ファイル名 (例: smug.png)",
+    "descriptionForLlm": "LLM分析用の説明",
+    "descriptionForLlmPlaceholder": "LLMへの説明 (例: '得意げ、自信満々')"
   },
   "logs": {
     "title": "実行ログ",
@@ -96,12 +138,17 @@
     "text-transform": "テキストをテンプレートで変換するノード。\n【使い方】textに入力を接続。設定でテンプレートを指定。{{text}}で入力を参照。",
     "random": "ランダムな値を生成するノード。\n【使い方】設定で範囲や選択肢を指定。毎回異なる値がvalueに出力。",
     "timer": "一定間隔で自動トリガーするタイマーノード。\n【使い方】設定で間隔(ms)を指定。定期実行したい処理に接続。",
+    "cron-trigger": "Cron式でスケジュール実行するトリガーノード。\n【使い方】設定でCron式を指定（例: '0 9 * * *' = 毎日9時）。定期処理に接続。",
     "variable": "データを保存・取得する変数ノード。\n【使い方】設定で変数名を指定。setで保存、getで取得。ワークフロー内で値を共有。",
     "anthropic-llm": "Anthropic APIでテキスト生成するLLMノード。\n【使い方】promptに質問を接続。設定でモデルとシステムプロンプトを指定。",
     "google-llm": "Google AI APIでテキスト生成するLLMノード。\n【使い方】promptに質問を接続。設定でモデルとシステムプロンプトを指定。",
     "ollama-llm": "ローカルOllamaでテキスト生成するLLMノード。\n【使い方】promptに質問を接続。設定でモデルを指定。※Ollama起動が必要",
+    "mistral-llm": "Mistral AIでテキスト生成するLLMノード。\n【使い方】promptに質問を接続。設定でモデルとシステムプロンプトを指定。",
+    "groq-llm": "Groqの高速推論APIでテキスト生成するLLMノード。\n【使い方】promptに質問を接続。設定でモデルとシステムプロンプトを指定。",
     "coeiroink-tts": "COEIROINKでテキストを音声に変換するTTSノード。\n【使い方】textに読み上げテキストを接続。設定で話者を選択。※COEIROINK起動が必要",
     "sbv2-tts": "Style-Bert-VITS2でテキストを音声に変換するTTSノード。\n【使い方】textに読み上げテキストを接続。設定でモデルを選択。※API起動が必要",
+    "aivis-tts": "AivisSpeechでテキストを音声に変換するTTSノード。\n【使い方】textに読み上げテキストを接続。設定で話者を選択。※AivisSpeech起動が必要",
+    "openai-tts": "OpenAI TTSでテキストを音声に変換するTTSノード。\n【使い方】textに読み上げテキストを接続。設定でボイスとモデルを指定。",
     "avatar-configuration": "VRMアバターの設定ノード。\n【使い方】モデルURL、アイドルアニメーションを設定。オーバーレイでアバターが表示。",
     "emotion-analyzer": "テキストから感情を分析するノード。\n【使い方】textに分析するテキストを接続。emotion/intensityが出力。",
     "motion-trigger": "表情やモーションを手動でトリガーするノード。\n【使い方】triggerに任意の入力を接続。設定で表情/モーションを指定。",
@@ -122,6 +169,12 @@
     "invalidJson": "無効なJSONファイルです",
     "loadTemplateFailed": "テンプレートの読み込みに失敗しました"
   },
+  "support": {
+    "title": "お問い合わせ",
+    "description": "問題が発生した場合やご意見がございましたら、お気軽にお問い合わせください",
+    "issue": "Issue",
+    "dm": "X DM"
+  },
   "defaults": {
     "workflowName": "新規ワークフロー",
     "assistantName": "AIアシスタント",
@@ -134,5 +187,367 @@
     "runFromNode": "このノードから実行",
     "switchToJapanese": "日本語に切替",
     "switchToEnglish": "英語に切替"
+  },
+  "nodeConfig": {
+    "nodeType": "ノードタイプ",
+    "deleteNode": "ノードを削除",
+    "start": {
+      "label": "開始",
+      "autoStart": "自動開始",
+      "autoStartPlaceholder": "ワークフロー実行時に自動で開始"
+    },
+    "end": {
+      "label": "終了",
+      "message": "完了メッセージ"
+    },
+    "loop": {
+      "label": "ループ",
+      "mode": "ループモード",
+      "modeCount": "回数指定",
+      "modeWhile": "条件付き",
+      "modeInfinite": "無限",
+      "count": "繰り返し回数",
+      "condition": "条件式（While用）",
+      "maxIterations": "最大繰り返し数（安全用）"
+    },
+    "foreach": {
+      "label": "繰り返し",
+      "separator": "区切り文字"
+    },
+    "youtubeChat": {
+      "label": "YouTubeチャット",
+      "videoId": "動画ID",
+      "apiKey": "APIキー"
+    },
+    "twitchChat": {
+      "label": "Twitchチャット",
+      "channel": "チャンネル名"
+    },
+    "openaiLlm": {
+      "label": "ChatGPT (OpenAI)",
+      "apiKey": "APIキー",
+      "model": "モデル",
+      "systemPrompt": "システムプロンプト",
+      "systemPromptPlaceholder": "キャラクター設定を入力...",
+      "promptBuilder": "プロンプトビルダー",
+      "temperature": "温度"
+    },
+    "anthropicLlm": {
+      "label": "Claude (Anthropic)",
+      "apiKey": "APIキー",
+      "model": "モデル",
+      "systemPrompt": "システムプロンプト",
+      "maxTokens": "最大トークン数",
+      "temperature": "温度"
+    },
+    "googleLlm": {
+      "label": "Gemini (Google)",
+      "apiKey": "APIキー",
+      "model": "モデル",
+      "systemPrompt": "システムプロンプト",
+      "maxTokens": "最大トークン数",
+      "temperature": "温度"
+    },
+    "ollamaLlm": {
+      "label": "LLM (Ollama)",
+      "host": "Ollamaホスト",
+      "model": "モデル",
+      "systemPrompt": "システムプロンプト",
+      "temperature": "温度",
+      "contextLength": "コンテキスト長"
+    },
+    "voicevoxTts": {
+      "label": "TTS (VOICEVOX)",
+      "host": "VOICEVOXホスト",
+      "speaker": "話者",
+      "speed": "速度"
+    },
+    "coeiroinkTts": {
+      "label": "TTS (COEIROINK)",
+      "host": "COEIROINKホスト",
+      "speakerUuid": "話者UUID",
+      "styleId": "スタイルID",
+      "speed": "速度",
+      "pitch": "ピッチ"
+    },
+    "sbv2Tts": {
+      "label": "TTS (Style-Bert-VITS2)",
+      "host": "SBV2ホスト",
+      "modelName": "モデル名",
+      "speakerId": "話者ID",
+      "style": "スタイル",
+      "styleWeight": "スタイル強度",
+      "speed": "速度"
+    },
+    "manualInput": {
+      "label": "手動入力",
+      "text": "テキスト",
+      "textPlaceholder": "送信するテキストを入力..."
+    },
+    "consoleOutput": {
+      "label": "コンソール出力",
+      "prefix": "プレフィックス"
+    },
+    "switch": {
+      "label": "条件分岐",
+      "mode": "モード",
+      "modeTruthy": "真偽判定",
+      "modeEquals": "一致",
+      "modeContains": "含む",
+      "compareValue": "比較値"
+    },
+    "delay": {
+      "label": "遅延",
+      "delayMs": "遅延時間（ミリ秒）",
+      "randomize": "ランダム化",
+      "randomMin": "最小値（ミリ秒）",
+      "randomMax": "最大値（ミリ秒）"
+    },
+    "httpRequest": {
+      "label": "HTTPリクエスト",
+      "url": "URL",
+      "method": "メソッド",
+      "headers": "ヘッダー（JSON）",
+      "timeout": "タイムアウト（ミリ秒）"
+    },
+    "textTransform": {
+      "label": "テキスト変換",
+      "operation": "操作",
+      "opTemplate": "テンプレート",
+      "opUppercase": "大文字",
+      "opLowercase": "小文字",
+      "opTrim": "トリム",
+      "opReplace": "置換",
+      "opPrefix": "接頭辞",
+      "opSuffix": "接尾辞",
+      "opSplitFirst": "最初を分割",
+      "opSplitLast": "最後を分割",
+      "opLength": "文字数",
+      "template": "テンプレート",
+      "templateInputs": "テンプレート入力",
+      "find": "検索文字列",
+      "replaceWith": "置換文字列",
+      "delimiter": "区切り文字"
+    },
+    "random": {
+      "label": "ランダム",
+      "mode": "モード",
+      "modeNumber": "数値",
+      "modeChoice": "選択",
+      "modeBoolean": "真偽",
+      "min": "最小値",
+      "max": "最大値",
+      "choices": "選択肢（カンマ区切り）",
+      "trueProbability": "真の確率（%）"
+    },
+    "timer": {
+      "label": "タイマー",
+      "intervalMs": "間隔（ミリ秒）",
+      "maxTicks": "最大回数（0=無制限）",
+      "immediate": "即時実行"
+    },
+    "variable": {
+      "label": "変数",
+      "name": "変数名",
+      "defaultValue": "デフォルト値",
+      "valueType": "値の型",
+      "typeString": "文字列",
+      "typeNumber": "数値",
+      "typeBoolean": "真偽値",
+      "typeJson": "JSON"
+    },
+    "avatarConfiguration": {
+      "label": "アバター設定",
+      "renderer": "レンダラー",
+      "rendererVrm": "VRM（内蔵）",
+      "rendererVtubeStudio": "VTube Studio",
+      "rendererPng": "PNG画像",
+      "modelUrl": "VRMモデル",
+      "idleAnimation": "アイドルアニメーション（FBX）",
+      "vtubePort": "VTube Studioポート",
+      "pngConfig": "PNG表情マッピング"
+    },
+    "motionTrigger": {
+      "label": "モーショントリガー",
+      "expression": "表情ID",
+      "intensity": "表情の強度（0.0〜1.0）",
+      "motionUrl": "モーションアニメーション（FBX）",
+      "emitEvents": "アバターイベントを送信"
+    },
+    "emotionAnalyzer": {
+      "label": "感情分析",
+      "method": "分析方法",
+      "methodLlm": "LLMベース（推奨）",
+      "methodRuleBased": "ルールベース（キーワード）",
+      "expressions": "利用可能な表情",
+      "llmProvider": "LLMプロバイダー",
+      "llmApiKey": "LLM APIキー",
+      "llmModel": "LLMモデル",
+      "language": "言語",
+      "langJa": "日本語",
+      "langEn": "英語",
+      "langAuto": "自動検出",
+      "customMappings": "カスタムキーワードマッピング（JSON）",
+      "emitEvents": "アバターイベントを送信"
+    },
+    "lipSync": {
+      "label": "リップシンク",
+      "method": "リップシンク方式",
+      "methodVolume": "音量ベース（シンプル）",
+      "methodEnvelope": "エンベロープ追従",
+      "sensitivity": "感度（1.0〜10.0）",
+      "smoothing": "スムージング（0.0〜0.9）",
+      "threshold": "しきい値（0.0〜0.2）",
+      "emitRealtime": "リアルタイムイベントを送信",
+      "frameRate": "フレームレート"
+    },
+    "avatarDisplay": {
+      "label": "アバター表示"
+    },
+    "audioPlayer": {
+      "label": "音声プレイヤー",
+      "waitForCompletion": "完了まで待機",
+      "volume": "音量",
+      "outputDevice": "出力デバイス"
+    },
+    "subtitleDisplay": {
+      "label": "字幕表示",
+      "style": "スタイル",
+      "position": "位置",
+      "fontSize": "フォントサイズ",
+      "fontColor": "フォント色",
+      "backgroundColor": "背景色",
+      "showSpeaker": "話者を表示",
+      "animation": "アニメーション",
+      "duration": "表示時間"
+    },
+    "obsSceneSwitch": {
+      "label": "OBSシーン切替",
+      "host": "ホスト",
+      "port": "ポート",
+      "password": "パスワード",
+      "sceneName": "シーン名"
+    },
+    "obsSourceToggle": {
+      "label": "OBSソース切替",
+      "host": "ホスト",
+      "port": "ポート",
+      "password": "パスワード",
+      "sceneName": "シーン名",
+      "sourceName": "ソース名",
+      "action": "アクション"
+    },
+    "common": {
+      "enabled": "有効",
+      "loadingSpeakers": "話者を読み込み中...",
+      "retry": "再試行",
+      "selectSpeaker": "話者を選択...",
+      "uploadFbx": "FBXをアップロード",
+      "uploading": "アップロード中...",
+      "selectExisting": "既存のアニメーションを選択...",
+      "uploadVrm": "VRMをアップロード",
+      "selectExistingModel": "既存のモデルを選択...",
+      "clear": "クリア",
+      "add": "追加",
+      "done": "完了",
+      "edit": "編集",
+      "loadDefaults": "デフォルトを読み込む"
+    }
+  },
+  "update": {
+    "title": "アップデート",
+    "downloading": "ダウンロード中...",
+    "error": "アップデートに失敗しました",
+    "now": "今すぐ更新",
+    "later": "あとで",
+    "close": "閉じる",
+    "retry": "再試行"
+  },
+  "common": {
+    "close": "閉じる",
+    "copy": "コピー",
+    "save": "保存",
+    "cancel": "キャンセル",
+    "configured": "設定済み",
+    "notSet": "未設定",
+    "on": "ON",
+    "off": "OFF"
+  },
+  "activity": {
+    "title": "アクティビティ",
+    "rawLog": "生ログ",
+    "clear": "クリア",
+    "emptyHistory": "まだ実行履歴がありません。ワークフローを実行するとここに表示されます",
+    "emptyLog": "ログはまだありません",
+    "clickToSelect": "クリックでノードを選択",
+    "items": "件",
+    "triggerRun": "実行",
+    "triggerManual": "手動実行",
+    "running": "実行中",
+    "copiedError": "エラー内容をコピーしました",
+    "copyFailed": "コピーに失敗しました"
+  },
+  "search": {
+    "placeholder": "ノードを検索...",
+    "prevResult": "前の結果",
+    "prevResultShortcut": "前の結果 (Shift+Enter)",
+    "nextResult": "次の結果",
+    "nextResultShortcut": "次の結果 (Enter)",
+    "closeShortcut": "閉じる (Esc)",
+    "closeSearch": "検索を閉じる"
+  },
+  "inline": {
+    "hideKey": "キーを隠す",
+    "showKey": "キーを表示",
+    "dragToAdjust": "ドラッグで調整 / クリックで数値入力",
+    "editInSettings": "詳細設定で編集",
+    "globalBadge": "グローバル",
+    "globalTooltip": "ノード側が未設定のため、グローバル設定の値を使用しています（入力すると上書き）",
+    "expand": "展開する",
+    "collapse": "折りたたむ",
+    "detailSettings": "詳細設定",
+    "openDetailSettings": "詳細設定を開く",
+    "charCountEdit": "字 — クリックで編集",
+    "ctrlEnterSave": "Ctrl+Enter で保存 / Esc でキャンセル",
+    "runFromNode": "このノードから実行"
+  },
+  "canvas": {
+    "nodeDeleted": "ノードを削除しました",
+    "addNode": "ノードを追加",
+    "displayLabel": "表示:",
+    "simple": "簡易",
+    "standard": "標準",
+    "detailed": "詳細",
+    "connectableNodes": "接続できるノード"
+  },
+  "preview": {
+    "loadFailed": "ワークフローの読み込みに失敗しました",
+    "noWorkflowData": "ワークフローデータが読み込まれていません",
+    "startFailed": "ワークフローの開始に失敗しました",
+    "stopFailed": "ワークフローの停止に失敗しました"
+  },
+  "toast": {
+    "closeNotification": "通知を閉じる"
+  },
+  "globalSettings": {
+    "title": "グローバル設定",
+    "description": "全ワークフローで共有される設定",
+    "llmProviders": "LLMプロバイダー",
+    "ttsEngines": "音声合成エンジン",
+    "apiKey": "APIキー",
+    "model": "モデル",
+    "host": "ホスト",
+    "save": "保存",
+    "saved": "設定を保存しました",
+    "saveError": "設定の保存に失敗しました",
+    "usingGlobal": "グローバル設定を使用",
+    "override": "個別設定で上書き",
+    "collapse": "閉じる"
+  },
+  "inline": {
+    "inputs": "入力",
+    "outputs": "出力",
+    "settings": "設定",
+    "moreItems": "項目"
   }
 }

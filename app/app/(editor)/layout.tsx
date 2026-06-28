@@ -1,10 +1,4 @@
-import type { Metadata } from 'next';
 import './editor.css';
-
-export const metadata: Metadata = {
-  title: 'AITuberFlow - Visual Workflow Editor',
-  description: 'Build AI-powered virtual streamers with a visual workflow editor',
-};
 
 /**
  * Editor Layout

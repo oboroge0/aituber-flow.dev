@@ -2,22 +2,76 @@
 
 import React, { useEffect, useState, useRef, useCallback, useMemo } from 'react';
 import { useParams, useRouter } from 'next/navigation';
-import { ReactFlowProvider } from '@xyflow/react';
+import { ReactFlowProvider, useReactFlow } from '@xyflow/react';
 import Canvas from '@/components/editor/Canvas';
 import Sidebar from '@/components/editor/Sidebar';
 import NodeSettings from '@/components/panels/NodeSettings';
-import LogPanel from '@/components/panels/LogPanel';
+import ActivityDrawer from '@/components/panels/ActivityDrawer';
 import ExpressionPresets from '@/components/panels/ExpressionPresets';
 import MotionLibrary, { Motion } from '@/components/panels/MotionLibrary';
 import { AvatarView, RendererType } from '@/components/avatar';
 import { useWorkflowStore } from '@/stores/workflowStore';
 import { useWebSocket } from '@/hooks/useWebSocket';
+import { useKeyboardShortcuts } from '@/hooks/useKeyboardShortcuts';
+import { toast } from '@/stores/toastStore';
+import { useTranslation } from '@/stores/localeStore';
 import api from '@/lib/api';
 import { DEFAULT_MODEL_URL } from '@/lib/constants';
-import { DEMO_ROUTES, DEMO_WORKFLOW_ID } from '@/lib/demoRoutes';
+import { resolveWorkflowId } from '@/lib/routeParams';
+import { getApiBaseUrl } from '@/lib/runtimeEndpoints';
+import { DEMO_ROUTES } from '@/lib/demoRoutes';
 
-const API_BASE = process.env.NEXT_PUBLIC_API_URL || 'http://localhost:8001';
+const API_BASE = getApiBaseUrl();
 const isDemoMode = process.env.NEXT_PUBLIC_DEMO_MODE === 'true';
+
+// Auto-save error throttling state (module-level to persist across re-renders)
+let lastAutoSaveError: string | null = null;
+let lastAutoSaveErrorAt: number = 0;
+const AUTO_SAVE_ERROR_THROTTLE_MS = 30000; // 30 seconds
+
+// Session storage key for import success message
+const IMPORT_SUCCESS_KEY = 'aituber-flow-import-success';
+
+// Zoom Controls component using ReactFlow's zoom API
+function ZoomControls() {
+  const { t } = useTranslation();
+  const { zoomIn, zoomOut, fitView } = useReactFlow();
+
+  return (
+    <div className="flex flex-col gap-0.5 bg-gray-800/95 rounded-lg border border-white/20 shadow-lg overflow-hidden">
+      <button
+        onClick={() => zoomIn()}
+        className="w-7 h-7 flex items-center justify-center text-white hover:bg-white/10 transition-colors"
+        title={t('editor.zoomIn')}
+      >
+        <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2">
+          <line x1="12" y1="5" x2="12" y2="19" />
+          <line x1="5" y1="12" x2="19" y2="12" />
+        </svg>
+      </button>
+      <div className="h-px bg-white/10" />
+      <button
+        onClick={() => zoomOut()}
+        className="w-7 h-7 flex items-center justify-center text-white hover:bg-white/10 transition-colors"
+        title={t('editor.zoomOut')}
+      >
+        <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2">
+          <line x1="5" y1="12" x2="19" y2="12" />
+        </svg>
+      </button>
+      <div className="h-px bg-white/10" />
+      <button
+        onClick={() => fitView()}
+        className="w-7 h-7 flex items-center justify-center text-white hover:bg-white/10 transition-colors"
+        title={t('editor.fitView')}
+      >
+        <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2">
+          <path d="M8 3H5a2 2 0 0 0-2 2v3m18 0V5a2 2 0 0 0-2-2h-3m0 18h3a2 2 0 0 0 2-2v-3M3 16v3a2 2 0 0 0 2 2h3" />
+        </svg>
+      </button>
+    </div>
+  );
+}
 
 // Helper to get full URL for backend-served files
 const getFullUrl = (url: string | undefined): string | undefined => {
@@ -33,39 +87,42 @@ const getFullUrl = (url: string | undefined): string | undefined => {
   return url;
 };
 
-interface EditorClientProps {
+type TauriInternals = {
+  invoke?: (command: string, args?: Record<string, unknown>) => Promise<unknown>;
+};
+
+interface EditorPageProps {
   forcedWorkflowId?: string;
   homePath?: string;
   overlayPath?: string;
 }
 
-export default function EditorClient({
+export default function EditorPage({
   forcedWorkflowId,
   homePath,
   overlayPath,
-}: EditorClientProps = {}) {
-  const params = useParams();
+}: EditorPageProps = {}) {
+  const params = useParams<{ id?: string | string[] }>();
   const router = useRouter();
+  const workflowId = useMemo(
+    () => forcedWorkflowId ?? resolveWorkflowId(params.id, 'editor'),
+    [forcedWorkflowId, params.id],
+  );
 
-  const workflowId = useMemo(() => {
-    if (forcedWorkflowId) {
-      return forcedWorkflowId;
-    }
-    const routeParamId = typeof params.id === 'string' ? params.id : undefined;
-    return routeParamId || (isDemoMode ? DEMO_WORKFLOW_ID : '');
-  }, [forcedWorkflowId, params.id]);
+  // Demo deployment uses fixed routes (/demo/*) instead of /editor/[id].
+  const resolvedHomePath = homePath ?? (isDemoMode ? DEMO_ROUTES.home : '/');
+  const resolvedOverlayPath =
+    overlayPath ?? (isDemoMode ? DEMO_ROUTES.overlay : `/overlay/${workflowId}`);
 
-  const resolvedHomePath = homePath || (isDemoMode ? DEMO_ROUTES.home : '/');
-  const resolvedOverlayPath = overlayPath || (isDemoMode ? DEMO_ROUTES.overlay : `/overlay/${workflowId}`);
-
+  const [editorLoading, setEditorLoading] = useState(true);
   const [saving, setSaving] = useState(false);
   const [showSaved, setShowSaved] = useState(false);
-  const [loadError, setLoadError] = useState<string | null>(null);
   const [isEditingName, setIsEditingName] = useState(false);
   const [previewKey] = useState(() => Date.now());
   const [editedName, setEditedName] = useState('');
   const [showAvatarControls, setShowAvatarControls] = useState(false);
   const [avatarControlTab, setAvatarControlTab] = useState<'expression' | 'motion'>('expression');
+  const { t } = useTranslation();
   const nameInputRef = useRef<HTMLInputElement>(null);
   const isInitialLoad = useRef(true);
   const autoSaveTimeoutRef = useRef<NodeJS.Timeout | null>(null);
@@ -80,10 +137,30 @@ export default function EditorClient({
     addLog,
     clearLogs,
     selectedNodeId,
+    selectNode,
+    settingsPanelOpen,
+    setSettingsPanelOpen,
+    removeNode,
     nodes,
     connections,
     character,
+    setNodeStatus,
+    nodeStatuses,
   } = useWorkflowStore();
+
+  // Close the settings panel when node selection is cleared
+  useEffect(() => {
+    if (!selectedNodeId && settingsPanelOpen) {
+      setSettingsPanelOpen(false);
+    }
+  }, [selectedNodeId, settingsPanelOpen, setSettingsPanelOpen]);
+
+  // Count nodes with error status
+  const errorCount = useMemo(() => {
+    return Object.values(nodeStatuses).filter(
+      (s) => s?.status === 'error'
+    ).length;
+  }, [nodeStatuses]);
 
   // Handle name editing
   const handleStartEditingName = () => {
@@ -108,12 +185,12 @@ export default function EditorClient({
   };
 
   // Connect WebSocket and get avatar state
-  const { avatarState, clearMotion, emit, updateAvatarState } = useWebSocket(workflowId);
+  const { avatarState, clearMotion, emit, updateAvatarState, connectionStatus, reconnectAttempt } = useWebSocket(workflowId);
 
   // Handle motion selection from library
   const handleMotionSelect = useCallback((motion: Motion) => {
     updateAvatarState({ motion: motion.url });
-    emit('avatar.motion', { motion_url: motion.url });
+    emit('avatar.motion', { motionUrl: motion.url });
   }, [emit, updateAvatarState]);
 
   // Handle expression change from presets
@@ -137,26 +214,57 @@ export default function EditorClient({
     return {
       hasAvatarNode: !!avatarNode,
       renderer: (avatarNode?.config?.renderer || 'vrm') as RendererType,
-      modelUrl: avatarNode?.config?.model_url || DEFAULT_MODEL_URL,
-      animationUrl: avatarNode?.config?.idle_animation,
+      modelUrl: avatarNode?.config?.modelUrl || avatarNode?.config?.model_url || DEFAULT_MODEL_URL,
+      animationUrl: avatarNode?.config?.idleAnimation || avatarNode?.config?.idle_animation,
     };
   }, [nodes]);
 
   // Show preview only when avatar node exists and renderer is VRM
   const showPreview = avatarConfig.hasAvatarNode && avatarConfig.renderer === 'vrm';
 
+  const openOverlay = useCallback(async () => {
+    if (!workflowId || workflowId === '_') return;
+    const tauri = (window as Window & { __TAURI_INTERNALS__?: TauriInternals }).__TAURI_INTERNALS__;
+
+    if (typeof tauri?.invoke === 'function') {
+      try {
+        await tauri.invoke('open_overlay_window', { workflowId });
+        return;
+      } catch (error) {
+        console.error('Failed to open overlay window via Tauri command:', error);
+      }
+    }
+
+    window.open(resolvedOverlayPath, '_blank');
+  }, [workflowId, resolvedOverlayPath]);
+
+  const copyOverlayUrl = useCallback(async () => {
+    if (!workflowId || workflowId === '_') return;
+    const url = `${window.location.origin}${resolvedOverlayPath}`;
+    try {
+      await navigator.clipboard.writeText(url);
+      toast.success(t('editor.copiedOverlayUrl'));
+    } catch (error) {
+      console.error('Failed to copy overlay url:', error);
+      toast.error(t('editor.copyUrlFailed'));
+    }
+  }, [workflowId, resolvedOverlayPath]);
+
   // Load workflow on mount
   useEffect(() => {
-    if (workflowId && workflowId !== 'new') {
+    if (workflowId && workflowId !== 'new' && workflowId !== '_') {
       loadWorkflowData();
     }
+  // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [workflowId]);
 
   const loadWorkflowData = async () => {
     isInitialLoad.current = true;
-    const response = await api.getWorkflow(workflowId);
+    const [response, statusResponse] = await Promise.all([
+      api.getWorkflow(workflowId),
+      api.getWorkflowStatus(workflowId),
+    ]);
     if (response.data) {
-      setLoadError(null);
       loadWorkflow({
         id: response.data.id,
         name: response.data.name,
@@ -167,14 +275,31 @@ export default function EditorClient({
           personality: 'Friendly and helpful',
         },
       });
+
+      if (statusResponse.data) {
+        setExecuting(statusResponse.data.status === 'running');
+      } else if (statusResponse.error) {
+        console.warn(`Could not sync execution state: ${statusResponse.error}`);
+      }
+
+      // Check for import success message from sessionStorage
+      const importSuccessName = sessionStorage.getItem(IMPORT_SUCCESS_KEY);
+      if (importSuccessName) {
+        sessionStorage.removeItem(IMPORT_SUCCESS_KEY);
+        toast.success(t('editor.importComplete') + importSuccessName);
+      }
+
       // Allow auto-save after initial load settles
       setTimeout(() => {
         isInitialLoad.current = false;
+        setEditorLoading(false);
       }, 500);
     } else if (response.error) {
-      console.error('Failed to load workflow:', response.error);
-      setLoadError(response.error);
-      addLog({ level: 'error', message: `Failed to load workflow: ${response.error}` });
+      setEditorLoading(false);
+      toast.error(t('editor.loadWorkflowFailed') + response.error);
+      if (workflowId !== '_' && response.error.includes('not found')) {
+        router.push(resolvedHomePath);
+      }
     }
   };
 
@@ -183,7 +308,7 @@ export default function EditorClient({
 
   // Auto-save when workflow changes (debounced)
   const performAutoSave = useCallback(async () => {
-    if (savingRef.current || workflowId === 'new') return;
+    if (savingRef.current || workflowId === 'new' || workflowId === '_') return;
 
     savingRef.current = true;
     setSaving(true);
@@ -197,7 +322,16 @@ export default function EditorClient({
     });
 
     if (response.error) {
-      console.error('Auto-save failed:', response.error);
+      // Throttle auto-save error toasts to avoid spam
+      const now = Date.now();
+      const isDifferentError = response.error !== lastAutoSaveError;
+      const isThrottleExpired = now - lastAutoSaveErrorAt > AUTO_SAVE_ERROR_THROTTLE_MS;
+
+      if (isDifferentError || isThrottleExpired) {
+        toast.error(t('editor.autoSaveFailed') + response.error);
+        lastAutoSaveError = response.error;
+        lastAutoSaveErrorAt = now;
+      }
     } else {
       // Show "Saved" indicator briefly
       setShowSaved(true);
@@ -252,16 +386,93 @@ export default function EditorClient({
     setSaving(false);
   };
 
+  // Keyboard shortcuts
+  useKeyboardShortcuts({
+    onSave: () => {
+      if (workflowId !== 'new') {
+        handleSave();
+      }
+    },
+    onDelete: () => {
+      if (selectedNodeId) {
+        removeNode(selectedNodeId);
+        // Toast is shown by Canvas.tsx onNodesChange handler
+      }
+    },
+    onEscape: () => {
+      selectNode(null);
+      setShowAvatarControls(false);
+    },
+  });
+
   const handleStart = async (startNodeId?: string) => {
     clearLogs();
+
+    // Get current workflow data from store (not saved version)
+    const currentData = getWorkflowData();
+
+    // Run validation before starting
+    const validationResponse = await api.validateWorkflow(workflowId, {
+      nodes: currentData.nodes,
+      connections: currentData.connections,
+    });
+
+    if (validationResponse.error) {
+      toast.warning(t('editor.validationSkipped') + validationResponse.error);
+      addLog({
+        level: 'warning',
+        message: `バリデーションAPI呼び出しに失敗しました: ${validationResponse.error}`,
+      });
+    }
+
+    if (validationResponse.data) {
+      const { errors, warnings } = validationResponse.data;
+
+      // Clear previous validation highlights
+      for (const node of currentData.nodes) {
+        setNodeStatus(node.id, 'idle', {});
+      }
+
+      // Show warnings as toasts
+      for (const warning of warnings) {
+        toast.warning(`${warning.nodeName}: ${warning.message}`);
+        addLog({
+          level: 'warning',
+          message: `[${warning.nodeName}] ${warning.message}`,
+          nodeId: warning.nodeId,
+        });
+      }
+
+      // Highlight nodes with issues
+      for (const issue of [...errors, ...warnings]) {
+        setNodeStatus(issue.nodeId, issue.level === 'error' ? 'error' : 'warning', {
+          validationIssue: issue.message,
+        });
+      }
+
+      // If there are errors, block execution
+      if (errors.length > 0) {
+        for (const error of errors) {
+          toast.error(`${error.nodeName}: ${error.message}`);
+          addLog({
+            level: 'error',
+            message: `[${error.nodeName}] ${error.message}`,
+            nodeId: error.nodeId,
+          });
+        }
+        addLog({
+          level: 'error',
+          message: `バリデーションエラー: ${errors.length}件のエラーが見つかりました。修正してから再実行してください。`,
+        });
+        return;
+      }
+    }
+
     if (startNodeId) {
       addLog({ level: 'info', message: `▶ Starting from node: ${startNodeId}` });
     } else {
       addLog({ level: 'info', message: '▶ Starting workflow...' });
     }
-
-    // Get current workflow data from store (not saved version)
-    const currentData = getWorkflowData();
 
     const response = await api.startWorkflow(workflowId, {
       nodes: currentData.nodes,
@@ -272,8 +483,6 @@ export default function EditorClient({
 
     if (response.error) {
       addLog({ level: 'error', message: `Failed to start: ${response.error}` });
-    } else {
-      setExecuting(true);
     }
   };
 
@@ -296,16 +505,24 @@ export default function EditorClient({
   };
 
   // Export workflow as JSON file
-  const handleExport = () => {
-    const data = getWorkflowData();
+  const handleExport = async () => {
+    // Use API endpoint which strips API keys by default for security
+    const response = await api.exportWorkflow(workflowId, { excludeApiKeys: true });
+
+    if (response.error) {
+      addLog({ level: 'error', message: `Export failed: ${response.error}` });
+      return;
+    }
+
     const exportData = {
-      version: '1.0',
-      exportedAt: new Date().toISOString(),
+      version: response.data?.version || '1.0',
+      exportedAt: response.data?.exportedAt || new Date().toISOString(),
       workflow: {
-        name: data.name,
-        nodes: data.nodes,
-        connections: data.connections,
-        character: data.character,
+        name: response.data?.name,
+        description: response.data?.description,
+        nodes: response.data?.nodes,
+        connections: response.data?.connections,
+        character: response.data?.character,
       },
     };
 
@@ -313,16 +530,16 @@ export default function EditorClient({
     const url = URL.createObjectURL(blob);
     const a = document.createElement('a');
     a.href = url;
-    a.download = `${data.name || 'workflow'}-${new Date().toISOString().split('T')[0]}.json`;
+    a.download = `${exportData.workflow.name || 'workflow'}-${new Date().toISOString().split('T')[0]}.json`;
     document.body.appendChild(a);
     a.click();
     document.body.removeChild(a);
     URL.revokeObjectURL(url);
 
-    addLog({ level: 'success', message: 'Workflow exported successfully' });
+    addLog({ level: 'success', message: 'Workflow exported (API keys excluded for security)' });
   };
 
-  // Import workflow from JSON file
+  // Import workflow from JSON file - creates a new workflow
   const handleImport = () => {
     const input = document.createElement('input');
     input.type = 'file';
@@ -335,43 +552,57 @@ export default function EditorClient({
         const text = await file.text();
         const importData = JSON.parse(text);
 
-        // Validate import data structure
+        // Extract workflow data - handle both wrapped and flat formats
+        // Wrapped: { version, workflow: { name, nodes, ... } }
+        // Flat: { name, nodes, ... }
         const workflow = importData.workflow || importData;
+
+        // Validate import data structure
         if (!workflow.nodes || !Array.isArray(workflow.nodes)) {
-          throw new Error('Invalid workflow file: missing nodes');
+          throw new Error('Invalid workflow file: missing or invalid nodes array');
         }
 
-        // Load the imported workflow
-        loadWorkflow({
-          id: workflowId,
-          name: workflow.name || 'Imported Workflow',
+        if (workflow.nodes.length === 0) {
+          addLog({ level: 'warning', message: 'Warning: Importing workflow with no nodes' });
+        }
+
+        // Prepare import data
+        const importPayload = {
+          name: workflow.name ? `${workflow.name} (Imported)` : 'Imported Workflow',
+          description: workflow.description || '',
           nodes: workflow.nodes,
           connections: workflow.connections || [],
           character: workflow.character || { name: 'AI Assistant', personality: 'Friendly and helpful' },
-        });
+        };
 
-        addLog({ level: 'success', message: `Imported workflow: ${workflow.name || 'Imported Workflow'}` });
+        // Create a new workflow via API
+        const response = await api.importWorkflow(importPayload);
+
+        if (response.error) {
+          throw new Error(response.error);
+        }
+
+        if (!response.data?.id) {
+          throw new Error('Import succeeded but no workflow ID returned');
+        }
+
+        addLog({ level: 'success', message: `Imported as new workflow: ${response.data.name}` });
+
+        // Persist success message to sessionStorage for the target page to display
+        // (toast would be lost due to immediate page navigation)
+        sessionStorage.setItem(IMPORT_SUCCESS_KEY, response.data.name);
+
+        // Navigate to the new workflow
+        // Use window.location.href to force a full page reload
+        // In demo mode there is a single fixed workflow, so stay on the demo editor.
+        window.location.href = isDemoMode ? DEMO_ROUTES.editor : `/editor/${response.data.id}`;
       } catch (err) {
-        console.error('Import failed:', err);
-        addLog({ level: 'error', message: `Import failed: ${err instanceof Error ? err.message : 'Unknown error'}` });
+        const errorMessage = err instanceof Error ? err.message : 'Unknown error';
+        toast.error(t('editor.importFailed') + errorMessage);
+        addLog({ level: 'error', message: `Import failed: ${errorMessage}` });
       }
     };
     input.click();
-  };
-
-  const handleBack = () => {
-    router.push(resolvedHomePath);
-  };
-
-  const handleResetDemo = async () => {
-    if (!isDemoMode) return;
-    const response = await api.deleteWorkflow(workflowId);
-    if (response.error) {
-      addLog({ level: 'error', message: `Failed to reset demo: ${response.error}` });
-      return;
-    }
-    await loadWorkflowData();
-    addLog({ level: 'success', message: 'Demo workflow reset' });
   };
 
   return (
@@ -382,6 +613,16 @@ export default function EditorClient({
         fontFamily: "'Inter', -apple-system, BlinkMacSystemFont, sans-serif",
       }}
     >
+      {/* Loading overlay */}
+      {editorLoading && (
+        <div className="absolute inset-0 z-[100] flex items-center justify-center" style={{ background: 'linear-gradient(135deg, #0F172A 0%, #1E293B 50%, #0F172A 100%)' }}>
+          <div className="flex flex-col items-center gap-4">
+            <div className="w-10 h-10 rounded-full border-2 border-white/20 border-t-emerald-400 animate-spin" />
+            <span className="text-sm text-white/60">読み込み中...</span>
+          </div>
+        </div>
+      )}
+
       {/* Grid background */}
       <div
         className="absolute inset-0 pointer-events-none"
@@ -398,9 +639,9 @@ export default function EditorClient({
       <div className="absolute top-5 left-5 z-10 flex items-center gap-4">
         {/* Back button */}
         <button
-          onClick={handleBack}
+          onClick={() => router.push(resolvedHomePath)}
           className="w-10 h-10 rounded-[10px] flex items-center justify-center text-white/70 hover:text-white hover:bg-white/10 transition-all"
-          title="Back to Workflows"
+          title={t('editor.backToWorkflows')}
         >
           <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2">
             <path d="M19 12H5M12 19l-7-7 7-7"/>
@@ -409,15 +650,17 @@ export default function EditorClient({
 
         {/* Logo */}
         <div
-          className="w-10 h-10 rounded-[10px] flex items-center justify-center"
+          className="w-10 h-10 rounded-[10px] overflow-hidden flex items-center justify-center"
           style={{
-            background: 'linear-gradient(135deg, #10B981, #3B82F6)',
             boxShadow: '0 4px 20px rgba(16, 185, 129, 0.3)',
           }}
         >
-          <svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="white" strokeWidth="2">
-            <polygon points="13 2 3 14 12 14 11 22 21 10 12 10 13 2"/>
-          </svg>
+          {/* eslint-disable-next-line @next/next/no-img-element */}
+          <img
+            src="/logo.png"
+            alt="AITuberFlow logo"
+            className="w-full h-full object-cover"
+          />
         </div>
 
         {/* Title */}
@@ -436,7 +679,7 @@ export default function EditorClient({
             <h1
               className="text-xl font-bold text-white m-0 cursor-pointer hover:text-emerald-400 transition-colors"
               onClick={handleStartEditingName}
-              title="Click to edit name"
+              title={t('editor.clickToEditName')}
             >
               {workflowName || 'AITuber Flow'}
               <svg
@@ -457,9 +700,38 @@ export default function EditorClient({
             <p className="text-xs text-white/50 m-0">
               Build your AI streamer visually
             </p>
-            {loadError && (
-              <span className="text-xs text-red-400">
-                {loadError}
+            {/* Connection status indicator (hidden in the backend-less demo) */}
+            {!isDemoMode && connectionStatus === 'reconnecting' && (
+              <span className="text-xs flex items-center gap-1 text-yellow-400" title={`Reconnecting (${reconnectAttempt}/10)...`}>
+                <svg
+                  className="animate-spin"
+                  width="12"
+                  height="12"
+                  viewBox="0 0 24 24"
+                  fill="none"
+                  stroke="currentColor"
+                  strokeWidth="2"
+                >
+                  <path d="M21 12a9 9 0 1 1-6.219-8.56" />
+                </svg>
+                {t('editor.reconnecting')}
+              </span>
+            )}
+            {!isDemoMode && connectionStatus === 'disconnected' && (
+              <span className="text-xs flex items-center gap-1 text-red-400" title="Disconnected from server">
+                <svg
+                  width="12"
+                  height="12"
+                  viewBox="0 0 24 24"
+                  fill="none"
+                  stroke="currentColor"
+                  strokeWidth="2"
+                >
+                  <circle cx="12" cy="12" r="10" />
+                  <line x1="15" y1="9" x2="9" y2="15" />
+                  <line x1="9" y1="9" x2="15" y2="15" />
+                </svg>
+                {t('editor.offline')}
               </span>
             )}
             {/* Auto-save indicator */}
@@ -476,7 +748,7 @@ export default function EditorClient({
                 >
                   <path d="M21 12a9 9 0 1 1-6.219-8.56" />
                 </svg>
-                Saving...
+                {t('editor.saving')}
               </span>
             ) : showSaved ? (
               <span className="text-xs flex items-center gap-1 text-emerald-400">
@@ -490,11 +762,22 @@ export default function EditorClient({
                 >
                   <polyline points="20 6 9 17 4 12" />
                 </svg>
-                Saved
+                {t('editor.saved')}
               </span>
             ) : null}
           </div>
         </div>
+
+        {/* Error count badge - shown only when there are errors */}
+        {errorCount > 0 && (
+          <div
+            className="px-3 py-2 rounded-lg bg-red-500/20 border border-red-500/50 text-red-300 flex items-center gap-2 text-sm cursor-default"
+            title={`${errorCount} node(s) with errors`}
+          >
+            <span className="w-2 h-2 rounded-full bg-red-500 animate-pulse" />
+            <span className="font-medium">{errorCount} error{errorCount !== 1 ? 's' : ''}</span>
+          </div>
+        )}
 
         {/* Avatar Controls toggle - only show when preview is available */}
         {showPreview && (
@@ -505,40 +788,46 @@ export default function EditorClient({
               ? 'bg-pink-500/30 border-pink-500/50 text-pink-300'
               : 'bg-pink-500/20 border-pink-500/50 text-pink-300 hover:bg-pink-500/30'
           }`}
-          title="Toggle Avatar Controls"
+          title={t('editor.toggleAvatarControls')}
         >
           <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2">
             <circle cx="12" cy="12" r="10"/>
             <path d="M8 14s1.5 2 4 2 4-2 4-2"/>
             <line x1="9" y1="9" x2="9.01" y2="9"/><line x1="15" y1="9" x2="15.01" y2="9"/>
           </svg>
-          Controls
+          {t('editor.controls')}
         </button>
         )}
 
         {/* Open Overlay button */}
         <button
-          onClick={() => window.open(resolvedOverlayPath, '_blank')}
+          onClick={() => {
+            void openOverlay();
+          }}
           className="px-4 py-2 rounded-lg bg-purple-500/20 border border-purple-500/50 text-purple-300 hover:bg-purple-500/30 transition-all flex items-center gap-2 text-sm"
-          title="Open OBS Overlay (new tab)"
+          title={t('editor.openOverlay')}
         >
           <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2">
             <rect x="2" y="3" width="20" height="14" rx="2" ry="2"/>
             <line x1="8" y1="21" x2="16" y2="21"/>
             <line x1="12" y1="17" x2="12" y2="21"/>
           </svg>
-          Overlay
+          {t('editor.overlay')}
         </button>
 
-        {isDemoMode && (
-          <button
-            onClick={handleResetDemo}
-            className="px-4 py-2 rounded-lg bg-amber-500/20 border border-amber-500/50 text-amber-300 hover:bg-amber-500/30 transition-all text-sm"
-            title="Reset demo workflow"
-          >
-            Reset Demo
-          </button>
-        )}
+        <button
+          onClick={() => {
+            void copyOverlayUrl();
+          }}
+          className="px-4 py-2 rounded-lg bg-indigo-500/20 border border-indigo-500/50 text-indigo-300 hover:bg-indigo-500/30 transition-all flex items-center gap-2 text-sm"
+          title={t('editor.copyOverlayUrl')}
+        >
+          <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2">
+            <rect x="9" y="9" width="13" height="13" rx="2" ry="2"/>
+            <path d="M5 15H4a2 2 0 0 1-2-2V4a2 2 0 0 1 2-2h9a2 2 0 0 1 2 2v1"/>
+          </svg>
+          {t('editor.copyUrl')}
+        </button>
       </div>
 
       {/* Preview Panel - Avatar Only (shown only when avatar node exists and VRM is selected) */}
@@ -549,7 +838,7 @@ export default function EditorClient({
           background: 'rgba(17, 24, 39, 0.95)',
           borderRadius: '16px',
           border: '1px solid rgba(255,255,255,0.1)',
-          height: selectedNodeId ? '280px' : 'calc(100% - 100px)',
+          height: settingsPanelOpen && selectedNodeId ? '280px' : 'calc(100% - 100px)',
           minHeight: '280px',
           transition: 'height 0.2s ease',
         }}
@@ -561,7 +850,7 @@ export default function EditorClient({
               <rect x="2" y="3" width="20" height="14" rx="2" ry="2"/>
               <circle cx="12" cy="10" r="3"/>
             </svg>
-            Preview
+            {t('editor.preview')}
           </div>
           <div className="text-xs text-white/40">
             {avatarState.expression}
@@ -620,7 +909,7 @@ export default function EditorClient({
                   <path d="M8 14s1.5 2 4 2 4-2 4-2"/>
                   <line x1="9" y1="9" x2="9.01" y2="9"/><line x1="15" y1="9" x2="15.01" y2="9"/>
                 </svg>
-                Expression
+                {t('editor.expression')}
               </div>
             </button>
             <button
@@ -635,14 +924,14 @@ export default function EditorClient({
                 <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2">
                   <polygon points="5 3 19 12 5 21 5 3"/>
                 </svg>
-                Motion
+                {t('editor.motion')}
               </div>
             </button>
             {/* Close button */}
             <button
               onClick={() => setShowAvatarControls(false)}
               className="px-2 py-2 text-white/40 hover:text-white/70 hover:bg-white/5 transition-colors"
-              title="Close"
+              title={t('editor.close')}
             >
               <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2">
                 <path d="M18 6L6 18M6 6l12 12"/>
@@ -692,26 +981,51 @@ export default function EditorClient({
           />
         </div>
 
-        {/* Log Panel at bottom */}
+        {/* Zoom Controls */}
         <div
-          className="absolute bottom-5 z-10"
-          style={{ left: '285px', right: showPreview ? '320px' : '20px' }}
+          className="absolute z-10"
+          style={{ left: '285px', bottom: '25px' }}
         >
-          <LogPanel />
+          <ZoomControls />
         </div>
 
-        {/* Node Settings - Inside ReactFlowProvider, shown when a node is selected */}
-        {selectedNodeId && (
+        {/* Activity drawer (execution cycles + raw log) */}
+        <ActivityDrawer />
+
+        {/* Node settings panel — opened on demand from a node's gear button or
+            from complex/dynamic field rows that cannot be edited inline */}
+        {settingsPanelOpen && selectedNodeId && (
           <div
-            className="absolute right-5 bottom-5 z-10 w-[280px] flex-1 overflow-hidden flex flex-col"
+            className="absolute right-5 bottom-5 z-30 w-[280px] overflow-hidden flex flex-col"
             style={{
-              top: '360px',
-              background: 'rgba(17, 24, 39, 0.95)',
+              top: showPreview ? '360px' : '80px',
+              background: 'rgba(17, 24, 39, 0.97)',
               borderRadius: '16px',
               border: '1px solid rgba(255,255,255,0.1)',
             }}
           >
-            <NodeSettings />
+            <div className="px-3 py-2 border-b border-white/10 flex items-center justify-between flex-shrink-0">
+              <div className="flex items-center gap-2 text-sm text-white/70">
+                <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2">
+                  <circle cx="12" cy="12" r="3"/>
+                  <path d="M19.4 15a1.65 1.65 0 0 0 .33 1.82l.06.06a2 2 0 1 1-2.83 2.83l-.06-.06a1.65 1.65 0 0 0-1.82-.33 1.65 1.65 0 0 0-1 1.51V21a2 2 0 1 1-4 0v-.09A1.65 1.65 0 0 0 9 19.4a1.65 1.65 0 0 0-1.82.33l-.06.06a2 2 0 1 1-2.83-2.83l.06-.06a1.65 1.65 0 0 0 .33-1.82 1.65 1.65 0 0 0-1.51-1H3a2 2 0 1 1 0-4h.09A1.65 1.65 0 0 0 4.6 9a1.65 1.65 0 0 0-.33-1.82l-.06-.06a2 2 0 1 1 2.83-2.83l.06.06a1.65 1.65 0 0 0 1.82.33H9a1.65 1.65 0 0 0 1-1.51V3a2 2 0 1 1 4 0v.09a1.65 1.65 0 0 0 1 1.51 1.65 1.65 0 0 0 1.82-.33l.06-.06a2 2 0 1 1 2.83 2.83l-.06.06a1.65 1.65 0 0 0-.33 1.82V9a1.65 1.65 0 0 0 1.51 1H21a2 2 0 1 1 0 4h-.09a1.65 1.65 0 0 0-1.51 1z"/>
+                </svg>
+                {t('editor.nodeDetailSettings')}
+              </div>
+              <button
+                onClick={() => setSettingsPanelOpen(false)}
+                className="text-white/40 hover:text-white/70 transition-colors p-0.5"
+                title={t('editor.close')}
+                aria-label={t('editor.closeSettingsPanel')}
+              >
+                <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2">
+                  <path d="M18 6L6 18M6 6l12 12"/>
+                </svg>
+              </button>
+            </div>
+            <div className="flex-1 overflow-hidden flex flex-col min-h-0">
+              <NodeSettings />
+            </div>
           </div>
         )}
       </ReactFlowProvider>

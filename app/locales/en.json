@@ -18,7 +18,10 @@
     "delete": "Delete",
     "duplicate": "Duplicate",
     "export": "Export",
-    "deleteConfirm": "Delete this workflow?"
+    "deleteConfirm": "Delete this workflow?",
+    "workflowDeleted": "Workflow deleted",
+    "saveFailed": "Failed to save",
+    "workflowDownloaded": "Workflow downloaded"
   },
   "editor": {
     "save": "Save",
@@ -29,7 +32,33 @@
     "running": "Running",
     "back": "Back",
     "undo": "Undo",
-    "redo": "Redo"
+    "redo": "Redo",
+    "zoomIn": "Zoom In",
+    "zoomOut": "Zoom Out",
+    "fitView": "Fit View",
+    "backToWorkflows": "Back to Workflows",
+    "clickToEditName": "Click to edit name",
+    "toggleAvatarControls": "Toggle Avatar Controls",
+    "openOverlay": "Open Overlay Window",
+    "copyOverlayUrl": "Copy Overlay URL for OBS Browser Source",
+    "overlay": "Overlay",
+    "copyUrl": "Copy URL",
+    "controls": "Controls",
+    "reconnecting": "Reconnecting...",
+    "offline": "Offline",
+    "nodeDetailSettings": "Node Detail Settings",
+    "close": "Close",
+    "closeSettingsPanel": "Close settings panel",
+    "preview": "Preview",
+    "expression": "Expression",
+    "motion": "Motion",
+    "copiedOverlayUrl": "Copied overlay URL for OBS",
+    "copyUrlFailed": "Failed to copy URL",
+    "importComplete": "Import complete: ",
+    "loadWorkflowFailed": "Failed to load workflow: ",
+    "autoSaveFailed": "Auto-save failed: ",
+    "validationSkipped": "Validation skipped: ",
+    "importFailed": "Import failed: "
   },
   "sidebar": {
     "search": "Search nodes...",
@@ -43,7 +72,20 @@
   "settings": {
     "nodeSettings": "Node Settings",
     "selectNode": "Select a node to edit",
-    "deleteNode": "Delete Node"
+    "deleteNode": "Delete Node",
+    "hidePassword": "Hide password",
+    "showPassword": "Show password",
+    "nodeDeleted": "Node deleted",
+    "uploadFailed": "Upload failed: ",
+    "uploadAnimationFailed": "Failed to upload animation file",
+    "uploadModelFailed": "Failed to upload model file",
+    "uploadImageFailed": "Failed to upload image",
+    "staticTextPlaceholder": "Enter static text for this part of the prompt...",
+    "addInputHelp": "Add input names to create ports. Use {{name}} in template.",
+    "expressionIdPlaceholder": "Expression ID (e.g., smug)",
+    "imageFilenamePlaceholder": "Image filename (e.g., smug.png)",
+    "descriptionForLlm": "Description for LLM analysis",
+    "descriptionForLlmPlaceholder": "Description for LLM (e.g., 'Self-satisfied, proud, confident')"
   },
   "logs": {
     "title": "Execution Log",
@@ -96,12 +138,17 @@
     "text-transform": "Text transformation node.\n[Usage] Connect input to text. Set template in config. Use {{text}} to reference input.",
     "random": "Random value generator.\n[Usage] Set range or options in config. Different value output to value each time.",
     "timer": "Auto-trigger timer node.\n[Usage] Set interval (ms) in config. Connect to processes for periodic execution.",
+    "cron-trigger": "Cron schedule trigger node.\n[Usage] Set cron expression in config (e.g. '0 9 * * *' = daily at 9:00). Connect to periodic tasks.",
     "variable": "Variable storage node.\n[Usage] Set variable name in config. Use set to save, get to retrieve. Share values in workflow.",
     "anthropic-llm": "LLM node using Anthropic API.\n[Usage] Connect prompt input. Set model and system prompt in config.",
     "google-llm": "LLM node using Google AI API.\n[Usage] Connect prompt input. Set model and system prompt in config.",
     "ollama-llm": "LLM node using local Ollama.\n[Usage] Connect prompt input. Set model in config. *Requires Ollama running.",
+    "mistral-llm": "LLM node using Mistral AI API.\n[Usage] Connect prompt input. Set model and system prompt in config.",
+    "groq-llm": "LLM node using Groq's high-speed inference API.\n[Usage] Connect prompt input. Set model and system prompt in config.",
     "coeiroink-tts": "TTS node using COEIROINK.\n[Usage] Connect text to read. Select speaker in config. *Requires COEIROINK running.",
     "sbv2-tts": "TTS node using Style-Bert-VITS2.\n[Usage] Connect text to read. Select model in config. *Requires API running.",
+    "aivis-tts": "TTS node using AivisSpeech (VOICEVOX-compatible).\n[Usage] Connect text to read. Select speaker in config. *Requires AivisSpeech running.",
+    "openai-tts": "TTS node using OpenAI TTS API.\n[Usage] Connect text to read. Set voice and model in config.",
     "avatar-configuration": "VRM avatar configuration node.\n[Usage] Set model URL and idle animation. Avatar displays on overlay.",
     "emotion-analyzer": "Emotion analysis node.\n[Usage] Connect text to analyze. Outputs emotion and intensity.",
     "motion-trigger": "Manually trigger expressions and motions.\n[Usage] Connect any input to trigger. Set expression/motion in config.",
@@ -122,6 +169,12 @@
     "invalidJson": "Invalid JSON file",
     "loadTemplateFailed": "Failed to load template"
   },
+  "support": {
+    "title": "Support",
+    "description": "If you encounter any issues or have feedback, please reach out",
+    "issue": "Issue",
+    "dm": "X DM"
+  },
   "defaults": {
     "workflowName": "New Workflow",
     "assistantName": "AI Assistant",
@@ -134,5 +187,367 @@
     "runFromNode": "Run from this node",
     "switchToJapanese": "Switch to Japanese",
     "switchToEnglish": "Switch to English"
+  },
+  "nodeConfig": {
+    "nodeType": "Node Type",
+    "deleteNode": "Delete Node",
+    "start": {
+      "label": "Start",
+      "autoStart": "Auto Start",
+      "autoStartPlaceholder": "Start automatically when workflow runs"
+    },
+    "end": {
+      "label": "End",
+      "message": "Completion Message"
+    },
+    "loop": {
+      "label": "Loop",
+      "mode": "Loop Mode",
+      "modeCount": "Count",
+      "modeWhile": "While Condition",
+      "modeInfinite": "Infinite",
+      "count": "Loop Count",
+      "condition": "Condition (for While)",
+      "maxIterations": "Max Iterations (safety)"
+    },
+    "foreach": {
+      "label": "ForEach",
+      "separator": "Separator"
+    },
+    "youtubeChat": {
+      "label": "YouTube Chat",
+      "videoId": "Video ID",
+      "apiKey": "API Key"
+    },
+    "twitchChat": {
+      "label": "Twitch Chat",
+      "channel": "Channel"
+    },
+    "openaiLlm": {
+      "label": "ChatGPT (OpenAI)",
+      "apiKey": "API Key",
+      "model": "Model",
+      "systemPrompt": "System Prompt",
+      "systemPromptPlaceholder": "Enter character settings...",
+      "promptBuilder": "Prompt Builder",
+      "temperature": "Temperature"
+    },
+    "anthropicLlm": {
+      "label": "Claude (Anthropic)",
+      "apiKey": "API Key",
+      "model": "Model",
+      "systemPrompt": "System Prompt",
+      "maxTokens": "Max Tokens",
+      "temperature": "Temperature"
+    },
+    "googleLlm": {
+      "label": "Gemini (Google)",
+      "apiKey": "API Key",
+      "model": "Model",
+      "systemPrompt": "System Prompt",
+      "maxTokens": "Max Tokens",
+      "temperature": "Temperature"
+    },
+    "ollamaLlm": {
+      "label": "LLM (Ollama)",
+      "host": "Ollama Host",
+      "model": "Model",
+      "systemPrompt": "System Prompt",
+      "temperature": "Temperature",
+      "contextLength": "Context Length"
+    },
+    "voicevoxTts": {
+      "label": "TTS (VOICEVOX)",
+      "host": "VOICEVOX Host",
+      "speaker": "Speaker",
+      "speed": "Speed"
+    },
+    "coeiroinkTts": {
+      "label": "TTS (COEIROINK)",
+      "host": "COEIROINK Host",
+      "speakerUuid": "Speaker UUID",
+      "styleId": "Style ID",
+      "speed": "Speed",
+      "pitch": "Pitch"
+    },
+    "sbv2Tts": {
+      "label": "TTS (Style-Bert-VITS2)",
+      "host": "SBV2 Host",
+      "modelName": "Model Name",
+      "speakerId": "Speaker ID",
+      "style": "Style",
+      "styleWeight": "Style Weight",
+      "speed": "Speed"
+    },
+    "manualInput": {
+      "label": "Manual Input",
+      "text": "Text",
+      "textPlaceholder": "Enter text to send..."
+    },
+    "consoleOutput": {
+      "label": "Console Output",
+      "prefix": "Prefix"
+    },
+    "switch": {
+      "label": "Switch",
+      "mode": "Mode",
+      "modeTruthy": "Truthy/Falsy",
+      "modeEquals": "Equals",
+      "modeContains": "Contains",
+      "compareValue": "Compare Value"
+    },
+    "delay": {
+      "label": "Delay",
+      "delayMs": "Delay (ms)",
+      "randomize": "Randomize",
+      "randomMin": "Random Min (ms)",
+      "randomMax": "Random Max (ms)"
+    },
+    "httpRequest": {
+      "label": "HTTP Request",
+      "url": "URL",
+      "method": "Method",
+      "headers": "Headers (JSON)",
+      "timeout": "Timeout (ms)"
+    },
+    "textTransform": {
+      "label": "Text Transform",
+      "operation": "Operation",
+      "opTemplate": "Template",
+      "opUppercase": "Uppercase",
+      "opLowercase": "Lowercase",
+      "opTrim": "Trim",
+      "opReplace": "Replace",
+      "opPrefix": "Prefix",
+      "opSuffix": "Suffix",
+      "opSplitFirst": "Split First",
+      "opSplitLast": "Split Last",
+      "opLength": "Length",
+      "template": "Template",
+      "templateInputs": "Template Inputs",
+      "find": "Find (for Replace)",
+      "replaceWith": "Replace With",
+      "delimiter": "Delimiter (for Split)"
+    },
+    "random": {
+      "label": "Random",
+      "mode": "Mode",
+      "modeNumber": "Number",
+      "modeChoice": "Choice",
+      "modeBoolean": "Boolean",
+      "min": "Min (for Number)",
+      "max": "Max (for Number)",
+      "choices": "Choices (comma separated)",
+      "trueProbability": "True Probability % (for Boolean)"
+    },
+    "timer": {
+      "label": "Timer",
+      "intervalMs": "Interval (ms)",
+      "maxTicks": "Max Ticks (0=unlimited)",
+      "immediate": "Fire Immediately"
+    },
+    "variable": {
+      "label": "Variable",
+      "name": "Variable Name",
+      "defaultValue": "Default Value",
+      "valueType": "Value Type",
+      "typeString": "String",
+      "typeNumber": "Number",
+      "typeBoolean": "Boolean",
+      "typeJson": "JSON"
+    },
+    "avatarConfiguration": {
+      "label": "Avatar Configuration",
+      "renderer": "Renderer",
+      "rendererVrm": "VRM (Built-in)",
+      "rendererVtubeStudio": "VTube Studio",
+      "rendererPng": "PNG Images",
+      "modelUrl": "VRM Model",
+      "idleAnimation": "Idle Animation (FBX)",
+      "vtubePort": "VTube Studio Port",
+      "pngConfig": "PNG Expression Mappings"
+    },
+    "motionTrigger": {
+      "label": "Motion Trigger",
+      "expression": "Expression ID",
+      "intensity": "Expression Intensity (0.0-1.0)",
+      "motionUrl": "Motion Animation (FBX)",
+      "emitEvents": "Emit Avatar Events"
+    },
+    "emotionAnalyzer": {
+      "label": "Emotion Analyzer",
+      "method": "Analysis Method",
+      "methodLlm": "LLM-based (Recommended)",
+      "methodRuleBased": "Rule-based (Keywords)",
+      "expressions": "Available Expressions",
+      "llmProvider": "LLM Provider",
+      "llmApiKey": "LLM API Key",
+      "llmModel": "LLM Model",
+      "language": "Language",
+      "langJa": "Japanese",
+      "langEn": "English",
+      "langAuto": "Auto-detect",
+      "customMappings": "Custom Keyword Mappings (JSON)",
+      "emitEvents": "Emit Avatar Events"
+    },
+    "lipSync": {
+      "label": "Lip Sync",
+      "method": "Lip Sync Method",
+      "methodVolume": "Volume-based (Simple)",
+      "methodEnvelope": "Envelope Following",
+      "sensitivity": "Sensitivity (1.0-10.0)",
+      "smoothing": "Smoothing (0.0-0.9)",
+      "threshold": "Threshold (0.0-0.2)",
+      "emitRealtime": "Emit Realtime Events",
+      "frameRate": "Frame Rate"
+    },
+    "avatarDisplay": {
+      "label": "Avatar Display"
+    },
+    "audioPlayer": {
+      "label": "Audio Player",
+      "waitForCompletion": "Wait for Completion",
+      "volume": "Volume",
+      "outputDevice": "Output Device"
+    },
+    "subtitleDisplay": {
+      "label": "Subtitle Display",
+      "style": "Style",
+      "position": "Position",
+      "fontSize": "Font Size",
+      "fontColor": "Font Color",
+      "backgroundColor": "Background Color",
+      "showSpeaker": "Show Speaker",
+      "animation": "Animation",
+      "duration": "Duration"
+    },
+    "obsSceneSwitch": {
+      "label": "OBS Scene Switch",
+      "host": "Host",
+      "port": "Port",
+      "password": "Password",
+      "sceneName": "Scene Name"
+    },
+    "obsSourceToggle": {
+      "label": "OBS Source Toggle",
+      "host": "Host",
+      "port": "Port",
+      "password": "Password",
+      "sceneName": "Scene Name",
+      "sourceName": "Source Name",
+      "action": "Action"
+    },
+    "common": {
+      "enabled": "Enabled",
+      "loadingSpeakers": "Loading speakers...",
+      "retry": "Retry",
+      "selectSpeaker": "Select a speaker...",
+      "uploadFbx": "Upload FBX",
+      "uploading": "Uploading...",
+      "selectExisting": "Select existing animation...",
+      "uploadVrm": "Upload VRM",
+      "selectExistingModel": "Select existing model...",
+      "clear": "Clear",
+      "add": "Add",
+      "done": "Done",
+      "edit": "Edit",
+      "loadDefaults": "Load Defaults"
+    }
+  },
+  "update": {
+    "title": "Update Available",
+    "downloading": "Downloading update...",
+    "error": "Update failed",
+    "now": "Update Now",
+    "later": "Later",
+    "close": "Close",
+    "retry": "Retry"
+  },
+  "common": {
+    "close": "Close",
+    "copy": "Copy",
+    "save": "Save",
+    "cancel": "Cancel",
+    "configured": "Configured",
+    "notSet": "Not set",
+    "on": "ON",
+    "off": "OFF"
+  },
+  "activity": {
+    "title": "Activity",
+    "rawLog": "Raw Log",
+    "clear": "Clear",
+    "emptyHistory": "No execution history yet. Run the workflow to see it here",
+    "emptyLog": "No logs yet",
+    "clickToSelect": "Click to select node",
+    "items": "items",
+    "triggerRun": "Run",
+    "triggerManual": "Manual Run",
+    "running": "Running",
+    "copiedError": "Copied error details",
+    "copyFailed": "Failed to copy"
+  },
+  "search": {
+    "placeholder": "Search nodes...",
+    "prevResult": "Previous result",
+    "prevResultShortcut": "Previous result (Shift+Enter)",
+    "nextResult": "Next result",
+    "nextResultShortcut": "Next result (Enter)",
+    "closeShortcut": "Close (Esc)",
+    "closeSearch": "Close search"
+  },
+  "inline": {
+    "hideKey": "Hide key",
+    "showKey": "Show key",
+    "dragToAdjust": "Drag to adjust / Click for number input",
+    "editInSettings": "Edit in settings",
+    "globalBadge": "Global",
+    "globalTooltip": "Node value is not set, using global settings (enter to override)",
+    "expand": "Expand",
+    "collapse": "Collapse",
+    "detailSettings": "Detail Settings",
+    "openDetailSettings": "Open detail settings",
+    "charCountEdit": "chars — Click to edit",
+    "ctrlEnterSave": "Ctrl+Enter to save / Esc to cancel",
+    "runFromNode": "Run from this node"
+  },
+  "canvas": {
+    "nodeDeleted": "Node deleted",
+    "addNode": "Add Node",
+    "displayLabel": "Display:",
+    "simple": "Simple",
+    "standard": "Standard",
+    "detailed": "Detailed",
+    "connectableNodes": "Connectable nodes"
+  },
+  "preview": {
+    "loadFailed": "Failed to load workflow",
+    "noWorkflowData": "Workflow data not loaded",
+    "startFailed": "Failed to start workflow",
+    "stopFailed": "Failed to stop workflow"
+  },
+  "toast": {
+    "closeNotification": "Close notification"
+  },
+  "globalSettings": {
+    "title": "Global Settings",
+    "description": "Settings shared across all workflows",
+    "llmProviders": "LLM Providers",
+    "ttsEngines": "TTS Engines",
+    "apiKey": "API Key",
+    "model": "Model",
+    "host": "Host",
+    "save": "Save",
+    "saved": "Settings saved",
+    "saveError": "Failed to save settings",
+    "usingGlobal": "Using Global Settings",
+    "override": "Override with node settings",
+    "collapse": "Collapse"
+  },
+  "inline": {
+    "inputs": "Inputs",
+    "outputs": "Outputs",
+    "settings": "Settings",
+    "moreItems": "more"
   }
 }
