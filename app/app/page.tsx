@@ -185,7 +185,7 @@ export default function HomePage() {
         clearTimeout(deleteConfirmTimerRef.current);
         deleteConfirmTimerRef.current = null;
       }
-      toast.success('ワークフローを削除しました');
+      toast.success(t('home.workflowDeleted'));
     }
   };
 
@@ -216,7 +216,7 @@ export default function HomePage() {
           });
           toast.success(`保存しました: ${String(savedPath)}`);
         } catch (invokeError) {
-          setError(invokeError instanceof Error ? invokeError.message : '保存に失敗しました');
+          setError(invokeError instanceof Error ? invokeError.message : t('home.saveFailed'));
         }
         return;
       }
@@ -230,7 +230,7 @@ export default function HomePage() {
       a.click();
       document.body.removeChild(a);
       URL.revokeObjectURL(url);
-      toast.success('ワークフローをダウンロードしました');
+      toast.success(t('home.workflowDownloaded'));
     } else if (response.error) {
       setError(response.error);
     }
@@ -359,7 +359,7 @@ export default function HomePage() {
             <button
               onClick={() => setLocale(locale === 'ja' ? 'en' : 'ja')}
               className="px-3 py-2 rounded-lg text-white/60 text-sm transition-colors hover:bg-white/10"
-              title={locale === 'ja' ? 'Switch to English' : '日本語に切替'}
+              title={locale === 'ja' ? t('tooltip.switchToEnglish') : t('tooltip.switchToJapanese')}
             >
               {locale === 'ja' ? 'EN' : 'JA'}
             </button>

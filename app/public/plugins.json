@@ -23,29 +23,29 @@
         {
           "id": "text",
           "type": "string",
-          "description": "Text to convert to speech"
+          "description": "読み上げるテキスト"
         }
       ],
       "outputs": [
         {
           "id": "audio",
-          "type": "string",
-          "description": "Path to generated audio file"
+          "type": "audio",
+          "description": "生成された音声ファイルのパス"
         },
         {
           "id": "audioUrl",
           "type": "string",
-          "description": "URL to the generated audio file (served by the backend)"
+          "description": "音声ファイルのURL"
         },
         {
           "id": "filename",
           "type": "string",
-          "description": "Generated audio filename"
+          "description": "音声ファイル名"
         },
         {
           "id": "duration",
           "type": "number",
-          "description": "Audio duration in seconds"
+          "description": "音声の長さ（秒）"
         }
       ],
       "events": {
@@ -137,14 +137,14 @@
         {
           "id": "prompt",
           "type": "string",
-          "description": "User message to send to Claude"
+          "description": "Claudeに送るメッセージ"
         }
       ],
       "outputs": [
         {
           "id": "response",
           "type": "string",
-          "description": "Generated response from Claude"
+          "description": "Claudeの応答テキスト"
         }
       ],
       "events": {
@@ -246,25 +246,25 @@
       "inputs": [
         {
           "id": "audio",
-          "type": "string",
-          "description": "Path to audio file"
+          "type": "audio",
+          "description": "音声ファイルのパス"
         },
         {
           "id": "duration",
           "type": "number",
-          "description": "Audio duration in seconds (optional, will be calculated if not provided)"
+          "description": "音声の長さ（秒、省略可）"
         }
       ],
       "outputs": [
         {
           "id": "audio",
-          "type": "string",
-          "description": "Pass-through of audio path"
+          "type": "audio",
+          "description": "音声パスのパススルー"
         },
         {
           "id": "duration",
           "type": "number",
-          "description": "Audio duration in seconds"
+          "description": "音声の長さ（秒）"
         }
       ],
       "events": {
@@ -445,29 +445,29 @@
         {
           "id": "text",
           "type": "string",
-          "description": "Text to convert to speech"
+          "description": "読み上げるテキスト"
         }
       ],
       "outputs": [
         {
           "id": "audio",
-          "type": "string",
-          "description": "Path to generated audio file"
+          "type": "audio",
+          "description": "生成された音声ファイルのパス"
         },
         {
           "id": "audioUrl",
           "type": "string",
-          "description": "URL to the generated audio file (served by the backend)"
+          "description": "音声ファイルのURL"
         },
         {
           "id": "filename",
           "type": "string",
-          "description": "Generated audio filename"
+          "description": "音声ファイル名"
         },
         {
           "id": "duration",
           "type": "number",
-          "description": "Audio duration in seconds"
+          "description": "音声の長さ（秒）"
         }
       ],
       "events": {
@@ -556,7 +556,7 @@
         {
           "id": "text",
           "type": "string",
-          "description": "The text to display in the log"
+          "description": "表示するテキスト"
         }
       ],
       "outputs": [],
@@ -620,12 +620,12 @@
         {
           "id": "timestamp",
           "type": "string",
-          "description": "Execution timestamp (ISO 8601)"
+          "description": "実行時刻（ISO 8601）"
         },
         {
           "id": "executionCount",
           "type": "number",
-          "description": "Number of times this trigger has fired"
+          "description": "トリガーの実行回数"
         }
       ],
       "events": {
@@ -680,19 +680,19 @@
         {
           "id": "data",
           "type": "any",
-          "description": "Input data to format (object, string, or any value)"
+          "description": "フォーマットする入力データ"
         }
       ],
       "outputs": [
         {
           "id": "formatted",
           "type": "string",
-          "description": "Formatted output string"
+          "description": "フォーマット済みテキスト"
         },
         {
           "id": "parsed",
           "type": "object",
-          "description": "Parsed data object (useful for chaining)"
+          "description": "パース済みデータオブジェクト"
         }
       ],
       "events": {
@@ -765,14 +765,14 @@
         {
           "id": "input",
           "type": "any",
-          "description": "Data to pass through after delay"
+          "description": "遅延後に渡すデータ"
         }
       ],
       "outputs": [
         {
           "id": "output",
           "type": "any",
-          "description": "Delayed data output"
+          "description": "遅延されたデータ出力"
         }
       ],
       "events": {
@@ -839,17 +839,17 @@
         {
           "id": "message",
           "type": "Message",
-          "description": "The full message object"
+          "description": "メッセージオブジェクト全体"
         },
         {
           "id": "author",
           "type": "string",
-          "description": "Message author name"
+          "description": "メッセージ投稿者名"
         },
         {
           "id": "text",
           "type": "string",
-          "description": "Message text content"
+          "description": "メッセージ本文"
         }
       ],
       "events": {
@@ -912,34 +912,34 @@
         {
           "id": "trigger",
           "type": "any",
-          "description": "Trigger to show the alert"
+          "description": "アラート表示のトリガー"
         },
         {
           "id": "amount",
           "type": "number",
-          "description": "Donation amount"
+          "description": "投げ銭の金額"
         },
         {
           "id": "currency",
           "type": "string",
-          "description": "Currency code (USD, JPY, etc.)"
+          "description": "通貨コード（USD、JPYなど）"
         },
         {
           "id": "author",
           "type": "string",
-          "description": "Donor name"
+          "description": "投げ銭した人の名前"
         },
         {
           "id": "message",
           "type": "string",
-          "description": "Donation message"
+          "description": "投げ銭メッセージ"
         }
       ],
       "outputs": [
         {
           "id": "displayed",
           "type": "boolean",
-          "description": "True when alert is displayed"
+          "description": "アラート表示済みならtrue"
         }
       ],
       "events": {
@@ -1013,24 +1013,24 @@
         {
           "id": "text",
           "type": "string",
-          "description": "Text to analyze for emotions"
+          "description": "感情分析するテキスト"
         }
       ],
       "outputs": [
         {
           "id": "expression",
           "type": "string",
-          "description": "Detected expression ID (e.g., happy, sad, smug)"
+          "description": "検出された表情ID"
         },
         {
           "id": "intensity",
           "type": "number",
-          "description": "Intensity of the expression (0.0 - 1.0)"
+          "description": "表情の強度（0.0〜1.0）"
         },
         {
           "id": "text",
           "type": "string",
-          "description": "Pass-through of input text"
+          "description": "入力テキストのパススルー"
         }
       ],
       "events": {
@@ -1176,7 +1176,7 @@
         {
           "id": "input",
           "type": "any",
-          "description": "Data received when workflow ends"
+          "description": "終了時の受信データ"
         }
       ],
       "outputs": [],
@@ -1218,24 +1218,24 @@
         {
           "id": "list",
           "type": "any",
-          "description": "List or text to iterate over"
+          "description": "反復するリストまたはテキスト"
         }
       ],
       "outputs": [
         {
           "id": "item",
           "type": "any",
-          "description": "Current item"
+          "description": "現在のアイテム"
         },
         {
           "id": "index",
           "type": "number",
-          "description": "Current index"
+          "description": "現在のインデックス"
         },
         {
           "id": "done",
           "type": "trigger",
-          "description": "Triggered when iteration completes"
+          "description": "反復完了時に発火"
         }
       ],
       "events": {
@@ -1276,14 +1276,14 @@
         {
           "id": "prompt",
           "type": "string",
-          "description": "User message to send to Gemini"
+          "description": "Geminiに送るメッセージ"
         }
       ],
       "outputs": [
         {
           "id": "response",
           "type": "string",
-          "description": "Generated response from Gemini"
+          "description": "Geminiの応答テキスト"
         }
       ],
       "events": {
@@ -1374,14 +1374,14 @@
         {
           "id": "prompt",
           "type": "string",
-          "description": "The input prompt to send to the model"
+          "description": "モデルに送るプロンプト"
         }
       ],
       "outputs": [
         {
           "id": "response",
           "type": "string",
-          "description": "The generated response from the model"
+          "description": "モデルの応答テキスト"
         }
       ],
       "events": {
@@ -1481,19 +1481,19 @@
         {
           "id": "body",
           "type": "any",
-          "description": "Request body data (for POST/PUT)"
+          "description": "リクエストボディ（POST/PUT用）"
         }
       ],
       "outputs": [
         {
           "id": "response",
           "type": "any",
-          "description": "Response data from the API"
+          "description": "APIからのレスポンスデータ"
         },
         {
           "id": "status",
           "type": "number",
-          "description": "HTTP status code"
+          "description": "HTTPステータスコード"
         }
       ],
       "events": {
@@ -1583,29 +1583,29 @@
         {
           "id": "audio",
           "type": "audio",
-          "description": "Audio data (WAV/PCM bytes)"
+          "description": "音声データ（WAV/PCMバイト）"
         },
         {
           "id": "audioUrl",
           "type": "string",
-          "description": "Path or URL to audio file"
+          "description": "音声ファイルのパスまたはURL"
         }
       ],
       "outputs": [
         {
           "id": "mouthValues",
           "type": "array",
-          "description": "Array of mouth open values over time"
+          "description": "口の開き具合の時系列配列"
         },
         {
           "id": "duration",
           "type": "number",
-          "description": "Audio duration in seconds"
+          "description": "音声の長さ（秒）"
         },
         {
           "id": "audio",
           "type": "audio",
-          "description": "Pass-through of input audio"
+          "description": "入力音声のパススルー"
         }
       ],
       "events": {
@@ -1695,24 +1695,24 @@
         {
           "id": "input",
           "type": "any",
-          "description": "Input data"
+          "description": "入力データ"
         },
         {
           "id": "loopback",
           "type": "any",
-          "description": "Loop back input"
+          "description": "ループバック入力"
         }
       ],
       "outputs": [
         {
           "id": "loop",
           "type": "any",
-          "description": "Loop output"
+          "description": "ループ出力"
         },
         {
           "id": "done",
           "type": "any",
-          "description": "Done output"
+          "description": "完了時の出力"
         }
       ],
       "events": {
@@ -1790,7 +1790,7 @@
         {
           "id": "text",
           "type": "string",
-          "description": "The input text"
+          "description": "入力されたテキスト"
         }
       ],
       "events": {
@@ -1837,14 +1837,14 @@
         {
           "id": "prompt",
           "type": "string",
-          "description": "The input prompt to send to the model"
+          "description": "モデルに送るプロンプト"
         }
       ],
       "outputs": [
         {
           "id": "response",
           "type": "string",
-          "description": "The generated response from the model"
+          "description": "モデルの応答テキスト"
         }
       ],
       "events": {
@@ -1948,34 +1948,34 @@
         {
           "id": "trigger",
           "type": "any",
-          "description": "Any input to trigger the configured expression/motion"
+          "description": "表情・モーション発動のトリガー"
         }
       ],
       "outputs": [
         {
           "id": "expression",
           "type": "string",
-          "description": "The triggered expression name"
+          "description": "発動した表情名"
         },
         {
           "id": "intensity",
           "type": "number",
-          "description": "The expression intensity"
+          "description": "表情の強度"
         },
         {
           "id": "motionUrl",
           "type": "string",
-          "description": "URL/path to the motion FBX file"
+          "description": "モーションFBXファイルのURL"
         },
         {
           "id": "motion",
           "type": "string",
-          "description": "The triggered motion name (legacy)"
+          "description": "発動したモーション名（レガシー）"
         },
         {
           "id": "passthrough",
           "type": "any",
-          "description": "Pass-through of the trigger input"
+          "description": "トリガー入力のパススルー"
         }
       ],
       "events": {
@@ -2043,29 +2043,29 @@
         {
           "id": "trigger",
           "type": "any",
-          "description": "Trigger to switch scene"
+          "description": "シーン切替のトリガー"
         },
         {
           "id": "sceneName",
           "type": "string",
-          "description": "Scene name (overrides config if provided)"
+          "description": "シーン名（設定値を上書き）"
         }
       ],
       "outputs": [
         {
           "id": "success",
           "type": "boolean",
-          "description": "Whether the scene switch was successful"
+          "description": "シーン切替の成否"
         },
         {
           "id": "currentScene",
           "type": "string",
-          "description": "Current scene name after switch"
+          "description": "切替後の現在のシーン名"
         },
         {
           "id": "scenes",
           "type": "array",
-          "description": "List of available scene names"
+          "description": "利用可能なシーン名の一覧"
         }
       ],
       "events": {
@@ -2124,29 +2124,29 @@
         {
           "id": "trigger",
           "type": "any",
-          "description": "Trigger to toggle source visibility"
+          "description": "ソース表示切替のトリガー"
         },
         {
           "id": "visible",
           "type": "boolean",
-          "description": "Set visibility (true=show, false=hide). If not provided, toggles current state."
+          "description": "表示状態（true=表示、false=非表示）"
         }
       ],
       "outputs": [
         {
           "id": "success",
           "type": "boolean",
-          "description": "Whether the operation was successful"
+          "description": "操作の成否"
         },
         {
           "id": "visible",
           "type": "boolean",
-          "description": "Current visibility state after operation"
+          "description": "操作後の表示状態"
         },
         {
           "id": "sourceName",
           "type": "string",
-          "description": "Name of the affected source"
+          "description": "対象ソースの名前"
         }
       ],
       "events": {
@@ -2231,14 +2231,14 @@
         {
           "id": "prompt",
           "type": "string",
-          "description": "User message to send to the model"
+          "description": "モデルに送るメッセージ"
         }
       ],
       "outputs": [
         {
           "id": "response",
           "type": "string",
-          "description": "Generated response from the model"
+          "description": "モデルの応答テキスト"
         }
       ],
       "events": {
@@ -2268,6 +2268,11 @@
         "description": "System instructions for the model",
         "default": "You are a helpful assistant."
       },
+      "promptSections": {
+        "type": "prompt-builder",
+        "label": "Prompt Builder",
+        "description": "Build complex prompts by combining static text, system prompt, and dynamic input sections"
+      },
       "temperature": {
         "type": "number",
         "label": "Temperature",
@@ -2276,6 +2281,14 @@
         "min": 0,
         "max": 1,
         "inline": true
+      },
+      "maxTokens": {
+        "type": "number",
+        "label": "Max Tokens",
+        "description": "Maximum number of tokens in the response",
+        "default": 1024,
+        "min": 1,
+        "max": 4096
       },
       "contextLength": {
         "type": "number",
@@ -2311,14 +2324,14 @@
         {
           "id": "prompt",
           "type": "string",
-          "description": "The input prompt to send to the model"
+          "description": "モデルに送るプロンプト"
         }
       ],
       "outputs": [
         {
           "id": "response",
           "type": "string",
-          "description": "The generated response from the model"
+          "description": "モデルの応答テキスト"
         }
       ],
       "events": {
@@ -2511,29 +2524,29 @@
         {
           "id": "text",
           "type": "string",
-          "description": "Text to convert to speech"
+          "description": "読み上げるテキスト"
         }
       ],
       "outputs": [
         {
           "id": "audio",
-          "type": "string",
-          "description": "Path to generated audio file"
+          "type": "audio",
+          "description": "生成された音声ファイルのパス"
         },
         {
           "id": "audioUrl",
           "type": "string",
-          "description": "URL to the generated audio file (served by the backend)"
+          "description": "音声ファイルのURL"
         },
         {
           "id": "filename",
           "type": "string",
-          "description": "Generated audio filename"
+          "description": "音声ファイル名"
         },
         {
           "id": "duration",
           "type": "number",
-          "description": "Audio duration in seconds"
+          "description": "音声の長さ（秒）"
         }
       ],
       "events": {
@@ -2673,14 +2686,14 @@
         {
           "id": "trigger",
           "type": "any",
-          "description": "Trigger to generate random value"
+          "description": "ランダム値生成のトリガー"
         }
       ],
       "outputs": [
         {
           "id": "value",
           "type": "any",
-          "description": "Generated random value"
+          "description": "生成されたランダム値"
         }
       ],
       "events": {
@@ -2752,29 +2765,29 @@
         {
           "id": "text",
           "type": "string",
-          "description": "Text to convert to speech"
+          "description": "読み上げるテキスト"
         }
       ],
       "outputs": [
         {
           "id": "audio",
-          "type": "string",
-          "description": "Path to generated audio file"
+          "type": "audio",
+          "description": "生成された音声ファイルのパス"
         },
         {
           "id": "audioUrl",
           "type": "string",
-          "description": "URL to the generated audio file (served by the backend)"
+          "description": "音声ファイルのURL"
         },
         {
           "id": "filename",
           "type": "string",
-          "description": "Generated audio filename"
+          "description": "音声ファイル名"
         },
         {
           "id": "duration",
           "type": "number",
-          "description": "Audio duration in seconds"
+          "description": "音声の長さ（秒）"
         }
       ],
       "events": {
@@ -2870,7 +2883,7 @@
         {
           "id": "trigger",
           "type": "trigger",
-          "description": "Trigger output"
+          "description": "開始トリガー"
         }
       ],
       "events": {
@@ -2911,14 +2924,14 @@
         {
           "id": "text",
           "type": "string",
-          "description": "Text to display as subtitle"
+          "description": "字幕に表示するテキスト"
         }
       ],
       "outputs": [
         {
           "id": "text",
           "type": "string",
-          "description": "Pass-through of input text"
+          "description": "入力テキストのパススルー"
         }
       ],
       "events": {
@@ -3061,29 +3074,29 @@
         {
           "id": "value",
           "type": "any",
-          "description": "Value to evaluate"
+          "description": "評価する値"
         },
         {
           "id": "data",
           "type": "any",
-          "description": "Data to pass through"
+          "description": "パススルーするデータ"
         }
       ],
       "outputs": [
         {
           "id": "true",
           "type": "any",
-          "description": "Output when condition is true"
+          "description": "条件が真のときの出力"
         },
         {
           "id": "false",
           "type": "any",
-          "description": "Output when condition is false"
+          "description": "条件が偽のときの出力"
         },
         {
           "id": "match",
           "type": "any",
-          "description": "Output when value matches"
+          "description": "値が一致したときの出力"
         }
       ],
       "events": {
@@ -3162,14 +3175,14 @@
         {
           "id": "text",
           "type": "string",
-          "description": "Text to transform"
+          "description": "変換するテキスト"
         }
       ],
       "outputs": [
         {
           "id": "result",
           "type": "string",
-          "description": "Transformed text"
+          "description": "変換後のテキスト"
         }
       ],
       "events": {
@@ -3257,12 +3270,12 @@
         {
           "id": "tick",
           "type": "number",
-          "description": "Current tick count"
+          "description": "現在のティック回数"
         },
         {
           "id": "timestamp",
           "type": "string",
-          "description": "Current timestamp"
+          "description": "現在のタイムスタンプ"
         }
       ],
       "events": {
@@ -3321,17 +3334,17 @@
         {
           "id": "message",
           "type": "Message",
-          "description": "The latest chat message"
+          "description": "最新のチャットメッセージ"
         },
         {
           "id": "author",
           "type": "string",
-          "description": "Message author name"
+          "description": "メッセージ投稿者名"
         },
         {
           "id": "text",
           "type": "string",
-          "description": "Message text content"
+          "description": "メッセージ本文"
         }
       ],
       "events": {
@@ -3388,14 +3401,14 @@
         {
           "id": "set",
           "type": "any",
-          "description": "Value to store (overrides default)"
+          "description": "保存する値（デフォルト値を上書き）"
         }
       ],
       "outputs": [
         {
           "id": "value",
           "type": "any",
-          "description": "Stored value"
+          "description": "保存された値"
         }
       ],
       "events": {
@@ -3454,29 +3467,29 @@
         {
           "id": "text",
           "type": "string",
-          "description": "Text to convert to speech"
+          "description": "読み上げるテキスト"
         }
       ],
       "outputs": [
         {
           "id": "audio",
-          "type": "string",
-          "description": "Path to generated audio file"
+          "type": "audio",
+          "description": "生成された音声ファイルのパス"
         },
         {
           "id": "audioUrl",
           "type": "string",
-          "description": "URL to the generated audio file (served by the backend)"
+          "description": "音声ファイルのURL"
         },
         {
           "id": "filename",
           "type": "string",
-          "description": "Generated audio filename"
+          "description": "音声ファイル名"
         },
         {
           "id": "duration",
           "type": "number",
-          "description": "Audio duration in seconds"
+          "description": "音声の長さ（秒）"
         }
       ],
       "events": {
@@ -3569,17 +3582,17 @@
         {
           "id": "message",
           "type": "Message",
-          "description": "The latest chat message"
+          "description": "最新のチャットメッセージ"
         },
         {
           "id": "author",
           "type": "string",
-          "description": "Message author name"
+          "description": "メッセージ投稿者名"
         },
         {
           "id": "text",
           "type": "string",
-          "description": "Message text content"
+          "description": "メッセージ本文"
         }
       ],
       "events": {
